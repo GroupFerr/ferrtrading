@@ -2,337 +2,514 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#00e676">
   <title>FerrTrading</title>
+    <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00e676">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FerrTrading">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-container">
+
+  <!-- TELA DE LOGIN -->
+  <div id="telaLogin" class="tela-login">
+    <div class="login-box">
+      <div class="login-logo">
+  <img src="logo.png" alt="FerrTrading" class="login-logo-img">
+</div>
+      <p class="login-sub">Entre para sincronizar seus dados</p>
+
+      <div class="login-tabs">
+        <button class="login-tab active" data-form="entrar">Entrar</button>
+        <button class="login-tab" data-form="criar">Criar conta</button>
+      </div>
+
+      <form id="formEntrar" class="login-form active">
+        <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
+        <input type="password" id="loginSenha" placeholder="Sua senha" required>
+        <button type="submit" class="btn-login">Entrar</button>
+        <p class="login-erro" id="erroEntrar"></p>
+      </form>
+
+      <form id="formCriar" class="login-form">
+        <input type="email" id="criarEmail" placeholder="Seu e-mail" required>
+        <input type="password" id="criarSenha" placeholder="Crie uma senha (mín. 6 caracteres)" required minlength="6">
+        <input type="password" id="criarSenha2" placeholder="Confirme a senha" required minlength="6">
+        <button type="submit" class="btn-login">Criar conta</button>
+        <p class="login-erro" id="erroCriar"></p>
+      </form>
+
+      <p class="login-rodape">Seus dados ficam salvos na nuvem e disponíveis em qualquer dispositivo.</p>
+    </div>
+  </div>
+
+  <!-- APP (só aparece depois do login) -->
+  <div id="appWrapper" style="display:none;">
+
+    <!-- TOASTS -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <span class="logo-icon">⚡</span>
-        <span class="logo-text">Ferr<strong>Trading</strong></span>
-      </div>
+    <div class="app-container">
 
-      <nav class="sidebar-nav">
-        <button class="nav-item active" data-tab="painel">
-          <span class="nav-icon">📊</span><span class="nav-label">Painel</span>
-        </button>
-        <button class="nav-item" data-tab="historico">
-          <span class="nav-icon">📋</span><span class="nav-label">Histórico</span>
-        </button>
-        <button class="nav-item" data-tab="calendario">
-          <span class="nav-icon">📅</span><span class="nav-label">Calendário</span>
-        </button>
-        <button class="nav-item" data-tab="mensal">
-          <span class="nav-icon">🗓️</span><span class="nav-label">Resumo Mensal</span>
-        </button>
-        <button class="nav-item" data-tab="evolucao">
-          <span class="nav-icon">📈</span><span class="nav-label">Evolução</span>
-        </button>
-        <button class="nav-item" data-tab="horario">
-          <span class="nav-icon">⏰</span><span class="nav-label">Por Horário</span>
-        </button>
-        <button class="nav-item" data-tab="nova">
-          <span class="nav-icon">➕</span><span class="nav-label">Nova Operação</span>
-        </button>
-      </nav>
+      <!-- MENU LATERAL -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+  <img src="logo.png" alt="FerrTrading" class="logo-completa">
+</div>
 
-      <div class="sidebar-footer">
-        <button id="btnTema" class="btn-side" title="Alternar tema">
-          <span id="iconeTema">🌙</span> Tema
-        </button>
-        <button id="btnOcultar" class="btn-side" title="Ocultar valores">
-          <span>👁️</span> Ocultar
-        </button>
-        <button id="btnExportar" class="btn-side" title="Exportar backup">
-          <span>⬇️</span> Exportar
-        </button>
-        <button id="btnImportar" class="btn-side" title="Importar backup">
-          <span>⬆️</span> Importar
-        </button>
-        <input type="file" id="inputImportar" accept=".json" style="display:none">
-      </div>
-    </aside>
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-tab="painel">
+            <span class="nav-icon">📊</span><span class="nav-label">Painel</span>
+          </button>
+          <button class="nav-item" data-tab="historico">
+            <span class="nav-icon">📋</span><span class="nav-label">Histórico</span>
+          </button>
+          <button class="nav-item" data-tab="calendario">
+            <span class="nav-icon">📅</span><span class="nav-label">Calendário</span>
+          </button>
+          <button class="nav-item" data-tab="mensal">
+            <span class="nav-icon">🗓️</span><span class="nav-label">Resumo Mensal</span>
+          </button>
+          <button class="nav-item" data-tab="evolucao">
+            <span class="nav-icon">📈</span><span class="nav-label">Evolução</span>
+          </button>
+          <button class="nav-item" data-tab="horario">
+            <span class="nav-icon">⏰</span><span class="nav-label">Por Horário</span>
+          </button>
+          <button class="nav-item" data-tab="nova">
+            <span class="nav-icon">➕</span><span class="nav-label">Nova Operação</span>
+          </button>
+        </nav>
 
-    <main class="main-content">
-
-      <!-- ABA: PAINEL -->
-      <section class="tab-content active" id="tab-painel">
-        <div class="page-header">
-          <h1>Bem-vindo à elite do Trading.</h1>
-          <div class="page-header-info" id="dataAtual"></div>
+        <div class="sidebar-footer">
+          <button id="btnInstalarPWA" class="btn-instalar-pwa" style="display:none;">
+            📲 Instalar App
+          </button>
+          <button id="btnTema" class="btn-side" title="Alternar tema">
+            <span id="iconeTema">🌙</span> Tema
+          </button>
+          <button id="btnOcultar" class="btn-side" title="Ocultar valores">
+            <span>👁️</span> Ocultar
+          </button>
+          <button id="btnExportar" class="btn-side" title="Exportar backup">
+            <span>⬇️</span> Exportar
+          </button>
+          <button id="btnImportar" class="btn-side" title="Importar backup">
+            <span>⬆️</span> Importar
+          </button>
+          <button id="btnSair" class="btn-side" title="Sair da conta">
+            <span>🚪</span> Sair
+          </button>
+          <input type="file" id="inputImportar" accept=".json" style="display:none">
         </div>
+      </aside>
 
-        <div class="cards-principais">
-          <div class="card card-banca">
-            <div class="card-label">SALDO ATUAL</div>
-            <div class="card-valor" id="bancaAtual">R$ 0,00</div>
-            <div class="card-sub">Saldo total disponível</div>
-          </div>
-          <div class="card card-entrada">
-            <div class="card-label">ENTRADA SUGERIDA</div>
-            <div class="card-valor" id="entradaSugerida">R$ 0,00</div>
-            <button id="btnAlternarEntrada" class="btn-toggle">Alternar 1% ↔ 10%</button>
-            <div class="card-sub" id="percentualEntrada">1% da banca</div>
-          </div>
-        </div>
+      <!-- CONTEÚDO -->
+      <main class="main-content">
 
-        <div class="cards-resultado">
-          <div class="mini-card">
-            <div class="mini-label">RESULTADO DO DIA</div>
-            <div class="mini-valor" id="resultadoDia">R$ 0,00</div>
+        <!-- ABA: PAINEL -->
+        <section class="tab-content active" id="tab-painel">
+          <div class="page-header">
+            <h1>Olá, bem-vindo 👋</h1>
+            <div class="page-header-info" id="dataAtual"></div>
           </div>
-          <div class="mini-card">
-            <div class="mini-label">RESULTADO DA SEMANA</div>
-            <div class="mini-valor" id="resultadoSemana">R$ 0,00</div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-label">RESULTADO DO MÊS</div>
-            <div class="mini-valor" id="resultadoMes">R$ 0,00</div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-label">ASSERTIVIDADE</div>
-            <div class="mini-valor" id="assertividade">0%</div>
-            <div class="mini-sub" id="contadorWL">✅ 0 · ❌ 0</div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-label">LUCRO / PREJUÍZO</div>
-            <div class="mini-valor" id="lucroTotal">R$ 0,00</div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-label">DEPÓSITOS TOTAIS</div>
-            <div class="mini-valor" id="depositosTotais">R$ 0,00</div>
-          </div>
-        </div>
 
-        <!-- SEQUÊNCIAS -->
-        <div class="sequencias-box">
-          <div class="seq-item">
-            <div class="seq-icon">🔥</div>
-            <div class="seq-info">
-              <div class="seq-label">Sequência Atual</div>
-              <div class="seq-valor" id="seqAtual">-</div>
+          <div class="cards-principais">
+            <div class="card card-banca">
+              <div class="card-label">SALDO ATUAL</div>
+              <div class="card-valor" id="bancaAtual">R$ 0,00</div>
+              <div class="card-sub">Saldo total disponível</div>
+            </div>
+            <div class="card card-entrada">
+              <div class="card-label">ENTRADA SUGERIDA</div>
+              <div class="card-valor" id="entradaSugerida">R$ 0,00</div>
+              <button id="btnAlternarEntrada" class="btn-toggle">Alternar 1% ↔ 10%</button>
+              <div class="card-sub" id="percentualEntrada">1% do saldo</div>
             </div>
           </div>
-          <div class="seq-item">
-            <div class="seq-icon">🏆</div>
-            <div class="seq-info">
-              <div class="seq-label">Maior sequência de wins</div>
-              <div class="seq-valor" id="seqMaxWins">0</div>
+
+          <div class="cards-resultado">
+            <div class="mini-card">
+              <div class="mini-label">RESULTADO DO DIA</div>
+              <div class="mini-valor" id="resultadoDia">R$ 0,00</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">RESULTADO DA SEMANA</div>
+              <div class="mini-valor" id="resultadoSemana">R$ 0,00</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">RESULTADO DO MÊS</div>
+              <div class="mini-valor" id="resultadoMes">R$ 0,00</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">ASSERTIVIDADE</div>
+              <div class="mini-valor" id="assertividade">0%</div>
+              <div class="mini-sub" id="contadorWL">✅ 0 · ❌ 0</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">LUCRO / PREJUÍZO</div>
+              <div class="mini-valor" id="lucroTotal">R$ 0,00</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">DEPÓSITOS TOTAIS</div>
+              <div class="mini-valor" id="depositosTotais">R$ 0,00</div>
             </div>
           </div>
-          <div class="seq-item">
-            <div class="seq-icon">💀</div>
-            <div class="seq-info">
-              <div class="seq-label">Maior sequência de loss</div>
-              <div class="seq-valor" id="seqMaxLoss">0</div>
+
+          <div class="sequencias-box">
+            <div class="seq-item">
+              <div class="seq-icon">🔥</div>
+              <div class="seq-info">
+                <div class="seq-label">Sequência Atual</div>
+                <div class="seq-valor" id="seqAtual">-</div>
+              </div>
+            </div>
+            <div class="seq-item">
+              <div class="seq-icon">🏆</div>
+              <div class="seq-info">
+                <div class="seq-label">Maior sequência de wins</div>
+                <div class="seq-valor" id="seqMaxWins">0</div>
+              </div>
+            </div>
+            <div class="seq-item">
+              <div class="seq-icon">💀</div>
+              <div class="seq-info">
+                <div class="seq-label">Maior sequência de loss</div>
+                <div class="seq-valor" id="seqMaxLoss">0</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="cards-gestao">
-          <div class="card card-meta">
-            <div class="card-label">🎯 META DO DIA</div>
-            <div class="card-valor" id="metaDia">R$ 0,00</div>
-            <div class="card-sub" id="metaInfo">Calculando...</div>
+          <div class="metricas-pro">
+            <div class="card card-kelly">
+              <div class="card-label">🎯 RISCO IDEAL (KELLY)</div>
+              <div class="card-valor" id="kellyValor">0%</div>
+              <div class="card-sub" id="kellyInfo">Calculando...</div>
+            </div>
+            <div class="card card-drawdown">
+              <div class="card-label">📉 DRAWDOWN MÁXIMO</div>
+              <div class="card-valor" id="drawdownValor">0%</div>
+              <div class="card-sub" id="drawdownInfo">Calculando...</div>
+            </div>
+            <div class="card card-você">
+              <div class="card-label">⚖️ VOCÊ × VOCÊ</div>
+              <div class="card-valor" id="voceVoceSemana">R$ 0,00</div>
+              <div class="card-sub" id="voceVoceInfo">Semana atual vs. anterior</div>
+            </div>
           </div>
-          <div class="card card-stop">
-            <div class="card-label">🛑 STOP DO DIA</div>
-            <div class="card-valor" id="stopDia">R$ 0,00</div>
-            <div class="card-sub" id="stopInfo">Calculando...</div>
-          </div>
-          <div class="card card-saque">
-            <div class="card-label">💸 PRÓXIMO SAQUE</div>
-            <div class="card-valor" id="proximoSaque">R$ 0,00</div>
-            <div class="card-sub" id="saqueInfo">Calculando...</div>
-            <button id="btnRegistrarSaque" class="btn-toggle">Registrar saque</button>
-          </div>
-        </div>
 
-        <div id="alertaStop" class="alerta-stop" style="display:none">
-          🛑 PARE DE OPERAR HOJE — Stop atingido!
-        </div>
+          <div class="cards-gestao">
+            <div class="card card-meta">
+              <div class="card-label">🎯 META DO DIA</div>
+              <div class="card-valor" id="metaDia">R$ 0,00</div>
+              <div class="card-sub" id="metaInfo">Calculando...</div>
+            </div>
+            <div class="card card-stop">
+              <div class="card-label">🛑 STOP DO DIA</div>
+              <div class="card-valor" id="stopDia">R$ 0,00</div>
+              <div class="card-sub" id="stopInfo">Calculando...</div>
+            </div>
+            <div class="card card-saque">
+              <div class="card-label">💸 PRÓXIMO SAQUE</div>
+              <div class="card-valor" id="proximoSaque">R$ 0,00</div>
+              <div class="card-sub" id="saqueInfo">Calculando...</div>
+              <button id="btnRegistrarSaque" class="btn-toggle">Registrar saque</button>
+            </div>
+          </div>
 
-        <div class="contador-dia">
-          <div class="contador-item">
-            <span class="contador-label">Wins hoje:</span>
-            <span class="contador-valor win" id="winsHoje">0</span>
+          <div id="alertaStop" class="alerta-stop" style="display:none">
+            🛑 PARE DE OPERAR HOJE — Stop atingido!
           </div>
-          <div class="contador-item">
-            <span class="contador-label">Loss hoje:</span>
-            <span class="contador-valor loss" id="lossHoje">0</span>
-          </div>
-          <div class="contador-item">
-            <span class="contador-label">Empates hoje:</span>
-            <span class="contador-valor empate" id="empatesHoje">0</span>
-          </div>
-        </div>
-      </section>
 
-      <!-- ABA: NOVA OPERAÇÃO -->
-      <section class="tab-content" id="tab-nova">
-        <div class="page-header">
-          <h1>➕ Nova Operação</h1>
-          <div class="page-header-info">Registre suas entradas</div>
-        </div>
-
-        <div class="form-operacao">
-          <div class="form-linha">
-            <label>Ativo
-              <input type="text" id="inputAtivo" placeholder="Ex: WIN, PETR4">
-            </label>
-            <label>Valor (R$)
-              <input type="number" id="inputValor" step="0.01" placeholder="0,00">
-            </label>
-            <label>Data
-              <input type="date" id="inputData">
-            </label>
-            <label>Hora
-              <input type="time" id="inputHora">
-            </label>
+          <div class="contador-dia">
+            <div class="contador-item">
+              <span class="contador-label">Wins hoje:</span>
+              <span class="contador-valor win" id="winsHoje">0</span>
+            </div>
+            <div class="contador-item">
+              <span class="contador-label">Loss hoje:</span>
+              <span class="contador-valor loss" id="lossHoje">0</span>
+            </div>
+            <div class="contador-item">
+              <span class="contador-label">Empates hoje:</span>
+              <span class="contador-valor empate" id="empatesHoje">0</span>
+            </div>
           </div>
-          <div class="form-botoes">
-            <button class="btn-win" onclick="registrarOperacao('WIN')">✅ WIN</button>
-            <button class="btn-loss" onclick="registrarOperacao('LOSS')">❌ LOSS</button>
-            <button class="btn-empate" onclick="registrarOperacao('EMPATE')">➖ EMPATE</button>
-          </div>
-        </div>
+        </section>
 
-        <div class="form-operacao" style="margin-top: 20px;">
-          <h2 style="font-size: 16px; color: #00e676; margin-bottom: 15px;">💰 Depósito / Saque Manual</h2>
-          <div class="form-linha">
-            <label>Valor (R$)
-              <input type="number" id="inputDeposito" step="0.01" placeholder="0,00">
-            </label>
-            <label>Data
-              <input type="date" id="inputDepositoData">
-            </label>
-            <label>Tipo
-              <select id="inputDepositoTipo" style="background:#060911; border:1px solid #1a2235; color:#e6e8ef; padding:14px; border-radius:10px; font-size:15px;">
-                <option value="DEPOSITO">💰 Depósito</option>
-                <option value="SAQUE">💸 Saque</option>
+        <!-- ABA: NOVA OPERAÇÃO -->
+        <section class="tab-content" id="tab-nova">
+          <div class="page-header">
+            <h1>➕ Nova Operação</h1>
+            <div class="page-header-info">Registre suas entradas</div>
+          </div>
+
+          <div class="form-operacao">
+            <div class="form-linha">
+              <label>Ativo
+                <input type="text" id="inputAtivo" placeholder="Ex: WIN, PETR4">
+              </label>
+              <label>Valor (R$)
+                <input type="number" id="inputValor" step="0.01" placeholder="0,00">
+              </label>
+              <label>Data
+                <input type="date" id="inputData">
+              </label>
+              <label>Hora
+                <input type="time" id="inputHora">
+              </label>
+            </div>
+            <div class="form-botoes">
+              <button class="btn-win" onclick="registrarOperacao('WIN')">✅ WIN</button>
+              <button class="btn-loss" onclick="registrarOperacao('LOSS')">❌ LOSS</button>
+              <button class="btn-empate" onclick="registrarOperacao('EMPATE')">➖ EMPATE</button>
+            </div>
+          </div>
+
+          <div class="form-operacao" style="margin-top: 20px;">
+            <h2 style="font-size: 16px; color: #00e676; margin-bottom: 15px;">💰 Depósito / Saque Manual</h2>
+            <div class="form-linha">
+              <label>Valor (R$)
+                <input type="number" id="inputDeposito" step="0.01" placeholder="0,00">
+              </label>
+              <label>Data
+                <input type="date" id="inputDepositoData">
+              </label>
+              <label>Tipo
+                <select id="inputDepositoTipo" style="background:#060911; border:1px solid #1a2235; color:#e6e8ef; padding:14px; border-radius:10px; font-size:15px;">
+                  <option value="DEPOSITO">💰 Depósito</option>
+                  <option value="SAQUE">💸 Saque</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-botoes">
+              <button class="btn-win" onclick="registrarDeposito()">✅ Confirmar</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ABA: HISTÓRICO -->
+        <section class="tab-content" id="tab-historico">
+          <div class="page-header">
+            <h1>📋 Histórico</h1>
+            <div class="page-header-info">Todas as suas operações</div>
+          </div>
+
+          <div class="historico-header">
+            <div class="filtros">
+              <select id="filtroMes">
+                <option value="">Todos os meses</option>
               </select>
-            </label>
+              <button id="btnLimparFiltro" class="btn-small">Limpar filtro</button>
+            </div>
           </div>
-          <div class="form-botoes">
-            <button class="btn-win" onclick="registrarDeposito()">✅ Confirmar</button>
+          <table id="tabelaHistorico">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Ativo</th>
+                <th>Resultado</th>
+                <th>Valor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoHistorico"></tbody>
+          </table>
+        </section>
+
+        <!-- ABA: CALENDÁRIO -->
+        <section class="tab-content" id="tab-calendario">
+          <div class="page-header">
+            <h1>📅 Calendário</h1>
+            <div class="page-header-info" id="mesCalendario"></div>
           </div>
-        </div>
-      </section>
-
-      <!-- ABA: HISTÓRICO -->
-      <section class="tab-content" id="tab-historico">
-        <div class="page-header">
-          <h1>📋 Histórico</h1>
-          <div class="page-header-info">Todas as suas operações</div>
-        </div>
-
-        <div class="historico-header">
-          <div class="filtros">
-            <select id="filtroMes">
-              <option value="">Todos os meses</option>
-            </select>
-            <button id="btnLimparFiltro" class="btn-small">Limpar filtro</button>
+          <div class="calendario-nav">
+            <button id="btnMesAnterior" class="btn-small">← Mês anterior</button>
+            <span id="tituloCalendario" style="font-weight: 700; font-size: 16px;"></span>
+            <button id="btnProximoMes" class="btn-small">Próximo mês →</button>
           </div>
-        </div>
-        <table id="tabelaHistorico">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Hora</th>
-              <th>Ativo</th>
-              <th>Resultado</th>
-              <th>Valor</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="corpoHistorico"></tbody>
-        </table>
-      </section>
+          <div class="calendario-grid" id="calendarioGrid"></div>
+        </section>
 
-      <!-- ABA: CALENDÁRIO -->
-      <section class="tab-content" id="tab-calendario">
-        <div class="page-header">
-          <h1>📅 Calendário</h1>
-          <div class="page-header-info" id="mesCalendario"></div>
-        </div>
-        <div class="calendario-nav">
-          <button id="btnMesAnterior" class="btn-small">← Mês anterior</button>
-          <span id="tituloCalendario" style="font-weight: 700; font-size: 16px;"></span>
-          <button id="btnProximoMes" class="btn-small">Próximo mês →</button>
-        </div>
-        <div class="calendario-grid" id="calendarioGrid"></div>
-      </section>
+        <!-- ABA: RESUMO MENSAL -->
+        <section class="tab-content" id="tab-mensal">
+          <div class="page-header">
+            <h1>🗓️ Resumo Mensal</h1>
+            <div class="page-header-info">Desempenho mês a mês</div>
+          </div>
+          <table id="tabelaMensal">
+            <thead>
+              <tr>
+                <th>Mês</th>
+                <th>Wins</th>
+                <th>Loss</th>
+                <th>Lucro</th>
+                <th>Banca Final</th>
+              </tr>
+            </thead>
+            <tbody id="corpoMensal"></tbody>
+          </table>
+        </section>
 
-      <!-- ABA: RESUMO MENSAL -->
-      <section class="tab-content" id="tab-mensal">
-        <div class="page-header">
-          <h1>🗓️ Resumo Mensal</h1>
-          <div class="page-header-info">Desempenho mês a mês</div>
-        </div>
-        <table id="tabelaMensal">
-          <thead>
-            <tr>
-              <th>Mês</th>
-              <th>Wins</th>
-              <th>Loss</th>
-              <th>Lucro</th>
-              <th>Banca Final</th>
-            </tr>
-          </thead>
-          <tbody id="corpoMensal"></tbody>
-        </table>
-      </section>
+        <!-- ABA: EVOLUÇÃO -->
+        <section class="tab-content" id="tab-evolucao">
+          <div class="page-header">
+            <h1>📈 Evolução da Banca</h1>
+            <div class="page-header-info">Seu progresso ao longo do tempo</div>
+          </div>
+          <div class="grafico-container">
+            <canvas id="graficoBanca" width="1000" height="400"></canvas>
+          </div>
 
-      <!-- ABA: EVOLUÇÃO -->
-      <section class="tab-content" id="tab-evolucao">
-        <div class="page-header">
-          <h1>📈 Evolução da Banca</h1>
-          <div class="page-header-info">Seu progresso ao longo do tempo</div>
-        </div>
-        <div class="grafico-container">
-          <canvas id="graficoBanca" width="1000" height="400"></canvas>
-        </div>
+          <div class="page-header" style="margin-top: 30px;">
+            <h1 style="font-size: 20px;">📊 Resultado por Dia</h1>
+            <div class="page-header-info">Últimos 30 dias</div>
+          </div>
+          <div class="grafico-container">
+            <canvas id="graficoBarras" width="1000" height="300"></canvas>
+          </div>
+        </section>
 
-        <div class="page-header" style="margin-top: 30px;">
-          <h1 style="font-size: 20px;">📊 Resultado por Dia</h1>
-          <div class="page-header-info">Últimos 30 dias</div>
-        </div>
-        <div class="grafico-container">
-          <canvas id="graficoBarras" width="1000" height="300"></canvas>
-        </div>
-      </section>
+        <!-- ABA: POR HORÁRIO -->
+        <section class="tab-content" id="tab-horario">
+          <div class="page-header">
+            <h1>⏰ Desempenho por Horário</h1>
+            <div class="page-header-info">Onde você ganha mais</div>
+          </div>
+          <table id="tabelaHorario">
+            <thead>
+              <tr>
+                <th>Faixa de Horário</th>
+                <th>Operações</th>
+                <th>Wins</th>
+                <th>Loss</th>
+                <th>Resultado</th>
+                <th>Assertividade</th>
+              </tr>
+            </thead>
+            <tbody id="corpoHorario"></tbody>
+          </table>
+        </section>
 
-      <!-- ABA: POR HORÁRIO -->
-      <section class="tab-content" id="tab-horario">
-        <div class="page-header">
-          <h1>⏰ Desempenho por Horário</h1>
-          <div class="page-header-info">Onde você ganha mais</div>
-        </div>
-        <table id="tabelaHorario">
-          <thead>
-            <tr>
-              <th>Faixa de Horário</th>
-              <th>Operações</th>
-              <th>Wins</th>
-              <th>Loss</th>
-              <th>Resultado</th>
-              <th>Assertividade</th>
-            </tr>
-          </thead>
-          <tbody id="corpoHorario"></tbody>
-        </table>
-      </section>
+      </main>
+    </div>
 
-    </main>
+    <!-- BARRA INFERIOR MOBILE -->
+    <nav class="mobile-nav">
+      <button class="mobile-nav-item active" data-tab="painel">
+        <span class="mn-icon">📊</span>
+        <span class="mn-label">Painel</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="nova">
+        <span class="mn-icon">➕</span>
+        <span class="mn-label">Nova</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="historico">
+        <span class="mn-icon">📋</span>
+        <span class="mn-label">Histórico</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="calendario">
+        <span class="mn-icon">📅</span>
+        <span class="mn-label">Calendário</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="mais">
+        <span class="mn-icon">☰</span>
+        <span class="mn-label">Mais</span>
+      </button>
+    </nav>
+
+    <!-- MENU MAIS (mobile) -->
+    <div class="mobile-menu-mais" id="mobileMenuMais">
+      <div class="mm-overlay"></div>
+      <div class="mm-panel">
+        <h3>Mais opções</h3>
+        <button class="mm-item" data-tab="mensal">🗓️ Resumo Mensal</button>
+        <button class="mm-item" data-tab="evolucao">📈 Evolução</button>
+        <button class="mm-item" data-tab="horario">⏰ Por Horário</button>
+        <hr>
+        <button id="mmTema" class="mm-item">🌙 Alternar Tema</button>
+        <button id="mmOcultar" class="mm-item">👁️ Ocultar Valores</button>
+        <button id="mmExportar" class="mm-item">⬇️ Exportar Backup</button>
+        <button id="mmImportar" class="mm-item">⬆️ Importar Backup</button>
+        <button id="mmSair" class="mm-item">🚪 Sair da conta</button>
+      </div>
+    </div>
+
   </div>
 
   <script src="script.js"></script>
+
+  <!-- FIREBASE SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBNUHVwusfQSXrXlqdWxBIrdtj-1xmC38s",
+      authDomain: "ferr-trading.firebaseapp.com",
+      projectId: "ferr-trading",
+      storageBucket: "ferr-trading.firebasestorage.app",
+      messagingSenderId: "490791827020",
+      appId: "1:490791827020:web:28763c9b1cdbf57160e6e9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.__fb = { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, doc, setDoc, getDoc };
+
+    onAuthStateChanged(auth, async (user) => {
+      const login = document.getElementById('telaLogin');
+      const wrap = document.getElementById('appWrapper');
+
+      if (user) {
+        if (login) login.style.display = 'none';
+        if (wrap) wrap.style.display = 'block';
+
+        try {
+          const ref = doc(db, 'usuarios', user.uid);
+          const snap = await getDoc(ref);
+          if (snap.exists()) {
+            if (window.carregarDadosDaNuvem) window.carregarDadosDaNuvem(snap.data());
+          } else {
+            if (window.enviarDadosPraNuvem) window.enviarDadosPraNuvem();
+          }
+        } catch (e) {
+          console.error('Erro ao carregar da nuvem:', e);
+        }
+      } else {
+        if (login) login.style.display = 'flex';
+        if (wrap) wrap.style.display = 'none';
+      }
+    });
+  </script>
+    <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <!-- Registro do Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(() => console.log('✅ Service Worker registrado'))
+          .catch((err) => console.log('❌ Erro no Service Worker:', err));
+      });
+    }
+  </script>
 </body>
 </html>
