@@ -54,6 +54,63 @@ body {
 .login-erro { color: #ff5252; font-size: 12px; text-align: center; min-height: 16px; }
 .login-rodape { text-align: center; color: #4a5568; font-size: 11px; margin-top: 20px; line-height: 1.5; }
 
+/* ============ TELA DE PIN ============ */
+.tela-pin {
+  position: fixed; inset: 0;
+  background: linear-gradient(145deg, #060911, #0a1120);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; z-index: 9998;
+}
+.pin-box {
+  background: linear-gradient(145deg, #0d1526, #0a1120);
+  border: 1px solid #1a2235; border-radius: 24px;
+  padding: 40px 30px; width: 100%; max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+.pin-icon { font-size: 48px; margin-bottom: 16px; }
+.pin-box h2 { font-size: 22px; color: #e6e8ef; margin-bottom: 8px; font-weight: 700; }
+.pin-sub { color: #8892a6; font-size: 13px; margin-bottom: 28px; }
+.pin-display { display: flex; justify-content: center; gap: 16px; margin-bottom: 32px; }
+.pin-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: transparent; border: 2px solid #2a3650;
+  transition: all 0.2s;
+}
+.pin-dot.preenchido {
+  background: #00e676; border-color: #00e676;
+  box-shadow: 0 0 12px rgba(0, 230, 118, 0.6);
+}
+.pin-dot.erro {
+  background: #ff5252; border-color: #ff5252;
+  box-shadow: 0 0 12px rgba(255, 82, 82, 0.6);
+  animation: shake 0.3s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+.pin-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.pin-btn {
+  background: linear-gradient(145deg, #0f1a2e, #0a1120);
+  border: 1px solid #1a2235; color: #e6e8ef;
+  font-size: 22px; font-weight: 700;
+  padding: 18px 0; border-radius: 12px;
+  cursor: pointer; transition: all 0.15s; font-family: inherit;
+}
+.pin-btn:hover { background: #0f1a2e; border-color: #00e67655; color: #00e676; }
+.pin-btn:active { transform: scale(0.95); background: #00e67622; }
+.pin-btn-limpar { color: #ffc107; }
+.pin-btn-back { color: #40c4ff; }
+.pin-erro { color: #ff5252; font-size: 13px; min-height: 18px; margin-bottom: 12px; }
+.pin-link {
+  background: transparent; border: none; color: #8892a6;
+  font-size: 12px; cursor: pointer; text-decoration: underline;
+  font-family: inherit;
+}
+.pin-link:hover { color: #00e676; }
+
 /* ============ APP CONTAINER ============ */
 .app-container { display: flex; min-height: 100vh; }
 
@@ -224,6 +281,24 @@ body {
 .card-drawdown .card-valor { color: #ff5252; }
 .card-você .card-valor { color: #ffc107; }
 
+/* ============ MÉTRICAS AVANÇADAS ============ */
+.metricas-pro-avancadas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.metricas-pro-avancadas .card {
+  padding: 18px; border-radius: 14px; min-height: 110px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.metricas-pro-avancadas .card-label { font-size: 10px; letter-spacing: 1.2px; line-height: 1.3; margin-bottom: 6px; }
+.metricas-pro-avancadas .card-valor { font-size: 26px; line-height: 1; margin: 4px 0; font-weight: 700; }
+.metricas-pro-avancadas .card-sub { font-size: 10px; line-height: 1.3; color: #8892a6; }
+.card-sharpe { border-left: 3px solid #a855f7; }
+.card-sharpe .card-valor { color: #a855f7; }
+.card-payoff { border-left: 3px solid #00e676; }
+.card-payoff .card-valor { color: #00e676; }
+.card-expect { border-left: 3px solid #40c4ff; }
+.card-expect .card-valor { color: #40c4ff; }
+.card-fator { border-left: 3px solid #ffc107; }
+.card-fator .card-valor { color: #ffc107; }
+
 /* ============ CARDS GESTÃO ============ */
 .cards-gestao { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
 .card-meta { border-left: 3px solid #00e676; }
@@ -292,6 +367,35 @@ body {
 .btn-empate { background: linear-gradient(135deg, #ffc107, #ff9800); color: #0a0e1a; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3); }
 .btn-empate:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255, 193, 7, 0.5); }
 
+/* ============ PRINT DA OPERAÇÃO ============ */
+.print-operacao {
+  background: #060911; border: 1px dashed #1a2235;
+  border-radius: 12px; padding: 16px; margin-bottom: 20px;
+}
+.print-label {
+  display: block; color: #8892a6; font-size: 12px;
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 12px;
+}
+.print-botoes { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-print {
+  background: #0d1526; border: 1px solid #1a2235;
+  color: #e6e8ef; padding: 10px 16px; border-radius: 8px;
+  font-size: 13px; cursor: pointer; transition: all 0.2s;
+  font-family: inherit; font-weight: 600; flex: 1;
+}
+.btn-print:hover { border-color: #00e67655; color: #00e676; }
+.print-preview { margin-top: 16px; position: relative; display: inline-block; }
+.print-preview img { max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #1a2235; }
+.btn-remover-print {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(255, 82, 82, 0.9); color: white;
+  border: none; padding: 6px 12px; border-radius: 6px;
+  cursor: pointer; font-size: 12px; font-weight: 700;
+  font-family: inherit;
+}
+.btn-remover-print:hover { background: #ff5252; }
+
 /* ============ TABELAS ============ */
 .historico-header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; }
 .filtros { display: flex; gap: 10px; }
@@ -326,8 +430,14 @@ td.empate { color: #ffc107; font-weight: 700; }
   font-size: 11px; font-weight: 600; transition: all 0.2s; font-family: inherit;
 }
 .btn-remover:hover { background: #ff5252; color: white; }
+.btn-ver-print {
+  background: transparent; border: 1px solid #40c4ff; color: #40c4ff;
+  padding: 6px 12px; border-radius: 6px; cursor: pointer;
+  font-size: 11px; font-weight: 600; transition: all 0.2s; font-family: inherit;
+}
+.btn-ver-print:hover { background: #40c4ff; color: white; }
 
-/* ============ GRÁFICOS CHART.JS ============ */
+/* ============ GRÁFICO ============ */
 .grafico-container {
   position: relative; height: 400px;
   background: linear-gradient(145deg, #0d1526, #0a1120);
@@ -402,28 +512,141 @@ td.empate { color: #ffc107; font-weight: 700; }
   100% { transform: scale(1); }
 }
 
-/* ============ MENU MOBILE (escondido) ============ */
+/* ============ MODAL PRINT ============ */
+.modal-print {
+  position: fixed; inset: 0; z-index: 9997;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; cursor: zoom-out;
+}
+.modal-print-content { position: relative; max-width: 90vw; max-height: 90vh; }
+.modal-print-content img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
+.modal-close {
+  position: absolute; top: -40px; right: 0;
+  background: transparent; border: none; color: white;
+  font-size: 24px; cursor: pointer; font-family: inherit;
+}
+
+/* ============ MODAL IA ============ */
+.modal-ia {
+  position: fixed; inset: 0; z-index: 9997;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; overflow-y: auto;
+}
+.modal-ia-content {
+  background: linear-gradient(145deg, #0d1526, #0a1120);
+  border: 1px solid #1a2235; border-radius: 20px;
+  padding: 30px; width: 100%; max-width: 700px;
+  position: relative; max-height: 90vh;
+  display: flex; flex-direction: column;
+}
+.modal-ia-content h2 { color: #00e676; font-size: 20px; margin-bottom: 8px; }
+.modal-ia-sub { color: #8892a6; font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+.modal-ia-content .modal-close { position: absolute; top: 16px; right: 20px; color: #8892a6; font-size: 20px; }
+.ia-textarea {
+  width: 100%; height: 300px;
+  background: #060911; border: 1px solid #1a2235;
+  color: #e6e8ef; padding: 16px; border-radius: 10px;
+  font-family: 'Courier New', monospace; font-size: 12px;
+  line-height: 1.6; resize: vertical; margin-bottom: 16px;
+}
+.ia-botoes { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-ia-copiar, .btn-ia-link {
+  flex: 1; padding: 14px 20px; border-radius: 10px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: inherit; text-align: center;
+  text-decoration: none; border: none;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; min-width: 150px;
+}
+.btn-ia-copiar { background: linear-gradient(135deg, #00e676, #00b0ff); color: #0a0e1a; }
+.btn-ia-copiar:hover { transform: translateY(-2px); }
+.btn-ia-link { background: #0f1a2e; color: #e6e8ef; border: 1px solid #1a2235; }
+.btn-ia-link:hover { border-color: #00e67655; color: #00e676; }
+
+/* ============ RELATÓRIO PDF ============ */
+.relatorio-pdf { position: fixed; inset: 0; z-index: 9999; background: #f0f2f5; overflow-y: auto; }
+.relatorio-conteudo {
+  max-width: 900px; margin: 0 auto;
+  padding: 40px 30px; background: #ffffff; color: #1a2235; min-height: 100vh;
+}
+.relatorio-header {
+  display: flex; align-items: center; gap: 20px;
+  padding-bottom: 24px; border-bottom: 3px solid #00e676; margin-bottom: 30px;
+}
+.relatorio-logo { width: 120px; height: auto; }
+.relatorio-info h1 { font-size: 28px; color: #1a2235; font-weight: 800; margin-bottom: 4px; }
+.relatorio-info p { color: #4a5568; font-size: 14px; }
+.relatorio-resumo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 30px; }
+.relatorio-card {
+  background: #f8fafc; border: 1px solid #e0e4eb;
+  border-radius: 12px; padding: 20px 16px;
+  border-left: 4px solid #00e676;
+}
+.relatorio-card-label {
+  font-size: 10px; letter-spacing: 1px; color: #4a5568;
+  text-transform: uppercase; margin-bottom: 8px; font-weight: 700;
+}
+.relatorio-card-valor { font-size: 22px; font-weight: 800; color: #00a854; }
+.relatorio-secao { margin-bottom: 30px; }
+.relatorio-secao h2 {
+  font-size: 16px; color: #1a2235; margin-bottom: 16px;
+  padding-bottom: 8px; border-bottom: 2px solid #e0e4eb;
+}
+.relatorio-tabela {
+  width: 100%; border-collapse: collapse;
+  background: #ffffff; border: 1px solid #e0e4eb;
+  border-radius: 8px; overflow: hidden;
+}
+.relatorio-tabela th {
+  background: #f0f2f5; color: #4a5568;
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1px; padding: 12px; text-align: left; font-weight: 700;
+}
+.relatorio-tabela td {
+  padding: 12px; border-bottom: 1px solid #e0e4eb;
+  font-size: 13px; color: #1a2235;
+}
+.relatorio-tabela tr:last-child td { border-bottom: none; }
+.relatorio-tabela td:last-child { text-align: right; font-weight: 700; }
+.relatorio-footer {
+  text-align: center; color: #8892a6; font-size: 12px;
+  padding-top: 20px; border-top: 1px solid #e0e4eb; margin-top: 30px;
+}
+.relatorio-botoes {
+  display: flex; gap: 12px; justify-content: center;
+  margin-top: 30px; padding-bottom: 30px;
+}
+.btn-imprimir, .btn-fechar {
+  padding: 14px 28px; border-radius: 10px;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  border: none; transition: all 0.2s;
+}
+.btn-imprimir { background: linear-gradient(135deg, #00e676, #00b0ff); color: #0a0e1a; }
+.btn-imprimir:hover { transform: translateY(-2px); }
+.btn-fechar { background: #0f1a2e; color: #e6e8ef; border: 1px solid #1a2235; }
+.btn-fechar:hover { border-color: #00e67655; color: #00e676; }
+
+/* ============ MENU MOBILE ============ */
 .mobile-nav { display: none; }
 .mobile-menu-mais { display: none; }
 
-/* ============================================
-   RESPONSIVO — TELAS MÉDIAS
-   ============================================ */
+/* ============ RESPONSIVO MÉDIO ============ */
 @media (max-width: 1024px) {
   .cards-resultado { grid-template-columns: repeat(3, 1fr); }
+  .metricas-pro-avancadas { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ============================================
-   RESPONSIVO — MOBILE (CORRIGIDO)
-   ============================================ */
+/* ============ RESPONSIVO MOBILE ============ */
 @media (max-width: 768px) {
   * { -webkit-tap-highlight-color: transparent; }
-
   body { padding: 0; padding-bottom: 80px; overflow-x: hidden; font-size: 15px; }
   .app-container { display: block; min-height: 100vh; }
   .sidebar { display: none; }
   .main-content { margin-left: 0; max-width: 100%; padding: 16px; padding-top: 60px; }
-
   .page-header {
     position: fixed; top: 0; left: 0; right: 0;
     background: rgba(6, 9, 17, 0.95);
@@ -435,40 +658,37 @@ td.empate { color: #ffc107; font-weight: 700; }
   }
   .page-header h1 { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .page-header-info { font-size: 10px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0; }
-
   .cards-principais { grid-template-columns: 1fr; gap: 12px; margin-top: 12px; margin-bottom: 12px; }
   .card { padding: 18px; border-radius: 14px; }
   .card-banca .card-valor { font-size: 34px; }
   .card-valor { font-size: 22px; }
   .card-label { font-size: 10px; letter-spacing: 1px; }
   .card-sub { font-size: 11px; }
-
   .cards-resultado { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
   .mini-card { padding: 12px 10px; border-radius: 10px; }
   .mini-label { font-size: 9px; letter-spacing: 0.5px; line-height: 1.2; margin-bottom: 6px; min-height: 22px; display: flex; align-items: center; }
   .mini-valor { font-size: 15px; word-break: break-word; }
   .mini-sub { font-size: 10px; }
-
   .sequencias-box { grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
   .seq-item { padding: 14px; border-radius: 10px; }
   .seq-icon { font-size: 24px; }
   .seq-valor { font-size: 18px; }
-
   .metricas-pro { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .metricas-pro .card-você { grid-column: 1 / -1; }
   .metricas-pro .card { padding: 14px 12px; border-radius: 12px; min-height: 100px; }
   .metricas-pro .card-label { font-size: 9px; letter-spacing: 0.5px; line-height: 1.2; margin-bottom: 6px; }
   .metricas-pro .card-valor { font-size: 20px; line-height: 1; margin: 4px 0; }
   .metricas-pro .card-sub { font-size: 9px; line-height: 1.3; }
-
+  .metricas-pro-avancadas { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .metricas-pro-avancadas .card { padding: 14px 12px; min-height: 95px; }
+  .metricas-pro-avancadas .card-valor { font-size: 20px; }
+  .metricas-pro-avancadas .card-label { font-size: 9px; }
+  .metricas-pro-avancadas .card-sub { font-size: 9px; }
   .cards-gestao { grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
-
   .contador-dia { flex-direction: row; justify-content: space-around; gap: 10px; padding: 12px 10px; margin-bottom: 12px; border-radius: 12px; }
   .contador-item { flex-direction: column; gap: 4px; text-align: center; }
   .contador-label { font-size: 10px; }
   .contador-valor { font-size: 20px; }
-
-  /* FORMULÁRIO — CORRIGIDO */
   .form-operacao { padding: 20px 16px; border-radius: 14px; margin-bottom: 12px; }
   .form-operacao h2 { font-size: 16px; margin-bottom: 14px; }
   .form-linha { grid-template-columns: 1fr; gap: 14px; margin-bottom: 20px; }
@@ -490,7 +710,6 @@ td.empate { color: #ffc107; font-weight: 700; }
     padding: 18px 12px; font-size: 16px; border-radius: 12px;
     width: 100%; letter-spacing: 0.5px;
   }
-
   .historico-header { flex-direction: column; gap: 10px; margin-bottom: 12px; }
   .filtros { width: 100%; gap: 8px; }
   .filtros select { flex: 1; font-size: 16px; padding: 12px; }
@@ -498,10 +717,8 @@ td.empate { color: #ffc107; font-weight: 700; }
   table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; border-radius: 12px; font-size: 13px; }
   th, td { padding: 12px 14px; font-size: 12px; }
   th { font-size: 10px; }
-
   .grafico-container { height: 280px; padding: 12px; border-radius: 14px; }
   .grafico-container canvas { max-height: 280px; }
-
   .calendario-nav { flex-direction: row; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
   .calendario-nav button { padding: 10px 12px; font-size: 12px; flex: 1; }
   .calendario-nav span { font-size: 14px; flex: 1; text-align: center; }
@@ -510,12 +727,32 @@ td.empate { color: #ffc107; font-weight: 700; }
   .cal-dia-num { font-size: 10px; }
   .cal-dia-valor { font-size: 8px; word-break: break-all; }
   .cal-dia-semana { font-size: 9px; padding: 6px 2px; }
-
   .alerta-stop { font-size: 14px; padding: 14px 12px; border-radius: 10px; margin-bottom: 12px; }
   .toast-container { top: 10px; right: 10px; left: 10px; }
   .toast { min-width: auto; max-width: 100%; padding: 14px 16px; font-size: 13px; border-radius: 10px; }
 
-  /* BARRA INFERIOR MOBILE */
+  .pin-box { padding: 30px 20px; }
+  .pin-btn { padding: 16px 0; font-size: 20px; }
+  .pin-display { gap: 12px; }
+  .pin-dot { width: 14px; height: 14px; }
+
+  .modal-ia-content { padding: 24px 20px; }
+  .ia-textarea { height: 200px; font-size: 11px; }
+  .ia-botoes { flex-direction: column; }
+  .btn-ia-copiar, .btn-ia-link { width: 100%; }
+
+  .relatorio-conteudo { padding: 20px 16px; }
+  .relatorio-resumo { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .relatorio-card { padding: 14px 12px; }
+  .relatorio-card-valor { font-size: 18px; }
+  .relatorio-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .relatorio-info h1 { font-size: 22px; }
+  .relatorio-logo { width: 100px; }
+  .relatorio-tabela td, .relatorio-tabela th { padding: 8px; font-size: 11px; }
+  .relatorio-botoes { flex-direction: column; }
+  .btn-imprimir, .btn-fechar { width: 100%; }
+
+  /* BARRA INFERIOR */
   .mobile-nav {
     display: flex; position: fixed; bottom: 0; left: 0; right: 0;
     background: rgba(11, 18, 32, 0.98);
@@ -582,9 +819,7 @@ td.empate { color: #ffc107; font-weight: 700; }
   .logo-completa { max-width: 160px; }
 }
 
-/* ============================================
-   TELAS MUITO PEQUENAS (< 380px)
-   ============================================ */
+/* ============ TELAS PEQUENAS ============ */
 @media (max-width: 380px) {
   .cards-resultado { grid-template-columns: 1fr 1fr; }
   .mini-valor { font-size: 13px; }
@@ -595,9 +830,7 @@ td.empate { color: #ffc107; font-weight: 700; }
   .metricas-pro .card-label { font-size: 8px; }
 }
 
-/* ============================================
-   TEMA CLARO
-   ============================================ */
+/* ============ TEMA CLARO ============ */
 body.light-mode { background: #f0f2f5; color: #1a2235; }
 body.light-mode .sidebar { background: #ffffff; border-right-color: #e0e4eb; }
 body.light-mode .sidebar-logo { border-bottom-color: #e0e4eb; }
@@ -638,10 +871,26 @@ body.light-mode .toast {
   background: #ffffff; border-color: #e0e4eb; color: #1a2235;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
+body.light-mode .modal-ia-content,
+body.light-mode .pin-box {
+  background: #ffffff;
+  border-color: #e0e4eb;
+}
+body.light-mode .pin-box h2 { color: #1a2235; }
+body.light-mode .pin-btn {
+  background: #f8fafc; border-color: #e0e4eb; color: #1a2235;
+}
+body.light-mode .pin-btn:hover { background: #f0f2f5; color: #00a854; }
+body.light-mode .pin-dot { border-color: #cbd5e0; }
+body.light-mode .ia-textarea {
+  background: #f8fafc; border-color: #e0e4eb; color: #1a2235;
+}
+body.light-mode .btn-ia-link {
+  background: #f8fafc; color: #1a2235; border-color: #e0e4eb;
+}
+body.light-mode .print-operacao { background: #f8fafc; border-color: #e0e4eb; }
+body.light-mode .btn-print { background: #ffffff; color: #1a2235; border-color: #e0e4eb; }
 
-/* ============================================
-   TEMA CLARO — MOBILE
-   ============================================ */
 @media (max-width: 768px) {
   body.light-mode .page-header { background: rgba(255, 255, 255, 0.95); border-bottom-color: #e0e4eb; }
   body.light-mode .mobile-nav { background: rgba(255, 255, 255, 0.98); border-top-color: #e0e4eb; }
@@ -653,12 +902,665 @@ body.light-mode .toast {
   body.light-mode .mobile-menu-mais .mm-overlay { background: rgba(0, 0, 0, 0.3); }
 }
 
-/* ============================================
-   PWA — MODO STANDALONE
-   ============================================ */
+/* ============ PWA STANDALONE ============ */
 @media (display-mode: standalone) {
   body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 }
 @supports (padding: env(safe-area-inset-top)) {
   body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ============ IMPRESSÃO ============ */
+@media print {
+  body { background: white !important; }
+  .app-container, .sidebar, .mobile-nav, .mobile-menu-mais,
+  .tela-login, .tela-pin, .toast-container,
+  .modal-print, .modal-ia, .relatorio-botoes {
+    display: none !important;
+  }
+  .relatorio-pdf { position: static; background: white; }
+  .relatorio-conteudo { padding: 0; max-width: 100%; }
+}
+
+/* ============================================
+   FIX DEFINITIVO — SIDEBAR SCROLL
+   ============================================ */
+html body aside.sidebar {
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+html body aside.sidebar .sidebar-nav {
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+html body aside.sidebar .sidebar-footer {
+  flex-shrink: 0 !important;
+}
+
+html body aside.sidebar::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+html body aside.sidebar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+html body aside.sidebar::-webkit-scrollbar-thumb {
+  background: #1a2235 !important;
+  border-radius: 3px !important;
+}
+
+html body aside.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #00e676 !important;
+}
+/* ============================================
+   META MENSAL
+   ============================================ */
+.card-meta-mensal {
+  background: linear-gradient(145deg, #0d1524, #0a1120);
+  border: 1px solid #1a2235;
+  border-left: 4px solid #00e676;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.meta-mensal-conteudo {
+  display: flex; flex-direction: column; gap: 14px;
+}
+.meta-mensal-info {
+  display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 10px;
+}
+.meta-mensal-barra {
+  width: 100%; height: 12px;
+  background: #0a1120; border-radius: 6px;
+  overflow: hidden; position: relative;
+  border: 1px solid #1a2235;
+}
+.meta-mensal-progresso {
+  height: 100%;
+  background: linear-gradient(90deg, #00e676, #00b0ff);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 12px rgba(0, 230, 118, 0.5);
+}
+.meta-mensal-footer {
+  display: flex; justify-content: space-between;
+  align-items: center; gap: 10px;
+}
+#metaMensalPercentual {
+  font-size: 14px; font-weight: 700;
+  color: #00e676;
+}
+
+/* ============================================
+   GRÁFICOS - PIZZA / DIA DA SEMANA
+   ============================================ */
+.grafico-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.grafico-card {
+  background: linear-gradient(145deg, #0d1526, #0a1120);
+  border: 1px solid #1a2235;
+  border-radius: 16px;
+  padding: 24px;
+}
+.grafico-card h3 {
+  color: #e6e8ef;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.grafico-container-pizza {
+  position: relative;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.grafico-container-pizza canvas {
+  max-height: 300px;
+}
+
+/* ============================================
+   HISTÓRICO DE SAQUES
+   ============================================ */
+.resumo-saques {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.card-saque-resumo {
+  border-left: 3px solid #40c4ff;
+}
+.card-saque-resumo .card-valor {
+  color: #40c4ff;
+}
+.card-saque-resumo:first-child .card-valor {
+  font-size: 26px;
+}
+
+/* ============================================
+   MODAL COMPARTILHAR
+   ============================================ */
+.modal-compartilhar {
+  position: fixed; inset: 0; z-index: 9997;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; overflow-y: auto;
+}
+.modal-compartilhar-content {
+  background: linear-gradient(145deg, #0d1526, #0a1120);
+  border: 1px solid #1a2235; border-radius: 20px;
+  padding: 30px; width: 100%; max-width: 420px;
+  position: relative; max-height: 95vh; overflow-y: auto;
+}
+.modal-compartilhar-content h2 {
+  color: #00e676; font-size: 20px; margin-bottom: 8px;
+}
+.modal-compartilhar-sub {
+  color: #8892a6; font-size: 13px; margin-bottom: 16px;
+}
+.modal-compartilhar-content .modal-close {
+  position: absolute; top: 16px; right: 20px;
+  color: #8892a6; font-size: 20px;
+  background: transparent; border: none; cursor: pointer;
+}
+.compartilhar-opcoes {
+  display: flex; gap: 8px; margin-bottom: 20px;
+}
+.btn-compartilhar-opcao {
+  flex: 1; background: #0f1a2e; border: 1px solid #1a2235;
+  color: #e6e8ef; padding: 12px 8px; border-radius: 10px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.btn-compartilhar-opcao:hover,
+.btn-compartilhar-opcao.ativo {
+  background: #00e67622; color: #00e676;
+  border-color: #00e67655;
+}
+.card-preview {
+  display: flex; justify-content: center;
+  margin-bottom: 20px;
+  min-height: 400px;
+}
+.card-preview canvas {
+  max-width: 100%; height: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+.compartilhar-botoes {
+  display: flex; gap: 12px; flex-direction: column;
+}
+.btn-compartilhar-baixar {
+  background: linear-gradient(135deg, #00e676, #00b0ff);
+  color: #0a0e1a; border: none; padding: 14px;
+  border-radius: 10px; font-weight: 700;
+  font-size: 14px; cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+  transition: all 0.2s;
+}
+.btn-compartilhar-baixar:hover { transform: translateY(-2px); }
+.btn-compartilhar-fechar {
+  background: #0f1a2e; color: #e6e8ef;
+  border: 1px solid #1a2235; padding: 14px;
+  border-radius: 10px; font-weight: 700;
+  font-size: 14px; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.btn-compartilhar-fechar:hover { border-color: #00e67655; color: #00e676; }
+
+/* ============================================
+   MODAIS SIMPLES (Meta Mensal, Reset)
+   ============================================ */
+.modal-simples {
+  position: fixed; inset: 0; z-index: 9997;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-simples-content {
+  background: linear-gradient(145deg, #0d1526, #0a1120);
+  border: 1px solid #1a2235; border-radius: 20px;
+  padding: 30px; width: 100%; max-width: 400px;
+  position: relative;
+}
+.modal-simples-content h2 {
+  color: #00e676; font-size: 20px; margin-bottom: 8px;
+}
+.modal-simples-sub {
+  color: #8892a6; font-size: 13px;
+  margin-bottom: 20px; line-height: 1.6;
+}
+.modal-simples-aviso {
+  color: #ffc107; font-size: 13px;
+  margin-bottom: 20px; padding: 12px;
+  background: #ffc10711; border-radius: 8px;
+  border-left: 3px solid #ffc107;
+}
+.modal-simples-content .modal-close {
+  position: absolute; top: 16px; right: 20px;
+  color: #8892a6; font-size: 20px;
+  background: transparent; border: none; cursor: pointer;
+}
+.input-modal {
+  width: 100%; background: #060911;
+  border: 1px solid #1a2235; color: #e6e8ef;
+  padding: 14px; border-radius: 10px;
+  font-size: 16px; font-family: inherit;
+  margin-bottom: 20px;
+}
+.input-modal:focus {
+  outline: none; border-color: #00e676;
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.15);
+}
+.modal-simples-botoes {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.btn-modal-primario {
+  background: linear-gradient(135deg, #00e676, #00b0ff);
+  color: #0a0e1a; border: none;
+  padding: 14px; border-radius: 10px;
+  font-weight: 700; font-size: 14px;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-modal-primario:hover { transform: translateY(-2px); }
+.btn-modal-perigo {
+  background: linear-gradient(135deg, #ff5252, #d32f2f);
+  color: white; border: none;
+  padding: 14px; border-radius: 10px;
+  font-weight: 700; font-size: 14px;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-modal-perigo:hover { transform: translateY(-2px); }
+.btn-modal-secundario {
+  background: #0f1a2e; color: #e6e8ef;
+  border: 1px solid #1a2235;
+  padding: 14px; border-radius: 10px;
+  font-weight: 700; font-size: 14px;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-modal-secundario:hover { border-color: #00e67655; color: #00e676; }
+
+/* ============================================
+   BOTÃO PERIGO (Resetar)
+   ============================================ */
+.btn-perigo {
+  color: #ff5252 !important;
+  border-color: #ff525244 !important;
+}
+.btn-perigo:hover {
+  background: #ff525222 !important;
+  color: #ff5252 !important;
+  border-color: #ff5252 !important;
+}
+.mm-item-perigo {
+  color: #ff5252 !important;
+  border-color: #ff525244 !important;
+}
+.mm-item-perigo:hover {
+  background: #ff525222 !important;
+}
+
+/* ============================================
+   MODO COMPACTO
+   ============================================ */
+body.modo-compacto .cards-resultado { grid-template-columns: repeat(3, 1fr); }
+body.modo-compacto .mini-card { padding: 10px 8px; }
+body.modo-compacto .mini-valor { font-size: 14px; }
+body.modo-compacto .card { padding: 16px; }
+body.modo-compacto .cards-gestao { gap: 12px; }
+body.modo-compacto .sequencias-box { gap: 10px; }
+body.modo-compacto .seq-item { padding: 12px; }
+body.modo-compacto .metricas-pro .card { min-height: 90px; padding: 14px; }
+body.modo-compacto .metricas-pro .card-valor { font-size: 22px; }
+body.modo-compacto .metricas-pro-avancadas .card { min-height: 80px; padding: 12px; }
+body.modo-compacto .metricas-pro-avancadas .card-valor { font-size: 18px; }
+
+/* ============================================
+   RESPONSIVO — TELAS MÉDIAS
+   ============================================ */
+@media (max-width: 1024px) {
+  .grafico-grid { grid-template-columns: 1fr; }
+  .resumo-saques { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============================================
+   RESPONSIVO — MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+  .card-meta-mensal { padding: 18px 16px; border-radius: 14px; }
+  .meta-mensal-info { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .meta-mensal-footer { flex-direction: row; justify-content: space-between; }
+
+  .grafico-grid { grid-template-columns: 1fr; gap: 14px; }
+  .grafico-card { padding: 16px; border-radius: 14px; }
+  .grafico-card h3 { font-size: 13px; margin-bottom: 12px; }
+  .grafico-container-pizza { height: 240px; }
+  .grafico-container-pizza canvas { max-height: 240px; }
+
+  .resumo-saques { grid-template-columns: 1fr; gap: 10px; }
+  .card-saque-resumo { padding: 16px; }
+  .card-saque-resumo .card-valor { font-size: 22px; }
+
+  .modal-compartilhar-content { padding: 20px; border-radius: 16px; }
+  .card-preview { min-height: 300px; }
+  .compartilhar-opcoes { flex-direction: row; gap: 6px; }
+  .btn-compartilhar-opcao { font-size: 11px; padding: 10px 4px; }
+
+  .modal-simples-content { padding: 24px 20px; }
+  .modal-simples-content h2 { font-size: 18px; }
+
+  body.modo-compacto .cards-resultado { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================
+   TEMA CLARO — Novas funcionalidades
+   ============================================ */
+body.light-mode .card-meta-mensal {
+  background: #ffffff;
+  border-color: #e0e4eb;
+  border-left-color: #00a854;
+}
+body.light-mode .meta-mensal-barra {
+  background: #f0f2f5;
+  border-color: #e0e4eb;
+}
+body.light-mode .grafico-card {
+  background: #ffffff;
+  border-color: #e0e4eb;
+}
+body.light-mode .grafico-card h3 { color: #1a2235; }
+body.light-mode .modal-compartilhar-content,
+body.light-mode .modal-simples-content {
+  background: #ffffff;
+  border-color: #e0e4eb;
+}
+body.light-mode .modal-compartilhar-content h2,
+body.light-mode .modal-simples-content h2 { color: #00a854; }
+body.light-mode .btn-compartilhar-opcao,
+body.light-mode .btn-compartilhar-fechar,
+body.light-mode .btn-modal-secundario {
+  background: #f8fafc;
+  border-color: #e0e4eb;
+  color: #1a2235;
+}
+body.light-mode .input-modal {
+  background: #f8fafc;
+  border-color: #e0e4eb;
+  color: #1a2235;
+}
+body.light-mode .card-saque-resumo {
+  background: #ffffff;
+  border-color: #e0e4eb;
+}
+/* ============================================
+   SEÇÃO TÍTULO (Nova aba Métricas)
+   ============================================ */
+.secao-titulo {
+  font-size: 14px;
+  color: #00e676;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin: 24px 0 14px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #1a2235;
+}
+.secao-titulo:first-child {
+  margin-top: 0;
+}
+
+/* ============================================
+   GRÁFICOS — GRADE PRINCIPAL
+   ============================================ */
+.grafico-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.grafico-card {
+  background: linear-gradient(145deg, #0d1526, #0a1120);
+  border: 1px solid #1a2235;
+  border-radius: 16px;
+  padding: 24px;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.grafico-card:hover {
+  transform: translateY(-3px);
+  border-color: #00e67655;
+}
+.grafico-card h3 {
+  color: #e6e8ef;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.grafico-container-pizza {
+  position: relative;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.grafico-container-pizza canvas {
+  max-height: 320px;
+}
+
+/* ============================================
+   RESPONSIVO — GRÁFICOS
+   ============================================ */
+@media (max-width: 1024px) {
+  .grafico-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .secao-titulo {
+    font-size: 12px;
+    margin: 18px 0 12px 0;
+  }
+  .grafico-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .grafico-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .grafico-card h3 {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .grafico-container-pizza {
+    height: 260px;
+  }
+  .grafico-container-pizza canvas {
+    max-height: 260px;
+  }
+}
+
+/* ============================================
+   TEMA CLARO — Nova aba Métricas
+   ============================================ */
+body.light-mode .secao-titulo {
+  color: #00a854;
+  border-bottom-color: #e0e4eb;
+}
+body.light-mode .grafico-card {
+  background: #ffffff;
+  border-color: #e0e4eb;
+}
+body.light-mode .grafico-card h3 {
+  color: #1a2235;
+}
+/* ============================================
+   PERFORMANCE MENSAL — Topo (Rosca + Mini-cards)
+   ============================================ */
+.performance-topo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+/* ---------- Card da Rosca ---------- */
+.performance-rosca {
+  background: linear-gradient(145deg, #0d1526, #0a1120);
+  border: 1px solid #1a2235;
+  border-left: 4px solid #00e676;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.performance-rosca:hover {
+  transform: translateY(-3px);
+  border-color: #00e67655;
+}
+.performance-rosca-titulo {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #8892a6;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.performance-rosca-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+.performance-rosca-container canvas {
+  max-height: 260px;
+}
+.performance-rosca-centro {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+.performance-rosca-percentual {
+  font-size: 36px;
+  font-weight: 800;
+  color: #00e676;
+  line-height: 1;
+  margin-bottom: 4px;
+  text-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+}
+.performance-rosca-sub {
+  font-size: 12px;
+  color: #8892a6;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* ---------- Mini-cards laterais ---------- */
+.performance-mini-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.performance-mini-cards .mini-card {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 60px;
+}
+.performance-mini-cards .mini-label {
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+.performance-mini-cards .mini-valor {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* ============================================
+   RESPONSIVO — Performance
+   ============================================ */
+@media (max-width: 1024px) {
+  .performance-topo {
+    grid-template-columns: 1fr;
+  }
+  .performance-mini-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .performance-topo {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .performance-rosca {
+    padding: 18px 16px;
+    border-radius: 14px;
+  }
+  .performance-rosca-container {
+    min-height: 200px;
+  }
+  .performance-rosca-container canvas {
+    max-height: 220px;
+  }
+  .performance-rosca-percentual {
+    font-size: 30px;
+  }
+  .performance-rosca-sub {
+    font-size: 11px;
+  }
+  .performance-mini-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .performance-mini-cards .mini-card {
+    padding: 14px 16px;
+    min-height: 55px;
+  }
+  .performance-mini-cards .mini-valor {
+    font-size: 18px;
+  }
+}
+
+/* ============================================
+   TEMA CLARO — Performance
+   ============================================ */
+body.light-mode .performance-rosca {
+  background: #ffffff;
+  border-color: #e0e4eb;
+  border-left-color: #00a854;
+}
+body.light-mode .performance-rosca-percentual {
+  color: #00a854;
+  text-shadow: 0 0 20px rgba(0, 168, 84, 0.3);
+}
+body.light-mode .performance-mini-cards .mini-card {
+  background: #ffffff;
+  border-color: #e0e4eb;
 }

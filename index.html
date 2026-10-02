@@ -26,19 +26,16 @@
         <img src="logo.png" alt="FerrTrading" class="login-logo-img">
       </div>
       <p class="login-sub">Entre para sincronizar seus dados</p>
-
       <div class="login-tabs">
         <button class="login-tab active" data-form="entrar">Entrar</button>
         <button class="login-tab" data-form="criar">Criar conta</button>
       </div>
-
       <form id="formEntrar" class="login-form active">
         <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
         <input type="password" id="loginSenha" placeholder="Sua senha" required>
         <button type="submit" class="btn-login">Entrar</button>
         <p class="login-erro" id="erroEntrar"></p>
       </form>
-
       <form id="formCriar" class="login-form">
         <input type="email" id="criarEmail" placeholder="Seu e-mail" required>
         <input type="password" id="criarSenha" placeholder="Crie uma senha (mín. 6 caracteres)" required minlength="6">
@@ -46,8 +43,27 @@
         <button type="submit" class="btn-login">Criar conta</button>
         <p class="login-erro" id="erroCriar"></p>
       </form>
-
       <p class="login-rodape">Seus dados ficam salvos na nuvem e disponíveis em qualquer dispositivo.</p>
+    </div>
+  </div>
+
+  <!-- TELA DE PIN -->
+  <div id="telaPin" class="tela-pin" style="display:none;">
+    <div class="pin-box">
+      <div class="pin-icon">🔐</div>
+      <h2>Acesso protegido</h2>
+      <p class="pin-sub">Digite seu PIN de 4 dígitos</p>
+      <div class="pin-display" id="pinDisplay">
+        <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
+      </div>
+      <div class="pin-teclado">
+        <button class="pin-btn" data-num="1">1</button><button class="pin-btn" data-num="2">2</button><button class="pin-btn" data-num="3">3</button>
+        <button class="pin-btn" data-num="4">4</button><button class="pin-btn" data-num="5">5</button><button class="pin-btn" data-num="6">6</button>
+        <button class="pin-btn" data-num="7">7</button><button class="pin-btn" data-num="8">8</button><button class="pin-btn" data-num="9">9</button>
+        <button class="pin-btn pin-btn-limpar" data-num="C">C</button><button class="pin-btn" data-num="0">0</button><button class="pin-btn pin-btn-back" data-num="←">←</button>
+      </div>
+      <p class="pin-erro" id="pinErro"></p>
+      <button id="btnEsqueciPin" class="pin-link">Esqueci meu PIN</button>
     </div>
   </div>
 
@@ -65,27 +81,37 @@
           <button class="nav-item active" data-tab="painel"><span class="nav-icon">📊</span><span class="nav-label">Painel</span></button>
           <button class="nav-item" data-tab="historico"><span class="nav-icon">📋</span><span class="nav-label">Histórico</span></button>
           <button class="nav-item" data-tab="calendario"><span class="nav-icon">📅</span><span class="nav-label">Calendário</span></button>
-          <button class="nav-item" data-tab="mensal"><span class="nav-icon">🗓️</span><span class="nav-label">Resumo Mensal</span></button>
+          <button class="nav-item" data-tab="performance"><span class="nav-icon">📈</span><span class="nav-label">Performance</span></button>
           <button class="nav-item" data-tab="evolucao"><span class="nav-icon">📈</span><span class="nav-label">Evolução</span></button>
+          <button class="nav-item" data-tab="metricas"><span class="nav-icon">🎯</span><span class="nav-label">Métricas</span></button>
+          <button class="nav-item" data-tab="saques"><span class="nav-icon">💸</span><span class="nav-label">Saques</span></button>
           <button class="nav-item" data-tab="horario"><span class="nav-icon">⏰</span><span class="nav-label">Por Horário</span></button>
           <button class="nav-item" data-tab="nova"><span class="nav-icon">➕</span><span class="nav-label">Nova Operação</span></button>
         </nav>
 
         <div class="sidebar-footer">
           <button id="btnInstalarPWA" class="btn-instalar-pwa" style="display:none;">📲 Instalar App</button>
+          <button id="btnRelatorioPDF" class="btn-side"><span>📄</span> Relatório PDF</button>
+          <button id="btnAnaliseIA" class="btn-side"><span>🤖</span> Análise IA</button>
+          <button id="btnCompartilhar" class="btn-side"><span>📱</span> Compartilhar</button>
+          <button id="btnExportarCSV" class="btn-side"><span>📤</span> Exportar CSV</button>
           <button id="btnTema" class="btn-side"><span id="iconeTema">🌙</span> Tema</button>
+          <button id="btnModoCompacto" class="btn-side"><span id="iconeModo">🔎</span> Modo</button>
           <button id="btnOcultar" class="btn-side"><span>👁️</span> Ocultar</button>
           <button id="btnExportar" class="btn-side"><span>⬇️</span> Exportar</button>
           <button id="btnImportar" class="btn-side"><span>⬆️</span> Importar</button>
+          <button id="btnResetar" class="btn-side btn-perigo"><span>🗑️</span> Resetar dados</button>
           <button id="btnSair" class="btn-side"><span>🚪</span> Sair</button>
           <input type="file" id="inputImportar" accept=".json" style="display:none">
         </div>
       </aside>
 
       <main class="main-content">
+
+        <!-- ABA: PAINEL -->
         <section class="tab-content active" id="tab-painel">
           <div class="page-header">
-            <h1>Olá 👋</h1>
+            <h1>Bem-vindo à elite do Trading.</h1>
             <div class="page-header-info" id="dataAtual"></div>
           </div>
 
@@ -103,25 +129,27 @@
             </div>
           </div>
 
-          <div class="cards-resultado">
-            <div class="mini-card"><div class="mini-label">RESULTADO DO DIA</div><div class="mini-valor" id="resultadoDia">R$ 0,00</div></div>
-            <div class="mini-card"><div class="mini-label">RESULTADO DA SEMANA</div><div class="mini-valor" id="resultadoSemana">R$ 0,00</div></div>
-            <div class="mini-card"><div class="mini-label">RESULTADO DO MÊS</div><div class="mini-valor" id="resultadoMes">R$ 0,00</div></div>
-            <div class="mini-card"><div class="mini-label">ASSERTIVIDADE</div><div class="mini-valor" id="assertividade">0%</div><div class="mini-sub" id="contadorWL">✅ 0 · ❌ 0</div></div>
-            <div class="mini-card"><div class="mini-label">LUCRO / PREJUÍZO</div><div class="mini-valor" id="lucroTotal">R$ 0,00</div></div>
-            <div class="mini-card"><div class="mini-label">DEPÓSITOS TOTAIS</div><div class="mini-valor" id="depositosTotais">R$ 0,00</div></div>
+          <div class="card card-meta-mensal">
+            <div class="card-label">🎯 META MENSAL</div>
+            <div class="meta-mensal-conteudo">
+              <div class="meta-mensal-info">
+                <div class="card-valor" id="metaMensalValor">R$ 0,00</div>
+                <div class="card-sub" id="metaMensalInfo">Defina sua meta do mês</div>
+              </div>
+              <div class="meta-mensal-barra">
+                <div class="meta-mensal-progresso" id="metaMensalProgresso" style="width: 0%;"></div>
+              </div>
+              <div class="meta-mensal-footer">
+                <span id="metaMensalPercentual">0%</span>
+                <button id="btnEditarMetaMensal" class="btn-small">Editar meta</button>
+              </div>
+            </div>
           </div>
 
           <div class="sequencias-box">
             <div class="seq-item"><div class="seq-icon">🔥</div><div class="seq-info"><div class="seq-label">Sequência Atual</div><div class="seq-valor" id="seqAtual">-</div></div></div>
             <div class="seq-item"><div class="seq-icon">🏆</div><div class="seq-info"><div class="seq-label">Maior sequência de wins</div><div class="seq-valor" id="seqMaxWins">0</div></div></div>
             <div class="seq-item"><div class="seq-icon">💀</div><div class="seq-info"><div class="seq-label">Maior sequência de loss</div><div class="seq-valor" id="seqMaxLoss">0</div></div></div>
-          </div>
-
-          <div class="metricas-pro">
-            <div class="card card-kelly"><div class="card-label">🎯 RISCO IDEAL (KELLY)</div><div class="card-valor" id="kellyValor">0%</div><div class="card-sub" id="kellyInfo">Calculando...</div></div>
-            <div class="card card-drawdown"><div class="card-label">📉 DRAWDOWN MÁXIMO</div><div class="card-valor" id="drawdownValor">0%</div><div class="card-sub" id="drawdownInfo">Calculando...</div></div>
-            <div class="card card-você"><div class="card-label">⚖️ VOCÊ × VOCÊ</div><div class="card-valor" id="voceVoceSemana">R$ 0,00</div><div class="card-sub" id="voceVoceInfo">Semana atual vs. anterior</div></div>
           </div>
 
           <div class="cards-gestao">
@@ -137,9 +165,7 @@
             <div class="contador-item"><span class="contador-label">Loss hoje:</span><span class="contador-valor loss" id="lossHoje">0</span></div>
             <div class="contador-item"><span class="contador-label">Empates hoje:</span><span class="contador-valor empate" id="empatesHoje">0</span></div>
           </div>
-        </section>
-
-        <section class="tab-content" id="tab-nova">
+        </section>        <section class="tab-content" id="tab-nova">
           <div class="page-header"><h1>➕ Nova Operação</h1><div class="page-header-info">Registre suas entradas</div></div>
           <div class="form-operacao">
             <div class="form-linha">
@@ -147,6 +173,19 @@
               <label>Valor (R$)<input type="number" id="inputValor" step="0.01" placeholder="0,00"></label>
               <label>Data<input type="date" id="inputData"></label>
               <label>Hora<input type="time" id="inputHora"></label>
+            </div>
+            <div class="print-operacao">
+              <label class="print-label">📸 Print da operação (opcional)</label>
+              <div class="print-botoes">
+                <button type="button" class="btn-print" id="btnPrintCamera">📷 Tirar foto</button>
+                <button type="button" class="btn-print" id="btnPrintGaleria">🖼️ Escolher da galeria</button>
+              </div>
+              <input type="file" id="inputPrintCamera" accept="image/*" capture="environment" style="display:none">
+              <input type="file" id="inputPrintGaleria" accept="image/*" style="display:none">
+              <div id="printPreview" class="print-preview" style="display:none;">
+                <img id="printPreviewImg" alt="Print da operação">
+                <button type="button" class="btn-remover-print" id="btnRemoverPrint">✕ Remover</button>
+              </div>
             </div>
             <div class="form-botoes">
               <button class="btn-win" onclick="registrarOperacao('WIN')">✅ WIN</button>
@@ -171,10 +210,11 @@
             <div class="filtros">
               <select id="filtroMes"><option value="">Todos os meses</option></select>
               <button id="btnLimparFiltro" class="btn-small">Limpar filtro</button>
+              <button id="btnExportarCSVHistorico" class="btn-small">📤 CSV</button>
             </div>
           </div>
           <table id="tabelaHistorico">
-            <thead><tr><th>Data</th><th>Hora</th><th>Ativo</th><th>Resultado</th><th>Valor</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Data</th><th>Hora</th><th>Ativo</th><th>Resultado</th><th>Valor</th><th>Print</th><th>Ações</th></tr></thead>
             <tbody id="corpoHistorico"></tbody>
           </table>
         </section>
@@ -189,10 +229,37 @@
           <div class="calendario-grid" id="calendarioGrid"></div>
         </section>
 
-        <section class="tab-content" id="tab-mensal">
-          <div class="page-header"><h1>🗓️ Resumo Mensal</h1><div class="page-header-info">Desempenho mês a mês</div></div>
+        <!-- ABA: PERFORMANCE -->
+        <section class="tab-content" id="tab-performance">
+          <div class="page-header">
+            <h1>📈 Performance Mensal</h1>
+            <div class="page-header-info">Desempenho mês a mês</div>
+          </div>
+
+          <div class="performance-topo">
+            <div class="performance-rosca">
+              <div class="performance-rosca-titulo">🎯 ASSERTIVIDADE</div>
+              <div class="performance-rosca-container">
+                <canvas id="graficoAssertividadeRosca"></canvas>
+                <div class="performance-rosca-centro">
+                  <div class="performance-rosca-percentual" id="assertividadePercentualCentro">0%</div>
+                  <div class="performance-rosca-sub" id="assertividadeContadorCentro">0W · 0L</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="performance-mini-cards">
+              <div class="mini-card"><div class="mini-label">RESULTADO DO DIA</div><div class="mini-valor" id="resultadoDia">R$ 0,00</div></div>
+              <div class="mini-card"><div class="mini-label">RESULTADO DA SEMANA</div><div class="mini-valor" id="resultadoSemana">R$ 0,00</div></div>
+              <div class="mini-card"><div class="mini-label">RESULTADO DO MÊS</div><div class="mini-valor" id="resultadoMes">R$ 0,00</div></div>
+              <div class="mini-card"><div class="mini-label">LUCRO / PREJUÍZO</div><div class="mini-valor" id="lucroTotal">R$ 0,00</div></div>
+              <div class="mini-card"><div class="mini-label">DEPÓSITOS TOTAIS</div><div class="mini-valor" id="depositosTotais">R$ 0,00</div></div>
+            </div>
+          </div>
+
+          <h2 class="secao-titulo">📅 Histórico de Meses</h2>
           <table id="tabelaMensal">
-            <thead><tr><th>Mês</th><th>Wins</th><th>Loss</th><th>Lucro</th><th>Banca Final</th></tr></thead>
+            <thead><tr><th>Mês</th><th>Wins</th><th>Loss</th><th>Lucro</th><th>Meta</th><th>Banca Final</th></tr></thead>
             <tbody id="corpoMensal"></tbody>
           </table>
         </section>
@@ -202,6 +269,78 @@
           <div class="grafico-container"><canvas id="graficoBanca"></canvas></div>
           <div class="page-header" style="margin-top:30px;"><h1 style="font-size:20px;">📊 Resultado por Dia</h1><div class="page-header-info">Últimos 30 dias</div></div>
           <div class="grafico-container"><canvas id="graficoBarras"></canvas></div>
+        </section>
+
+        <!-- ABA: MÉTRICAS -->
+        <section class="tab-content" id="tab-metricas">
+          <div class="page-header">
+            <h1>🎯 Métricas</h1>
+            <div class="page-header-info">Análise completa da sua performance</div>
+          </div>
+
+          <h2 class="secao-titulo">📊 Indicadores Principais</h2>
+          <div class="metricas-pro">
+            <div class="card card-kelly"><div class="card-label">🎯 RISCO IDEAL (KELLY)</div><div class="card-valor" id="kellyValor">0%</div><div class="card-sub" id="kellyInfo">Calculando...</div></div>
+            <div class="card card-drawdown"><div class="card-label">📉 DRAWDOWN MÁXIMO</div><div class="card-valor" id="drawdownValor">0%</div><div class="card-sub" id="drawdownInfo">Calculando...</div></div>
+            <div class="card card-você"><div class="card-label">⚖️ VOCÊ × VOCÊ</div><div class="card-valor" id="voceVoceSemana">R$ 0,00</div><div class="card-sub" id="voceVoceInfo">Semana atual vs. anterior</div></div>
+          </div>
+
+          <h2 class="secao-titulo">📐 Indicadores Avançados</h2>
+          <div class="metricas-pro-avancadas">
+            <div class="card card-sharpe"><div class="card-label">📐 SHARPE RATIO</div><div class="card-valor" id="sharpeValor">0.00</div><div class="card-sub" id="sharpeInfo">Retorno ajustado ao risco</div></div>
+            <div class="card card-payoff"><div class="card-label">💰 PAYOFF</div><div class="card-valor" id="payoffValor">0.00</div><div class="card-sub" id="payoffInfo">Ganho médio / Perda média</div></div>
+            <div class="card card-expect"><div class="card-label">🎯 EXPECTÂNCIA</div><div class="card-valor" id="expectanciaValor">R$ 0,00</div><div class="card-sub" id="expectanciaInfo">Valor esperado por operação</div></div>
+            <div class="card card-fator"><div class="card-label">⚡ FATOR LUCRO</div><div class="card-valor" id="fatorLucroValor">0.00</div><div class="card-sub" id="fatorLucroInfo">Total ganho / Total perdido</div></div>
+          </div>
+
+          <h2 class="secao-titulo">📊 Gráficos</h2>
+          <div class="grafico-grid">
+            <div class="grafico-card">
+              <h3>🏆 Wins vs Loss vs Empates</h3>
+              <div class="grafico-container-pizza"><canvas id="graficoPizzaTipo"></canvas></div>
+            </div>
+            <div class="grafico-card">
+              <h3>📅 Resultado por Dia da Semana</h3>
+              <div class="grafico-container-pizza"><canvas id="graficoDiaSemana"></canvas></div>
+            </div>
+            <div class="grafico-card">
+              <h3>🎯 Risco Ideal (Kelly)</h3>
+              <div class="grafico-container-pizza"><canvas id="graficoKelly"></canvas></div>
+            </div>
+            <div class="grafico-card">
+              <h3>📉 Drawdown ao Longo do Tempo</h3>
+              <div class="grafico-container-pizza"><canvas id="graficoDrawdown"></canvas></div>
+            </div>
+            <div class="grafico-card">
+              <h3>📈 Assertividade Evolutiva</h3>
+              <div class="grafico-container-pizza"><canvas id="graficoAssertividade"></canvas></div>
+            </div>
+            <div class="grafico-card">
+              <h3>⚖️ Ganho × Perda</h3>
+              <div class="grafico-container-pizza"><canvas id="graficoGanhoPerda"></canvas></div>
+            </div>
+            <div class="grafico-card">
+              <h3>💰 Contribuição por Ativo</h3>
+              <div class="grafico-container-pizza"><canvas id="graficoAtivo"></canvas></div>
+            </div>
+            <div class="grafico-card">
+              <h3>📊 Resultado por Mês</h3>
+              <div class="grafico-container-pizza"><canvas id="graficoMes"></canvas></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-content" id="tab-saques">
+          <div class="page-header"><h1>💸 Histórico de Saques</h1><div class="page-header-info">Todos os seus saques</div></div>
+          <div class="resumo-saques">
+            <div class="card card-saque-resumo"><div class="card-label">TOTAL SACADO</div><div class="card-valor" id="saquesTotal">R$ 0,00</div></div>
+            <div class="card card-saque-resumo"><div class="card-label">QUANTIDADE</div><div class="card-valor" id="saquesQuantidade">0</div></div>
+            <div class="card card-saque-resumo"><div class="card-label">ÚLTIMO SAQUE</div><div class="card-valor" id="saquesUltimo">-</div></div>
+          </div>
+          <table id="tabelaSaques">
+            <thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>% da Banca</th><th>Ações</th></tr></thead>
+            <tbody id="corpoSaques"></tbody>
+          </table>
         </section>
 
         <section class="tab-content" id="tab-horario">
@@ -218,7 +357,7 @@
       <button class="mobile-nav-item active" data-tab="painel"><span class="mn-icon">📊</span><span class="mn-label">Painel</span></button>
       <button class="mobile-nav-item" data-tab="nova"><span class="mn-icon">➕</span><span class="mn-label">Nova</span></button>
       <button class="mobile-nav-item" data-tab="historico"><span class="mn-icon">📋</span><span class="mn-label">Histórico</span></button>
-      <button class="mobile-nav-item" data-tab="calendario"><span class="mn-icon">📅</span><span class="mn-label">Calendário</span></button>
+      <button class="mobile-nav-item" data-tab="performance"><span class="mn-icon">📈</span><span class="mn-label">Performance</span></button>
       <button class="mobile-nav-item" data-tab="mais"><span class="mn-icon">☰</span><span class="mn-label">Mais</span></button>
     </nav>
 
@@ -226,26 +365,145 @@
       <div class="mm-overlay"></div>
       <div class="mm-panel">
         <h3>Mais opções</h3>
-        <button class="mm-item" data-tab="mensal">🗓️ Resumo Mensal</button>
+        <button class="mm-item" data-tab="calendario">📅 Calendário</button>
         <button class="mm-item" data-tab="evolucao">📈 Evolução</button>
+        <button class="mm-item" data-tab="metricas">🎯 Métricas</button>
+        <button class="mm-item" data-tab="saques">💸 Saques</button>
         <button class="mm-item" data-tab="horario">⏰ Por Horário</button>
         <hr>
+        <button id="mmRelatorioPDF" class="mm-item">📄 Relatório PDF</button>
+        <button id="mmAnaliseIA" class="mm-item">🤖 Análise IA</button>
+        <button id="mmCompartilhar" class="mm-item">📱 Compartilhar</button>
+        <button id="mmExportarCSV" class="mm-item">📤 Exportar CSV</button>
         <button id="mmTema" class="mm-item">🌙 Alternar Tema</button>
+        <button id="mmModoCompacto" class="mm-item">🔎 Modo Compacto</button>
         <button id="mmOcultar" class="mm-item">👁️ Ocultar Valores</button>
         <button id="mmExportar" class="mm-item">⬇️ Exportar Backup</button>
         <button id="mmImportar" class="mm-item">⬆️ Importar Backup</button>
+        <button id="mmResetar" class="mm-item mm-item-perigo">🗑️ Resetar dados</button>
         <button id="mmSair" class="mm-item">🚪 Sair da conta</button>
       </div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- MODAIS -->
+  <div id="modalPrint" class="modal-print" style="display:none;">
+    <div class="modal-print-content">
+      <button class="modal-close" id="btnFecharModalPrint">✕</button>
+      <img id="modalPrintImg" alt="Print da operação">
+    </div>
+  </div>
 
-  <!-- Chart.js -->
+  <div id="modalIA" class="modal-ia" style="display:none;">
+    <div class="modal-ia-content">
+      <button class="modal-close" id="btnFecharModalIA">✕</button>
+      <h2>🤖 Análise IA</h2>
+      <p class="modal-ia-sub">Copie o texto abaixo e cole no <strong>DeepSeek</strong> ou <strong>ChatGPT</strong>.</p>
+      <textarea id="textoIA" class="ia-textarea" readonly></textarea>
+      <div class="ia-botoes">
+        <button class="btn-ia-copiar" id="btnCopiarIA">📋 Copiar texto</button>
+        <a href="https://chat.deepseek.com" target="_blank" class="btn-ia-link">🚀 Abrir DeepSeek</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalCompartilhar" class="modal-compartilhar" style="display:none;">
+    <div class="modal-compartilhar-content">
+      <button class="modal-close" id="btnFecharModalCompartilhar">✕</button>
+      <h2>📱 Compartilhar Resultado</h2>
+      <p class="modal-compartilhar-sub">Escolha o período:</p>
+      <div class="compartilhar-opcoes">
+        <button class="btn-compartilhar-opcao" data-periodo="dia">📅 Hoje</button>
+        <button class="btn-compartilhar-opcao" data-periodo="semana">📆 Semana</button>
+        <button class="btn-compartilhar-opcao" data-periodo="mes">🗓️ Mês</button>
+      </div>
+      <div id="cardPreview" class="card-preview"></div>
+      <div class="compartilhar-botoes">
+        <button class="btn-compartilhar-baixar" id="btnBaixarCard">💾 Baixar imagem</button>
+        <button class="btn-compartilhar-fechar" id="btnFecharCompartilhar">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalMetaMensal" class="modal-simples" style="display:none;">
+    <div class="modal-simples-content">
+      <button class="modal-close" id="btnFecharModalMeta">✕</button>
+      <h2>🎯 Meta Mensal</h2>
+      <p class="modal-simples-sub">Qual valor você quer lucrar este mês?</p>
+      <input type="number" id="inputMetaMensal" step="0.01" placeholder="0,00" class="input-modal">
+      <div class="modal-simples-botoes">
+        <button class="btn-modal-primario" id="btnSalvarMetaMensal">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATÓRIO PDF -->
+  <div id="relatorioPDF" class="relatorio-pdf" style="display:none;">
+    <div class="relatorio-conteudo">
+      <div class="relatorio-header">
+        <img src="logo.png" alt="FerrTrading" class="relatorio-logo">
+        <div class="relatorio-info">
+          <h1>Relatório Mensal</h1>
+          <p id="relatorioPeriodo"></p>
+        </div>
+      </div>
+      <div class="relatorio-resumo">
+        <div class="relatorio-card"><div class="relatorio-card-label">SALDO ATUAL</div><div class="relatorio-card-valor" id="relatorioSaldo">R$ 0,00</div></div>
+        <div class="relatorio-card"><div class="relatorio-card-label">RESULTADO DO MÊS</div><div class="relatorio-card-valor" id="relatorioResultado">R$ 0,00</div></div>
+        <div class="relatorio-card"><div class="relatorio-card-label">ASSERTIVIDADE</div><div class="relatorio-card-valor" id="relatorioAssert">0%</div></div>
+        <div class="relatorio-card"><div class="relatorio-card-label">OPERAÇÕES</div><div class="relatorio-card-valor" id="relatorioOps">0</div></div>
+      </div>
+      <div class="relatorio-secao">
+        <h2>📊 Estatísticas do Mês</h2>
+        <table class="relatorio-tabela">
+          <tbody>
+            <tr><td>Wins</td><td id="relatorioWins">0</td></tr>
+            <tr><td>Loss</td><td id="relatorioLoss">0</td></tr>
+            <tr><td>Empates</td><td id="relatorioEmpates">0</td></tr>
+            <tr><td>Melhor operação</td><td id="relatorioMelhor">R$ 0,00</td></tr>
+            <tr><td>Pior operação</td><td id="relatorioPior">R$ 0,00</td></tr>
+            <tr><td>Payoff</td><td id="relatorioPayoff">0.00</td></tr>
+            <tr><td>Expectância</td><td id="relatorioExpect">R$ 0,00</td></tr>
+            <tr><td>Fator Lucro</td><td id="relatorioFator">0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="relatorio-secao">
+        <h2>📋 Operações do Mês</h2>
+        <table class="relatorio-tabela relatorio-tabela-ops">
+          <thead>
+            <tr><th>Data</th><th>Hora</th><th>Ativo</th><th>Tipo</th><th>Valor</th></tr>
+          </thead>
+          <tbody id="relatorioOpsCorpo"></tbody>
+        </table>
+      </div>
+      <div class="relatorio-footer">
+        <p>Gerado por <strong>FerrTrading</strong> em <span id="relatorioData"></span></p>
+      </div>
+      <div class="relatorio-botoes no-print">
+        <button onclick="window.print()" class="btn-imprimir">🖨️ Imprimir / Salvar PDF</button>
+        <button onclick="fecharRelatorioPDF()" class="btn-fechar">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalResetar" class="modal-simples" style="display:none;">
+    <div class="modal-simples-content">
+      <button class="modal-close" id="btnFecharModalReset">✕</button>
+      <h2>🗑️ Resetar dados</h2>
+      <p class="modal-simples-sub">Isso vai apagar <strong>todas as suas operações, depósitos, saques, PIN e configurações</strong>. Sua conta (login) continua ativa.</p>
+      <p class="modal-simples-aviso">⚠️ <strong>Não tem como desfazer.</strong></p>
+      <div class="modal-simples-botoes">
+        <button class="btn-modal-perigo" id="btnConfirmarReset">Sim, apagar tudo</button>
+        <button class="btn-modal-secundario" id="btnCancelarReset">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -268,10 +526,19 @@
 
     onAuthStateChanged(auth, async (user) => {
       const login = document.getElementById('telaLogin');
+      const pin = document.getElementById('telaPin');
       const wrap = document.getElementById('appWrapper');
+
       if (user) {
         if (login) login.style.display = 'none';
-        if (wrap) wrap.style.display = 'block';
+        const pinSalvo = localStorage.getItem('ferrTradingPIN');
+        if (pinSalvo && !window.__pinLiberado) {
+          if (pin) pin.style.display = 'flex';
+          if (wrap) wrap.style.display = 'none';
+        } else {
+          if (pin) pin.style.display = 'none';
+          if (wrap) wrap.style.display = 'block';
+        }
         try {
           const ref = doc(db, 'usuarios', user.uid);
           const snap = await getDoc(ref);
@@ -283,12 +550,12 @@
         } catch (e) { console.error('Erro ao carregar da nuvem:', e); }
       } else {
         if (login) login.style.display = 'flex';
+        if (pin) pin.style.display = 'none';
         if (wrap) wrap.style.display = 'none';
       }
     });
   </script>
 
-  <!-- Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
