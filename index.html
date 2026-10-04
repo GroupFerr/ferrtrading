@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#00e676">
+  <meta name="theme-color" content="#050B27">
   <meta name="apple-mobile-web-app-title" content="FerrTrading">
   <title>FerrTrading</title>
   <link rel="manifest" href="manifest.json">
@@ -16,11 +16,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
-  <div id="telaLogin" class="tela-login">
+ <!-- TELA DE LOGIN -->
+<div id="telaLogin" class="tela-login">
+  
+  <!-- LADO ESQUERDO: IMAGEM -->
+  <div class="login-imagem">
+    <div class="login-imagem-overlay"></div>
+    <div class="login-imagem-conteudo">
+      <h2 class="login-imagem-titulo">
+        <span class="login-imagem-subtitulo">INSPIRED BY THE FUTURE:</span>
+        <span class="login-imagem-titulo-grande">FERRTRADING</span>
+      </h2>
+    </div>
+  </div>
+
+  <!-- LADO DIREITO: FORMULÁRIO -->
+  <div class="login-formulario">
     <div class="login-box">
       <div class="login-logo">
         <h1>Ferr<strong>Trading</strong></h1>
@@ -31,26 +46,42 @@
         <button class="login-tab" data-form="criar">Criar conta</button>
       </div>
       <form id="formEntrar" class="login-form active">
-        <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
-        <input type="password" id="loginSenha" placeholder="Sua senha" required>
+        <label class="login-campo">
+          <span class="login-campo-label">E-mail</span>
+          <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
+        </label>
+        <label class="login-campo">
+          <span class="login-campo-label">Senha</span>
+          <input type="password" id="loginSenha" placeholder="Sua senha" required>
+        </label>
         <button type="submit" class="btn-login">Entrar</button>
         <p class="login-erro" id="erroEntrar"></p>
       </form>
       <form id="formCriar" class="login-form">
-        <input type="email" id="criarEmail" placeholder="Seu e-mail" required>
-        <input type="password" id="criarSenha" placeholder="Crie uma senha (mín. 6 caracteres)" required minlength="6">
-        <input type="password" id="criarSenha2" placeholder="Confirme a senha" required minlength="6">
+        <label class="login-campo">
+          <span class="login-campo-label">E-mail</span>
+          <input type="email" id="criarEmail" placeholder="Seu e-mail" required>
+        </label>
+        <label class="login-campo">
+          <span class="login-campo-label">Senha</span>
+          <input type="password" id="criarSenha" placeholder="Crie uma senha" required minlength="6">
+        </label>
+        <label class="login-campo">
+          <span class="login-campo-label">Confirmar senha</span>
+          <input type="password" id="criarSenha2" placeholder="Confirme a senha" required minlength="6">
+        </label>
         <button type="submit" class="btn-login">Criar conta</button>
         <p class="login-erro" id="erroCriar"></p>
       </form>
       <p class="login-rodape">Seus dados ficam salvos na nuvem e disponíveis em qualquer dispositivo.</p>
     </div>
   </div>
+</div>
 
   <!-- TELA DE PIN -->
   <div id="telaPin" class="tela-pin" style="display:none;">
     <div class="pin-box">
-      <div class="pin-icon">🔐</div>
+      <div class="pin-icon"><i data-lucide="lock"></i></div>
       <h2>Acesso protegido</h2>
       <p class="pin-sub">Digite seu PIN de 4 dígitos</p>
       <div class="pin-display" id="pinDisplay">
@@ -72,371 +103,872 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <div class="app-container">
-      <aside class="sidebar">
-        <div class="sidebar-logo">
-          <span class="logo-text">Ferr<strong>Trading</strong></span>
+      <!-- HEADER -->
+      <header class="header">
+        <div class="header-logo">
+          <span class="header-logo-texto">Ferr<strong>Trading</strong></span>
         </div>
+        <div class="header-busca">
+          <i data-lucide="search" class="header-busca-icon"></i>
+          <input type="text" placeholder="Buscar..." id="inputBusca">
+        </div>
+        <div class="header-acoes">
+          <button class="header-btn header-avatar" title="Conta">
+            <i data-lucide="user"></i>
+          </button>
+        </div>
+      </header>
 
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
         <nav class="sidebar-nav">
-          <button class="nav-item active" data-tab="painel"><span class="nav-icon">📊</span><span class="nav-label">Painel</span></button>
-          <button class="nav-item" data-tab="historico"><span class="nav-icon">📋</span><span class="nav-label">Histórico</span></button>
-          <button class="nav-item" data-tab="calendario"><span class="nav-icon">📅</span><span class="nav-label">Calendário</span></button>
-          <button class="nav-item" data-tab="performance"><span class="nav-icon">📈</span><span class="nav-label">Performance</span></button>
-          <button class="nav-item" data-tab="evolucao"><span class="nav-icon">📈</span><span class="nav-label">Evolução</span></button>
-          <button class="nav-item" data-tab="metricas"><span class="nav-icon">🎯</span><span class="nav-label">Métricas</span></button>
-          <button class="nav-item" data-tab="saques"><span class="nav-icon">💸</span><span class="nav-label">Saques</span></button>
-          <button class="nav-item" data-tab="horario"><span class="nav-icon">⏰</span><span class="nav-label">Por Horário</span></button>
-          <button class="nav-item" data-tab="nova"><span class="nav-icon">➕</span><span class="nav-label">Nova Operação</span></button>
+          <button class="nav-item active" data-tab="painel">
+            <i data-lucide="layout-dashboard"></i><span class="nav-label">Painel</span>
+          </button>
+          <button class="nav-item" data-tab="historico">
+            <i data-lucide="list"></i><span class="nav-label">Histórico</span>
+          </button>
+          <button class="nav-item" data-tab="calendario">
+            <i data-lucide="calendar"></i><span class="nav-label">Calendário</span>
+          </button>
+          <button class="nav-item" data-tab="performance">
+            <i data-lucide="bar-chart-3"></i><span class="nav-label">Performance</span>
+          </button>
+          <button class="nav-item" data-tab="evolucao">
+            <i data-lucide="trending-up"></i><span class="nav-label">Evolução</span>
+          </button>
+          <button class="nav-item" data-tab="metricas">
+            <i data-lucide="target"></i><span class="nav-label">Métricas</span>
+          </button>
+          <button class="nav-item" data-tab="saques">
+            <i data-lucide="banknote"></i><span class="nav-label">Saques</span>
+          </button>
+          <button class="nav-item" data-tab="horario">
+            <i data-lucide="clock"></i><span class="nav-label">Por Horário</span>
+          </button>
+          <button class="nav-item" data-tab="nova">
+            <i data-lucide="plus-circle"></i><span class="nav-label">Nova Operação</span>
+          </button>
         </nav>
 
         <div class="sidebar-footer">
-          <button id="btnInstalarPWA" class="btn-instalar-pwa" style="display:none;">📲 Instalar App</button>
-          <button id="btnRelatorioPDF" class="btn-side"><span>📄</span> Relatório PDF</button>
-          <button id="btnAnaliseIA" class="btn-side"><span>🤖</span> Análise IA</button>
-          <button id="btnCompartilhar" class="btn-side"><span>📱</span> Compartilhar</button>
-          <button id="btnExportarCSV" class="btn-side"><span>📤</span> Exportar CSV</button>
-          <button id="btnTema" class="btn-side"><span id="iconeTema">🌙</span> Tema</button>
-          <button id="btnModoCompacto" class="btn-side"><span id="iconeModo">🔎</span> Modo</button>
-          <button id="btnOcultar" class="btn-side"><span>👁️</span> Ocultar</button>
-          <button id="btnExportar" class="btn-side"><span>⬇️</span> Exportar</button>
-          <button id="btnImportar" class="btn-side"><span>⬆️</span> Importar</button>
-          <button id="btnResetar" class="btn-side btn-perigo"><span>🗑️</span> Resetar dados</button>
-          <button id="btnSair" class="btn-side"><span>🚪</span> Sair</button>
+          <button id="btnInstalarPWA" class="btn-instalar-pwa" style="display:none;">
+            <i data-lucide="download"></i> Instalar App
+          </button>
+          <button id="btnRelatorioPDF" class="btn-side">
+            <i data-lucide="file-text"></i> Relatório PDF
+          </button>
+          <button id="btnAnaliseIA" class="btn-side">
+            <i data-lucide="bot"></i> Análise IA
+          </button>
+          <button id="btnCompartilhar" class="btn-side">
+            <i data-lucide="share-2"></i> Compartilhar
+          </button>
+          <button id="btnExportarCSV" class="btn-side">
+            <i data-lucide="file-spreadsheet"></i> Exportar CSV
+          </button>
+          <button id="btnOcultar" class="btn-side">
+            <i data-lucide="eye-off"></i> Ocultar
+          </button>
+          <button id="btnExportar" class="btn-side">
+            <i data-lucide="download"></i> Exportar
+          </button>
+          <button id="btnImportar" class="btn-side">
+            <i data-lucide="upload"></i> Importar
+          </button>
+          <button id="btnResetar" class="btn-side btn-perigo">
+            <i data-lucide="trash-2"></i> Resetar dados
+          </button>
+          <button id="btnSair" class="btn-side">
+            <i data-lucide="log-out"></i> Sair
+          </button>
           <input type="file" id="inputImportar" accept=".json" style="display:none">
         </div>
       </aside>
 
       <main class="main-content">
-
         <section class="tab-content active" id="tab-painel">
           <div class="page-header">
-            <h1>Bem-vindo à elite do Trading.</h1>
+            <h1>Painel</h1>
             <div class="page-header-info" id="dataAtual"></div>
           </div>
 
-          <div class="cards-principais">
-            <div class="card card-banca">
-              <div class="card-label">SALDO ATUAL</div>
-              <div class="card-valor" id="bancaAtual">R$ 0,00</div>
-              <div class="card-sub">Saldo total disponível</div>
+          <!-- 4 MINI-CARDS TOPO -->
+          <div class="mini-cards-topo">
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Saldo Atual</div>
+                <div class="mini-top-valor" id="bancaAtual">R$ 0,00</div>
+                <div class="mini-top-badge" id="badgeSaldo">+0%</div>
+              </div>
+              <div class="mini-top-icon azul"><i data-lucide="wallet"></i></div>
             </div>
-            <div class="card card-entrada">
-              <div class="card-label">ENTRADA SUGERIDA</div>
-              <div class="card-valor" id="entradaSugerida">R$ 0,00</div>
-              <button id="btnAlternarEntrada" class="btn-toggle">Alternar 1% ↔ 10%</button>
-              <div class="card-sub" id="percentualEntrada">1% do saldo</div>
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Meta do Dia</div>
+                <div class="mini-top-valor" id="metaDia">R$ 0,00</div>
+                <div class="mini-top-sub" id="metaInfo">Calculando...</div>
+              </div>
+              <div class="mini-top-icon azul"><i data-lucide="target"></i></div>
+            </div>
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Sequência Wins</div>
+                <div class="mini-top-valor" id="seqAtual">-</div>
+                <div class="mini-top-sub" id="seqMaxWins">Máx: 0</div>
+              </div>
+              <div class="mini-top-icon verde"><i data-lucide="flame"></i></div>
+            </div>
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Sequência Loss</div>
+                <div class="mini-top-valor" id="seqMaxLoss">0</div>
+                <div class="mini-top-sub">Máx: 0</div>
+              </div>
+              <div class="mini-top-icon vermelho"><i data-lucide="skull"></i></div>
             </div>
           </div>
 
-          <div class="card card-meta-mensal">
-            <div class="card-label">🎯 META MENSAL</div>
-            <div class="meta-mensal-conteudo">
-              <div class="meta-mensal-info">
-                <div class="card-valor" id="metaMensalValor">R$ 0,00</div>
-                <div class="card-sub" id="metaMensalInfo">Defina sua meta do mês</div>
+          <!-- CARD BOAS-VINDAS COM ÁGUA-VIVA -->
+          <div class="card-boas-vindas">
+            <div class="card-boas-vindas-conteudo">
+              <div class="card-boas-vindas-label">Bem-vindo de volta</div>
+              <div class="card-boas-vindas-titulo">Bem-vindo à elite do Trading.</div>
+              <div class="card-boas-vindas-sub" id="boasVindasSub">Sua banca está em R$ 0,00.</div>
+              <button class="card-boas-vindas-btn" onclick="mudarAba('historico')">
+  Ver Operações <i data-lucide="arrow-right"></i>
+</button>
+            </div>
+          </div>
+
+          <!-- META MENSAL (estilo Referral Tracking) -->
+          <div class="card-meta-mensal-vision">
+            <div class="meta-vision-header">
+              <div class="meta-vision-titulo">META MENSAL</div>
+              <div class="meta-vision-opcoes"><i data-lucide="more-horizontal"></i></div>
+            </div>
+            <div class="meta-vision-conteudo">
+              <div class="meta-vision-esquerda">
+                <div class="meta-vision-stat">
+                  <div class="meta-vision-stat-label">Faturamento</div>
+                  <div class="meta-vision-stat-valor" id="metaMensalResultado">R$ 0,00</div>
+                </div>
+                <div class="meta-vision-stat">
+                  <div class="meta-vision-stat-label">Falta</div>
+                  <div class="meta-vision-stat-valor" id="metaMensalFalta">R$ 0,00</div>
+                </div>
+                <button id="btnEditarMetaMensal" class="btn-small-vision">Editar meta</button>
               </div>
-              <div class="meta-mensal-barra">
-                <div class="meta-mensal-progresso" id="metaMensalProgresso" style="width: 0%;"></div>
-              </div>
-              <div class="meta-mensal-footer">
-                <span id="metaMensalPercentual">0%</span>
-                <button id="btnEditarMetaMensal" class="btn-small">Editar meta</button>
+              <div class="meta-vision-direita">
+                <div class="meta-vision-rosca-container">
+                  <canvas id="graficoMetaMensal"></canvas>
+                  <div class="meta-vision-rosca-centro">
+                    <div class="meta-vision-rosca-valor" id="metaMensalPercentual">0%</div>
+                    <div class="meta-vision-rosca-sub">da meta</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="sequencias-box">
-            <div class="seq-item"><div class="seq-icon">🔥</div><div class="seq-info"><div class="seq-label">Sequência Atual</div><div class="seq-valor" id="seqAtual">-</div></div></div>
-            <div class="seq-item"><div class="seq-icon">🏆</div><div class="seq-info"><div class="seq-label">Maior sequência de wins</div><div class="seq-valor" id="seqMaxWins">0</div></div></div>
-            <div class="seq-item"><div class="seq-icon">💀</div><div class="seq-info"><div class="seq-label">Maior sequência de loss</div><div class="seq-valor" id="seqMaxLoss">0</div></div></div>
-          </div>
-
+          <!-- CARDS DE GESTÃO -->
           <div class="cards-gestao">
-            <div class="card card-meta"><div class="card-label">🎯 META DO DIA</div><div class="card-valor" id="metaDia">R$ 0,00</div><div class="card-sub" id="metaInfo">Calculando...</div></div>
-            <div class="card card-stop"><div class="card-label">🛑 STOP DO DIA</div><div class="card-valor" id="stopDia">R$ 0,00</div><div class="card-sub" id="stopInfo">Calculando...</div></div>
             <div class="card card-saque">
-              <div class="card-label">💸 PRÓXIMO SAQUE</div>
-              <div class="card-valor" id="proximoSaque">R$ 0,00</div>
-              <div class="card-sub" id="saqueInfo">Calculando...</div>
-              <div class="botoes-saque">
-                <button id="btnSaqueQuinzenal" class="btn-toggle btn-saque-15">💸 SACAR 15%</button>
-                <button id="btnSaqueMensal" class="btn-toggle btn-saque-30">💰 SACAR 30%</button>
+              <div class="card-vision-header">
+                <div class="card-vision-label"><i data-lucide="banknote"></i> PRÓXIMO SAQUE</div>
               </div>
+              <div class="card-vision-valor" id="proximoSaque">R$ 0,00</div>
+              <div class="card-vision-sub" id="saqueInfo">Calculando...</div>
+              <div class="botoes-saque">
+                <button id="btnSaqueQuinzenal" class="btn-toggle btn-saque-15"><i data-lucide="banknote"></i> SACAR 15%</button>
+                <button id="btnSaqueMensal" class="btn-toggle btn-saque-30"><i data-lucide="coins"></i> SACAR 30%</button>
+              </div>
+            </div>
+            <div class="card card-stop">
+              <div class="card-vision-header">
+                <div class="card-vision-label"><i data-lucide="ban"></i> STOP DO DIA</div>
+              </div>
+              <div class="card-vision-valor" id="stopDia">R$ 0,00</div>
+              <div class="card-vision-sub" id="stopInfo">Calculando...</div>
             </div>
           </div>
 
-          <div id="alertaStop" class="alerta-stop" style="display:none">🛑 PARE DE OPERAR HOJE — Stop atingido!</div>
+          <div id="alertaStop" class="alerta-stop" style="display:none">
+            <i data-lucide="alert-triangle"></i> PARE DE OPERAR HOJE — Stop atingido!
+          </div>
 
           <div class="contador-dia">
             <div class="contador-item"><span class="contador-label">Wins hoje:</span><span class="contador-valor win" id="winsHoje">0</span></div>
             <div class="contador-item"><span class="contador-label">Loss hoje:</span><span class="contador-valor loss" id="lossHoje">0</span></div>
             <div class="contador-item"><span class="contador-label">Empates hoje:</span><span class="contador-valor empate" id="empatesHoje">0</span></div>
           </div>
-        </section>        <section class="tab-content" id="tab-nova">
-          <div class="page-header"><h1>➕ Nova Operação</h1><div class="page-header-info">Registre suas entradas</div></div>
-          <div class="form-operacao">
-            <div class="form-linha">
-              <label>Ativo<input type="text" id="inputAtivo" placeholder="Ex: WIN, PETR4"></label>
-              <label>Valor (R$)<input type="number" id="inputValor" step="0.01" placeholder="0,00"></label>
-              <label>Data<input type="date" id="inputData"></label>
-              <label>Hora<input type="time" id="inputHora"></label>
-            </div>
-            <div class="print-operacao">
-              <label class="print-label">📸 Print da operação (opcional)</label>
-              <div class="print-botoes">
-                <button type="button" class="btn-print" id="btnPrintCamera">📷 Tirar foto</button>
-                <button type="button" class="btn-print" id="btnPrintGaleria">🖼️ Escolher da galeria</button>
-              </div>
-              <input type="file" id="inputPrintCamera" accept="image/*" capture="environment" style="display:none">
-              <input type="file" id="inputPrintGaleria" accept="image/*" style="display:none">
-              <div id="printPreview" class="print-preview" style="display:none;">
-                <img id="printPreviewImg" alt="Print da operação">
-                <button type="button" class="btn-remover-print" id="btnRemoverPrint">✕ Remover</button>
-              </div>
-            </div>
-            <div class="form-botoes">
-              <button class="btn-win" onclick="registrarOperacao('WIN')">✅ WIN</button>
-              <button class="btn-loss" onclick="registrarOperacao('LOSS')">❌ LOSS</button>
-              <button class="btn-empate" onclick="registrarOperacao('EMPATE')">➖ EMPATE</button>
-            </div>
-          </div>
-          <div class="form-operacao" style="margin-top:20px;">
-            <h2 style="font-size:16px;color:#00e676;margin-bottom:15px;">💰 Depósito / Saque Manual</h2>
-            <div class="form-linha">
-              <label>Valor (R$)<input type="number" id="inputDeposito" step="0.01" placeholder="0,00"></label>
-              <label>Data<input type="date" id="inputDepositoData"></label>
-              <label>Tipo<select id="inputDepositoTipo"><option value="DEPOSITO">💰 Depósito</option><option value="SAQUE">💸 Saque</option></select></label>
-            </div>
-            <div class="form-botoes"><button class="btn-win" onclick="registrarDeposito()">✅ Confirmar</button></div>
-          </div>
-        </section>
 
+          <!-- ÚLTIMAS OPERAÇÕES -->
+          <div class="card card-ultimas-operacoes">
+            <div class="card-vision-header">
+              <div class="card-vision-label">Últimas operações</div>
+              <div class="card-vision-badge"><span class="badge-verde" id="ultimasBadge">+0 este mês</span></div>
+            </div>
+            <div id="listaUltimasOperacoes" class="lista-vision">
+              <p class="placeholder-texto">Nenhuma operação registrada ainda</p>
+            </div>
+          </div>
+
+          <!-- GRÁFICO EVOLUÇÃO -->
+          <div class="card card-grafico-vision">
+            <div class="card-vision-header">
+              <div>
+                <div class="card-vision-label">Evolução da banca</div>
+                <div class="card-vision-sub" id="evolucaoSub">(+0%) em relação ao mês passado</div>
+              </div>
+            </div>
+            <div class="grafico-vision-container">
+              <canvas id="graficoBanca"></canvas>
+            </div>
+          </div>
+        </section>        <!-- ABA: HISTÓRICO -->
         <section class="tab-content" id="tab-historico">
-          <div class="page-header"><h1>📋 Histórico</h1><div class="page-header-info">Todas as suas operações</div></div>
-          <div class="historico-header">
-            <div class="filtros">
-              <select id="filtroMes"><option value="">Todos os meses</option></select>
-              <button id="btnLimparFiltro" class="btn-small">Limpar filtro</button>
-              <button id="btnExportarCSVHistorico" class="btn-small">📤 CSV</button>
+          <div class="page-header">
+            <h1>Histórico</h1>
+            <div class="page-header-info">Todas as suas operações</div>
+          </div>
+
+          <div class="card card-tabela-vision">
+            <div class="card-vision-header">
+              <div>
+                <div class="card-vision-label">Histórico de operações</div>
+                <div class="card-vision-sub"><span class="badge-verde" id="historicoBadge">0 operações este mês</span></div>
+              </div>
+              <div class="vision-header-acoes">
+                <select id="filtroMes" class="select-vision">
+                  <option value="">Todos os meses</option>
+                </select>
+                <button id="btnLimparFiltro" class="btn-small-vision">
+                  <i data-lucide="x"></i> Limpar
+                </button>
+                <button id="btnExportarCSVHistorico" class="btn-small-vision">
+                  <i data-lucide="download"></i> CSV
+                </button>
+              </div>
             </div>
+            <table class="tabela-vision" id="tabelaHistorico">
+              <thead>
+                <tr>
+                  <th>Ativo</th>
+                  <th>Data</th>
+                  <th>Hora</th>
+                  <th>Resultado</th>
+                  <th>Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="corpoHistorico"></tbody>
+            </table>
           </div>
-          <table id="tabelaHistorico">
-            <thead><tr><th>Data</th><th>Hora</th><th>Ativo</th><th>Resultado</th><th>Valor</th><th>Print</th><th>Ações</th></tr></thead>
-            <tbody id="corpoHistorico"></tbody>
-          </table>
         </section>
 
+        <!-- ABA: CALENDÁRIO -->
         <section class="tab-content" id="tab-calendario">
-          <div class="page-header"><h1>📅 Calendário</h1><div class="page-header-info" id="mesCalendario"></div></div>
-          <div class="calendario-nav">
-            <button id="btnMesAnterior" class="btn-small">← Mês anterior</button>
-            <span id="tituloCalendario" style="font-weight:700;font-size:16px;"></span>
-            <button id="btnProximoMes" class="btn-small">Próximo mês →</button>
+          <div class="page-header">
+            <h1>Calendário</h1>
+            <div class="page-header-info" id="mesCalendario"></div>
           </div>
-          <div class="calendario-grid" id="calendarioGrid"></div>
+
+          <div class="card card-calendario-vision">
+            <div class="calendario-nav-vision">
+              <button id="btnMesAnterior" class="btn-small-vision">
+                <i data-lucide="chevron-left"></i> Mês anterior
+              </button>
+              <span id="tituloCalendario" class="calendario-titulo-vision">Outubro 2026</span>
+              <button id="btnProximoMes" class="btn-small-vision">
+                Próximo mês <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+            <div class="calendario-grid-vision" id="calendarioGrid"></div>
+          </div>
         </section>
 
+        <!-- ABA: PERFORMANCE -->
         <section class="tab-content" id="tab-performance">
           <div class="page-header">
-            <h1>📈 Performance Mensal</h1>
+            <h1>Performance Mensal</h1>
             <div class="page-header-info">Desempenho mês a mês</div>
           </div>
 
-          <div class="performance-topo">
-            <div class="performance-rosca">
-              <div class="performance-rosca-titulo">🎯 ASSERTIVIDADE</div>
-              <div class="performance-rosca-container">
+          <div class="performance-topo-vision">
+            <div class="card card-rosca-grande">
+              <div class="card-vision-header">
+                <div class="card-vision-label">ASSERTIVIDADE</div>
+                <div class="card-vision-opcoes"><i data-lucide="more-horizontal"></i></div>
+              </div>
+              <div class="rosca-grande-container">
                 <canvas id="graficoAssertividadeRosca"></canvas>
-                <div class="performance-rosca-centro">
-                  <div class="performance-rosca-percentual" id="assertividadePercentualCentro">0%</div>
-                  <div class="performance-rosca-sub" id="assertividadeContadorCentro">0W · 0L</div>
+                <div class="rosca-grande-centro">
+                  <div class="rosca-grande-valor" id="assertividadePercentualCentro">0%</div>
+                  <div class="rosca-grande-sub" id="assertividadeContadorCentro">0W · 0L</div>
                 </div>
               </div>
+              <div class="rosca-barra-base">
+                <span>0%</span>
+                <div class="rosca-barra-fundo">
+                  <div class="rosca-barra-preenchida" id="roscaBarraProgresso" style="width:0%"></div>
+                </div>
+                <span>100%</span>
+              </div>
+              <div class="rosca-info-base" id="roscaInfoBase">Baseado em 0 operações</div>
             </div>
 
-            <div class="performance-mini-cards">
-              <div class="mini-card"><div class="mini-label">RESULTADO DO DIA</div><div class="mini-valor" id="resultadoDia">R$ 0,00</div></div>
-              <div class="mini-card"><div class="mini-label">RESULTADO DA SEMANA</div><div class="mini-valor" id="resultadoSemana">R$ 0,00</div></div>
-              <div class="mini-card"><div class="mini-label">RESULTADO DO MÊS</div><div class="mini-valor" id="resultadoMes">R$ 0,00</div></div>
-              <div class="mini-card"><div class="mini-label">LUCRO / PREJUÍZO</div><div class="mini-valor" id="lucroTotal">R$ 0,00</div></div>
-              <div class="mini-card"><div class="mini-label">DEPÓSITOS TOTAIS</div><div class="mini-valor" id="depositosTotais">R$ 0,00</div></div>
+            <div class="performance-mini-cards-vision">
+              <div class="mini-top mini-top-performance">
+                <div class="mini-top-info">
+                  <div class="mini-top-label">Resultado do Dia</div>
+                  <div class="mini-top-valor" id="resultadoDia">R$ 0,00</div>
+                </div>
+                <div class="mini-top-icon azul"><i data-lucide="sun"></i></div>
+              </div>
+              <div class="mini-top mini-top-performance">
+                <div class="mini-top-info">
+                  <div class="mini-top-label">Resultado da Semana</div>
+                  <div class="mini-top-valor" id="resultadoSemana">R$ 0,00</div>
+                </div>
+                <div class="mini-top-icon azul"><i data-lucide="calendar-days"></i></div>
+              </div>
+              <div class="mini-top mini-top-performance">
+                <div class="mini-top-info">
+                  <div class="mini-top-label">Resultado do Mês</div>
+                  <div class="mini-top-valor" id="resultadoMes">R$ 0,00</div>
+                </div>
+                <div class="mini-top-icon azul"><i data-lucide="trending-up"></i></div>
+              </div>
+              <div class="mini-top mini-top-performance">
+                <div class="mini-top-info">
+                  <div class="mini-top-label">Lucro / Prejuízo</div>
+                  <div class="mini-top-valor" id="lucroTotal">R$ 0,00</div>
+                </div>
+                <div class="mini-top-icon verde"><i data-lucide="dollar-sign"></i></div>
+              </div>
+              <div class="mini-top mini-top-performance">
+                <div class="mini-top-info">
+                  <div class="mini-top-label">Depósitos Totais</div>
+                  <div class="mini-top-valor" id="depositosTotais">R$ 0,00</div>
+                </div>
+                <div class="mini-top-icon azul"><i data-lucide="piggy-bank"></i></div>
+              </div>
             </div>
           </div>
 
-          <h2 class="secao-titulo">📅 Histórico de Meses</h2>
-          <table id="tabelaMensal">
-            <thead><tr><th>Mês</th><th>Wins</th><th>Loss</th><th>Lucro</th><th>Meta</th><th>Banca Final</th></tr></thead>
-            <tbody id="corpoMensal"></tbody>
-          </table>
+          <div class="card card-tabela-vision">
+            <div class="card-vision-header">
+              <div class="card-vision-label">Histórico de Meses</div>
+            </div>
+            <table class="tabela-vision" id="tabelaMensal">
+              <thead>
+                <tr>
+                  <th>Mês</th>
+                  <th>Wins</th>
+                  <th>Loss</th>
+                  <th>Lucro</th>
+                  <th>Meta</th>
+                  <th>Banca Final</th>
+                </tr>
+              </thead>
+              <tbody id="corpoMensal"></tbody>
+            </table>
+          </div>
         </section>
 
+        <!-- ABA: EVOLUÇÃO -->
         <section class="tab-content" id="tab-evolucao">
-          <div class="page-header"><h1>📈 Evolução da Banca</h1><div class="page-header-info">Seu progresso ao longo do tempo</div></div>
-          <div class="grafico-container"><canvas id="graficoBanca"></canvas></div>
-          <div class="page-header" style="margin-top:30px;"><h1 style="font-size:20px;">📊 Resultado por Dia</h1><div class="page-header-info">Últimos 30 dias</div></div>
-          <div class="grafico-container"><canvas id="graficoBarras"></canvas></div>
+          <div class="page-header">
+            <h1>Evolução da Banca</h1>
+            <div class="page-header-info">Seu progresso ao longo do tempo</div>
+          </div>
+
+          <div class="card card-grafico-vision">
+            <div class="card-vision-header">
+              <div>
+                <div class="card-vision-label">Evolução da banca</div>
+                <div class="card-vision-sub" id="evolucaoPageSub">(+0%) este mês</div>
+              </div>
+            </div>
+            <div class="grafico-vision-container">
+              <canvas id="graficoBancaPagina"></canvas>
+            </div>
+          </div>
+
+          <div class="card card-grafico-vision">
+            <div class="card-vision-header">
+              <div>
+                <div class="card-vision-label">Resultado por dia</div>
+                <div class="card-vision-sub">Últimos 30 dias</div>
+              </div>
+            </div>
+            <div class="grafico-vision-container">
+              <canvas id="graficoBarras"></canvas>
+            </div>
+          </div>
         </section>
 
+        <!-- ABA: MÉTRICAS -->
         <section class="tab-content" id="tab-metricas">
           <div class="page-header">
-            <h1>🎯 Métricas</h1>
+            <h1>Métricas</h1>
             <div class="page-header-info">Análise completa da sua performance</div>
           </div>
 
-          <h2 class="secao-titulo">📊 Indicadores Principais</h2>
-          <div class="metricas-pro">
-            <div class="card card-kelly"><div class="card-label">🎯 RISCO IDEAL (KELLY)</div><div class="card-valor" id="kellyValor">0%</div><div class="card-sub" id="kellyInfo">Calculando...</div></div>
-            <div class="card card-drawdown"><div class="card-label">📉 DRAWDOWN MÁXIMO</div><div class="card-valor" id="drawdownValor">0%</div><div class="card-sub" id="drawdownInfo">Calculando...</div></div>
-            <div class="card card-você"><div class="card-label">⚖️ VOCÊ × VOCÊ</div><div class="card-valor" id="voceVoceSemana">R$ 0,00</div><div class="card-sub" id="voceVoceInfo">Semana atual vs. anterior</div></div>
+          <h2 class="secao-titulo-vision">Indicadores Principais</h2>
+
+          <div class="metricas-vision-grid">
+            <div class="card card-metrica-rosca">
+              <div class="card-vision-header">
+                <div class="card-vision-label"><i data-lucide="target"></i> RISCO IDEAL (KELLY)</div>
+                <div class="card-vision-opcoes"><i data-lucide="more-horizontal"></i></div>
+              </div>
+              <div class="metrica-rosca-container">
+                <canvas id="graficoKelly"></canvas>
+                <div class="metrica-rosca-centro">
+                  <div class="metrica-rosca-valor" id="kellyValor">0%</div>
+                  <div class="metrica-rosca-sub">Kelly</div>
+                </div>
+              </div>
+              <div class="metrica-info" id="kellyInfo">Calculando...</div>
+            </div>
+
+            <div class="card card-metrica-rosca">
+              <div class="card-vision-header">
+                <div class="card-vision-label"><i data-lucide="trending-down"></i> DRAWDOWN MÁXIMO</div>
+                <div class="card-vision-opcoes"><i data-lucide="more-horizontal"></i></div>
+              </div>
+              <div class="metrica-rosca-container">
+                <canvas id="graficoDrawdown"></canvas>
+                <div class="metrica-rosca-centro">
+                  <div class="metrica-rosca-valor" id="drawdownValor">0%</div>
+                  <div class="metrica-rosca-sub">Drawdown</div>
+                </div>
+              </div>
+              <div class="metrica-info" id="drawdownInfo">Calculando...</div>
+            </div>
+
+            <div class="card card-metrica-rosca">
+              <div class="card-vision-header">
+                <div class="card-vision-label"><i data-lucide="activity"></i> SHARPE RATIO</div>
+              </div>
+              <div class="metrica-rosca-container">
+                <canvas id="graficoSharpe"></canvas>
+                <div class="metrica-rosca-centro">
+                  <div class="metrica-rosca-valor" id="sharpeValor">0.00</div>
+                  <div class="metrica-rosca-sub">Sharpe</div>
+                </div>
+              </div>
+              <div class="metrica-info" id="sharpeInfo">Calculando...</div>
+            </div>
+
+            <div class="card card-metrica-rosca">
+              <div class="card-vision-header">
+                <div class="card-vision-label"><i data-lucide="scale"></i> VOCÊ × VOCÊ</div>
+              </div>
+              <div class="metrica-você-conteudo">
+                <div class="metrica-você-item">
+                  <div class="metrica-você-label">Esta semana</div>
+                  <div class="metrica-você-valor" id="voceVoceSemana">R$ 0,00</div>
+                </div>
+                <div class="metrica-você-item">
+                  <div class="metrica-você-label">Semana passada</div>
+                  <div class="metrica-você-valor" id="voceVoceSemanaPassada">R$ 0,00</div>
+                </div>
+                <div class="metrica-você-item">
+                  <div class="metrica-você-label">Este mês</div>
+                  <div class="metrica-você-valor" id="voceVoceMes">R$ 0,00</div>
+                </div>
+                <div class="metrica-você-item">
+                  <div class="metrica-você-label">Mês passado</div>
+                  <div class="metrica-você-valor" id="voceVoceMesPassado">R$ 0,00</div>
+                </div>
+              </div>
+              <div class="metrica-info" id="voceVoceInfo">Semana atual vs. anterior</div>
+            </div>
           </div>
 
-          <h2 class="secao-titulo">📐 Indicadores Avançados</h2>
-          <div class="metricas-pro-avancadas">
-            <div class="card card-sharpe"><div class="card-label">📐 SHARPE RATIO</div><div class="card-valor" id="sharpeValor">0.00</div><div class="card-sub" id="sharpeInfo">Retorno ajustado ao risco</div></div>
-            <div class="card card-payoff"><div class="card-label">💰 PAYOFF</div><div class="card-valor" id="payoffValor">0.00</div><div class="card-sub" id="payoffInfo">Ganho médio / Perda média</div></div>
-            <div class="card card-expect"><div class="card-label">🎯 EXPECTÂNCIA</div><div class="card-valor" id="expectanciaValor">R$ 0,00</div><div class="card-sub" id="expectanciaInfo">Valor esperado por operação</div></div>
-            <div class="card card-fator"><div class="card-label">⚡ FATOR LUCRO</div><div class="card-valor" id="fatorLucroValor">0.00</div><div class="card-sub" id="fatorLucroInfo">Total ganho / Total perdido</div></div>
+          <h2 class="secao-titulo-vision">Indicadores Avançados</h2>
+
+          <div class="metricas-vision-grid">
+            <div class="card card-metrica-simples">
+              <div class="card-vision-label"><i data-lucide="banknote"></i> PAYOFF</div>
+              <div class="card-vision-valor" id="payoffValor">0.00</div>
+              <div class="card-vision-sub" id="payoffInfo">Ganho médio / Perda média</div>
+            </div>
+            <div class="card card-metrica-simples">
+              <div class="card-vision-label"><i data-lucide="activity"></i> EXPECTÂNCIA</div>
+              <div class="card-vision-valor" id="expectanciaValor">R$ 0,00</div>
+              <div class="card-vision-sub" id="expectanciaInfo">Valor esperado por operação</div>
+            </div>
+            <div class="card card-metrica-simples">
+              <div class="card-vision-label"><i data-lucide="zap"></i> FATOR LUCRO</div>
+              <div class="card-vision-valor" id="fatorLucroValor">0.00</div>
+              <div class="card-vision-sub" id="fatorLucroInfo">Total ganho / Total perdido</div>
+            </div>
+            <div class="card card-metrica-simples">
+              <div class="card-vision-label"><i data-lucide="bar-chart-3"></i> GANHO × PERDA</div>
+              <div class="grafico-mini-container">
+                <canvas id="graficoGanhoPerda"></canvas>
+              </div>
+            </div>
           </div>
 
-          <h2 class="secao-titulo">📊 Gráficos</h2>
-          <div class="grafico-grid">
-            <div class="grafico-card">
-              <h3>🏆 Wins vs Loss vs Empates</h3>
-              <div class="grafico-container-pizza"><canvas id="graficoPizzaTipo"></canvas></div>
+          <h2 class="secao-titulo-vision">Distribuição</h2>
+
+          <div class="metricas-vision-grid">
+            <div class="card card-metrica-rosca">
+              <div class="card-vision-header">
+                <div class="card-vision-label">WINS × LOSS × EMPATES</div>
+              </div>
+              <div class="metrica-rosca-container">
+                <canvas id="graficoPizzaTipo"></canvas>
+              </div>
             </div>
-            <div class="grafico-card">
-              <h3>📅 Resultado por Dia da Semana</h3>
-              <div class="grafico-container-pizza"><canvas id="graficoDiaSemana"></canvas></div>
+            <div class="card card-metrica-rosca">
+              <div class="card-vision-header">
+                <div class="card-vision-label">RESULTADO POR DIA DA SEMANA</div>
+              </div>
+              <div class="grafico-mini-container">
+                <canvas id="graficoDiaSemana"></canvas>
+              </div>
             </div>
-            <div class="grafico-card">
-              <h3>🎯 Risco Ideal (Kelly)</h3>
-              <div class="grafico-container-pizza"><canvas id="graficoKelly"></canvas></div>
+            <div class="card card-metrica-rosca">
+              <div class="card-vision-header">
+                <div class="card-vision-label">CONTRIBUIÇÃO POR ATIVO</div>
+              </div>
+              <div class="metrica-rosca-container">
+                <canvas id="graficoAtivo"></canvas>
+              </div>
             </div>
-            <div class="grafico-card">
-              <h3>📉 Drawdown ao Longo do Tempo</h3>
-              <div class="grafico-container-pizza"><canvas id="graficoDrawdown"></canvas></div>
-            </div>
-            <div class="grafico-card">
-              <h3>📈 Assertividade Evolutiva</h3>
-              <div class="grafico-container-pizza"><canvas id="graficoAssertividade"></canvas></div>
-            </div>
-            <div class="grafico-card">
-              <h3>⚖️ Ganho × Perda</h3>
-              <div class="grafico-container-pizza"><canvas id="graficoGanhoPerda"></canvas></div>
-            </div>
-            <div class="grafico-card">
-              <h3>💰 Contribuição por Ativo</h3>
-              <div class="grafico-container-pizza"><canvas id="graficoAtivo"></canvas></div>
-            </div>
-            <div class="grafico-card">
-              <h3>📊 Resultado por Mês</h3>
-              <div class="grafico-container-pizza"><canvas id="graficoMes"></canvas></div>
+            <div class="card card-metrica-rosca">
+              <div class="card-vision-header">
+                <div class="card-vision-label">RESULTADO POR MÊS</div>
+              </div>
+              <div class="grafico-mini-container">
+                <canvas id="graficoMes"></canvas>
+              </div>
             </div>
           </div>
-        </section>
-
+        </section>        <!-- ABA: SAQUES -->
         <section class="tab-content" id="tab-saques">
-          <div class="page-header"><h1>💸 Histórico de Saques</h1><div class="page-header-info">Todos os seus saques</div></div>
-          <div class="resumo-saques">
-            <div class="card card-saque-resumo"><div class="card-label">TOTAL SACADO</div><div class="card-valor" id="saquesTotal">R$ 0,00</div></div>
-            <div class="card card-saque-resumo"><div class="card-label">QUANTIDADE</div><div class="card-valor" id="saquesQuantidade">0</div></div>
-            <div class="card card-saque-resumo"><div class="card-label">ÚLTIMO SAQUE</div><div class="card-valor" id="saquesUltimo">-</div></div>
+          <div class="page-header">
+            <h1>Saques</h1>
+            <div class="page-header-info">Todos os seus saques</div>
           </div>
-          <table id="tabelaSaques">
-            <thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>% da Banca</th><th>Ações</th></tr></thead>
-            <tbody id="corpoSaques"></tbody>
-          </table>
+
+          <div class="mini-cards-topo">
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Total Sacado</div>
+                <div class="mini-top-valor" id="saquesTotal">R$ 0,00</div>
+              </div>
+              <div class="mini-top-icon azul"><i data-lucide="banknote"></i></div>
+            </div>
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Quantidade</div>
+                <div class="mini-top-valor" id="saquesQuantidade">0</div>
+              </div>
+              <div class="mini-top-icon verde"><i data-lucide="hash"></i></div>
+            </div>
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Último Saque</div>
+                <div class="mini-top-valor" id="saquesUltimo" style="font-size:16px;">-</div>
+              </div>
+              <div class="mini-top-icon azul"><i data-lucide="clock"></i></div>
+            </div>
+          </div>
+
+          <div class="card card-transacoes-vision">
+            <div class="card-vision-header">
+              <div>
+                <div class="card-vision-label">Histórico de Saques</div>
+                <div class="card-vision-sub"><span class="badge-verde">Todas as retiradas</span></div>
+              </div>
+              <div class="card-vision-opcoes"><i data-lucide="more-horizontal"></i></div>
+            </div>
+            <div class="lista-transacoes-vision" id="listaSaques">
+              <p class="placeholder-texto">Nenhum saque registrado ainda</p>
+            </div>
+          </div>
         </section>
 
+        <!-- ABA: POR HORÁRIO -->
         <section class="tab-content" id="tab-horario">
-          <div class="page-header"><h1>⏰ Desempenho por Horário</h1><div class="page-header-info">Onde você ganha mais</div></div>
-          <table id="tabelaHorario">
-            <thead><tr><th>Faixa de Horário</th><th>Operações</th><th>Wins</th><th>Loss</th><th>Resultado</th><th>Assertividade</th></tr></thead>
-            <tbody id="corpoHorario"></tbody>
-          </table>
+          <div class="page-header">
+            <h1>Por Horário</h1>
+            <div class="page-header-info">Onde você ganha mais</div>
+          </div>
+
+          <div class="card card-tabela-vision">
+            <div class="card-vision-header">
+              <div>
+                <div class="card-vision-label">Desempenho por horário</div>
+                <div class="card-vision-sub">Análise de resultados por faixa horária</div>
+              </div>
+            </div>
+            <table class="tabela-vision" id="tabelaHorario">
+              <thead>
+                <tr>
+                  <th>Faixa de Horário</th>
+                  <th>Operações</th>
+                  <th>Wins</th>
+                  <th>Loss</th>
+                  <th>Resultado</th>
+                  <th>Assertividade</th>
+                </tr>
+              </thead>
+              <tbody id="corpoHorario"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ABA: NOVA OPERAÇÃO -->
+        <section class="tab-content" id="tab-nova">
+          <div class="page-header">
+            <h1>Nova Operação</h1>
+            <div class="page-header-info">Registre suas entradas</div>
+          </div>
+
+          <div class="card card-form-vision">
+            <div class="card-vision-header">
+              <div class="card-vision-label">Dados da operação</div>
+            </div>
+
+            <div class="form-vision">
+              <div class="form-vision-linha">
+                <label class="form-vision-campo form-campo-ativo">
+                  <span class="form-vision-label">ATIVO</span>
+                  <button type="button" class="dropdown-ativo-vision" id="dropdownAtivo">
+                    <span class="dropdown-ativo-texto" id="dropdownAtivoTexto">Escolher ativo</span>
+                    <span class="dropdown-ativo-seta"><i data-lucide="chevron-down"></i></span>
+                  </button>
+                  <div class="dropdown-ativo-lista" id="dropdownAtivoLista" style="display:none;">
+                    <div class="dropdown-item" data-ativo="BITCOIN">BITCOIN</div>
+                    <div class="dropdown-item" data-ativo="LITECOIN">LITECOIN</div>
+                    <div class="dropdown-item" data-ativo="CARDANO">CARDANO</div>
+                    <div class="dropdown-item" data-ativo="BNB">BNB</div>
+                    <div class="dropdown-item" data-ativo="ETHEREUM">ETHEREUM</div>
+                    <div class="dropdown-item" data-ativo="SOLANA">SOLANA</div>
+                    <div class="dropdown-item" data-ativo="AVAX">AVAX</div>
+                    <div class="dropdown-item" data-ativo="DOGE">DOGE</div>
+                    <div class="dropdown-item" data-ativo="SUI">SUI</div>
+                    <div class="dropdown-item" data-ativo="XPL">XPL</div>
+                    <div class="dropdown-item" data-ativo="STELLAR">STELLAR</div>
+                    <div class="dropdown-item dropdown-item-add" id="btnAdicionarAtivo">
+                      <i data-lucide="plus"></i> Adicionar ativo
+                    </div>
+                    <div class="dropdown-add-input" id="dropdownAddInput" style="display:none;">
+                      <input type="text" id="inputNovoAtivo" placeholder="Nome do ativo" maxlength="20">
+                      <button type="button" class="btn-add-confirmar" id="btnConfirmarNovoAtivo">
+                        <i data-lucide="check"></i>
+                      </button>
+                      <button type="button" class="btn-add-cancelar" id="btnCancelarNovoAtivo">
+                        <i data-lucide="x"></i>
+                      </button>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-vision-linha">
+                <label class="form-vision-campo">
+                  <span class="form-vision-label">VALOR (R$)</span>
+                  <input type="number" id="inputValor" step="0.01" placeholder="0,00">
+                </label>
+              </div>
+
+              <div class="form-vision-linha form-vision-linha-dupla">
+                <label class="form-vision-campo">
+                  <span class="form-vision-label">DATA</span>
+                  <input type="date" id="inputData">
+                </label>
+                <label class="form-vision-campo">
+                  <span class="form-vision-label">HORA</span>
+                  <input type="time" id="inputHora">
+                </label>
+              </div>
+
+              <div class="form-vision-botoes">
+                <button class="btn-vision-win" onclick="registrarOperacao('WIN')">
+                  <i data-lucide="check-circle"></i> WIN
+                </button>
+                <button class="btn-vision-loss" onclick="registrarOperacao('LOSS')">
+                  <i data-lucide="x-circle"></i> LOSS
+                </button>
+                <button class="btn-vision-empate" onclick="registrarOperacao('EMPATE')">
+                  <i data-lucide="minus-circle"></i> EMPATE
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-form-vision">
+            <div class="card-vision-header">
+              <div class="card-vision-label"><i data-lucide="banknote"></i> Depósito / Saque Manual</div>
+            </div>
+            <div class="form-vision">
+              <div class="form-vision-linha form-vision-linha-tripla">
+                <label class="form-vision-campo">
+                  <span class="form-vision-label">VALOR (R$)</span>
+                  <input type="number" id="inputDeposito" step="0.01" placeholder="0,00">
+                </label>
+                <label class="form-vision-campo">
+                  <span class="form-vision-label">DATA</span>
+                  <input type="date" id="inputDepositoData">
+                </label>
+                <label class="form-vision-campo">
+                  <span class="form-vision-label">TIPO</span>
+                  <select id="inputDepositoTipo" class="select-vision">
+                    <option value="DEPOSITO">Depósito</option>
+                    <option value="SAQUE">Saque</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-vision-botoes">
+                <button class="btn-vision-win" onclick="registrarDeposito()">
+                  <i data-lucide="check"></i> Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
         </section>
       </main>
     </div>
 
+    <!-- MOBILE NAV -->
     <nav class="mobile-nav">
-      <button class="mobile-nav-item active" data-tab="painel"><span class="mn-icon">📊</span><span class="mn-label">Painel</span></button>
-      <button class="mobile-nav-item" data-tab="nova"><span class="mn-icon">➕</span><span class="mn-label">Nova</span></button>
-      <button class="mobile-nav-item" data-tab="historico"><span class="mn-icon">📋</span><span class="mn-label">Histórico</span></button>
-      <button class="mobile-nav-item" data-tab="performance"><span class="mn-icon">📈</span><span class="mn-label">Performance</span></button>
-      <button class="mobile-nav-item" data-tab="mais"><span class="mn-icon">☰</span><span class="mn-label">Mais</span></button>
+      <button class="mobile-nav-item active" data-tab="painel">
+        <i data-lucide="layout-dashboard"></i><span class="mn-label">Painel</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="nova">
+        <i data-lucide="plus-circle"></i><span class="mn-label">Nova</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="historico">
+        <i data-lucide="list"></i><span class="mn-label">Histórico</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="performance">
+        <i data-lucide="bar-chart-3"></i><span class="mn-label">Performance</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="mais">
+        <i data-lucide="menu"></i><span class="mn-label">Mais</span>
+      </button>
     </nav>
 
     <div class="mobile-menu-mais" id="mobileMenuMais">
       <div class="mm-overlay"></div>
       <div class="mm-panel">
         <h3>Mais opções</h3>
-        <button class="mm-item" data-tab="calendario">📅 Calendário</button>
-        <button class="mm-item" data-tab="evolucao">📈 Evolução</button>
-        <button class="mm-item" data-tab="metricas">🎯 Métricas</button>
-        <button class="mm-item" data-tab="saques">💸 Saques</button>
-        <button class="mm-item" data-tab="horario">⏰ Por Horário</button>
+        <button class="mm-item" data-tab="calendario"><i data-lucide="calendar"></i> Calendário</button>
+        <button class="mm-item" data-tab="evolucao"><i data-lucide="trending-up"></i> Evolução</button>
+        <button class="mm-item" data-tab="metricas"><i data-lucide="target"></i> Métricas</button>
+        <button class="mm-item" data-tab="saques"><i data-lucide="banknote"></i> Saques</button>
+        <button class="mm-item" data-tab="horario"><i data-lucide="clock"></i> Por Horário</button>
         <hr>
-        <button id="mmRelatorioPDF" class="mm-item">📄 Relatório PDF</button>
-        <button id="mmAnaliseIA" class="mm-item">🤖 Análise IA</button>
-        <button id="mmCompartilhar" class="mm-item">📱 Compartilhar</button>
-        <button id="mmOcultar" class="mm-item">👁️ Ocultar Valores</button>
-        <button id="mmExportar" class="mm-item">⬇️ Exportar Backup</button>
-        <button id="mmImportar" class="mm-item">⬆️ Importar Backup</button>
-        <button id="mmResetar" class="mm-item mm-item-perigo">🗑️ Resetar dados</button>
-        <button id="mmSair" class="mm-item">🚪 Sair da conta</button>
+        <button id="mmRelatorioPDF" class="mm-item"><i data-lucide="file-text"></i> Relatório PDF</button>
+        <button id="mmAnaliseIA" class="mm-item"><i data-lucide="bot"></i> Análise IA</button>
+        <button id="mmCompartilhar" class="mm-item"><i data-lucide="share-2"></i> Compartilhar</button>
+        <button id="mmOcultar" class="mm-item"><i data-lucide="eye-off"></i> Ocultar Valores</button>
+        <button id="mmExportar" class="mm-item"><i data-lucide="download"></i> Exportar Backup</button>
+        <button id="mmImportar" class="mm-item"><i data-lucide="upload"></i> Importar Backup</button>
+        <button id="mmResetar" class="mm-item mm-item-perigo"><i data-lucide="trash-2"></i> Resetar dados</button>
+        <button id="mmSair" class="mm-item"><i data-lucide="log-out"></i> Sair da conta</button>
       </div>
     </div>
-  </div>  <!-- MODAIS -->
+  </div>  <!-- MODAL PRINT -->
   <div id="modalPrint" class="modal-print" style="display:none;">
     <div class="modal-print-content">
-      <button class="modal-close" id="btnFecharModalPrint">✕</button>
+      <button class="modal-close" id="btnFecharModalPrint">
+        <i data-lucide="x"></i>
+      </button>
       <img id="modalPrintImg" alt="Print da operação">
     </div>
   </div>
 
-  <div id="modalIA" class="modal-ia" style="display:none;">
-    <div class="modal-ia-content">
-      <button class="modal-close" id="btnFecharModalIA">✕</button>
-      <h2>🤖 Análise IA</h2>
-      <p class="modal-ia-sub">Copie o texto abaixo e cole no <strong>DeepSeek</strong> ou <strong>ChatGPT</strong>.</p>
+  <!-- MODAL IA -->
+  <div id="modalIA" class="modal-vision" style="display:none;">
+    <div class="modal-vision-content">
+      <button class="modal-vision-close" id="btnFecharModalIA">
+        <i data-lucide="x"></i>
+      </button>
+      <h2><i data-lucide="bot"></i> Análise IA</h2>
+      <p class="modal-vision-sub">Copie o texto abaixo e cole no <strong>DeepSeek</strong> ou <strong>ChatGPT</strong>.</p>
       <textarea id="textoIA" class="ia-textarea" readonly></textarea>
       <div class="ia-botoes">
-        <button class="btn-ia-copiar" id="btnCopiarIA">📋 Copiar texto</button>
-        <a href="https://chat.deepseek.com" target="_blank" class="btn-ia-link">🚀 Abrir DeepSeek</a>
+        <button class="btn-vision-primario" id="btnCopiarIA">
+          <i data-lucide="copy"></i> Copiar texto
+        </button>
+        <a href="https://chat.deepseek.com" target="_blank" class="btn-vision-secundario">
+          <i data-lucide="external-link"></i> Abrir DeepSeek
+        </a>
       </div>
     </div>
   </div>
 
-  <div id="modalCompartilhar" class="modal-compartilhar" style="display:none;">
-    <div class="modal-compartilhar-content">
-      <button class="modal-close" id="btnFecharModalCompartilhar">✕</button>
-      <h2>📱 Compartilhar Resultado</h2>
-      <p class="modal-compartilhar-sub">Escolha o período:</p>
+  <!-- MODAL COMPARTILHAR -->
+  <div id="modalCompartilhar" class="modal-vision" style="display:none;">
+    <div class="modal-vision-content">
+      <button class="modal-vision-close" id="btnFecharModalCompartilhar">
+        <i data-lucide="x"></i>
+      </button>
+      <h2><i data-lucide="share-2"></i> Compartilhar Resultado</h2>
+      <p class="modal-vision-sub">Escolha o período:</p>
       <div class="compartilhar-opcoes">
-        <button class="btn-compartilhar-opcao" data-periodo="dia">📅 Hoje</button>
-        <button class="btn-compartilhar-opcao" data-periodo="semana">📆 Semana</button>
-        <button class="btn-compartilhar-opcao" data-periodo="mes">🗓️ Mês</button>
+        <button class="btn-compartilhar-opcao" data-periodo="dia">Hoje</button>
+        <button class="btn-compartilhar-opcao" data-periodo="semana">Semana</button>
+        <button class="btn-compartilhar-opcao" data-periodo="mes">Mês</button>
       </div>
       <div id="cardPreview" class="card-preview"></div>
       <div class="compartilhar-botoes">
-        <button class="btn-compartilhar-baixar" id="btnBaixarCard">💾 Baixar imagem</button>
-        <button class="btn-compartilhar-fechar" id="btnFecharCompartilhar">Fechar</button>
+        <button class="btn-vision-primario" id="btnBaixarCard">
+          <i data-lucide="download"></i> Baixar imagem
+        </button>
+        <button class="btn-vision-secundario" id="btnFecharCompartilhar">Fechar</button>
       </div>
     </div>
   </div>
 
-  <div id="modalMetaMensal" class="modal-simples" style="display:none;">
-    <div class="modal-simples-content">
-      <button class="modal-close" id="btnFecharModalMeta">✕</button>
-      <h2>🎯 Meta Mensal</h2>
-      <p class="modal-simples-sub">Qual valor você quer lucrar este mês?</p>
-      <input type="number" id="inputMetaMensal" step="0.01" placeholder="0,00" class="input-modal">
-      <div class="modal-simples-botoes">
-        <button class="btn-modal-primario" id="btnSalvarMetaMensal">Salvar</button>
+  <!-- MODAL META MENSAL -->
+  <div id="modalMetaMensal" class="modal-vision" style="display:none;">
+    <div class="modal-vision-content modal-vision-pequeno">
+      <button class="modal-vision-close" id="btnFecharModalMeta">
+        <i data-lucide="x"></i>
+      </button>
+      <h2><i data-lucide="target"></i> Meta Mensal</h2>
+      <p class="modal-vision-sub">Qual valor você quer lucrar este mês?</p>
+      <input type="number" id="inputMetaMensal" step="0.01" placeholder="0,00" class="input-vision">
+      <div class="modal-vision-botoes">
+        <button class="btn-vision-primario" id="btnSalvarMetaMensal">
+          <i data-lucide="check"></i> Salvar
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- MODAL RESETAR -->
+  <div id="modalResetar" class="modal-vision" style="display:none;">
+    <div class="modal-vision-content modal-vision-pequeno">
+      <button class="modal-vision-close" id="btnFecharModalReset">
+        <i data-lucide="x"></i>
+      </button>
+      <h2><i data-lucide="trash-2"></i> Resetar dados</h2>
+      <p class="modal-vision-sub">Isso vai apagar <strong>todas as suas operações, depósitos, saques, PIN e configurações</strong>. Sua conta (login) continua ativa.</p>
+      <p class="modal-vision-aviso">
+        <i data-lucide="alert-triangle"></i> <strong>Não tem como desfazer.</strong>
+      </p>
+      <div class="modal-vision-botoes">
+        <button class="btn-vision-perigo" id="btnConfirmarReset">
+          <i data-lucide="trash-2"></i> Sim, apagar tudo
+        </button>
+        <button class="btn-vision-secundario" id="btnCancelarReset">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATÓRIO PDF -->
   <div id="relatorioPDF" class="relatorio-pdf" style="display:none;">
     <div class="relatorio-conteudo">
       <div class="relatorio-header">
@@ -445,14 +977,28 @@
           <p id="relatorioPeriodo"></p>
         </div>
       </div>
+
       <div class="relatorio-resumo">
-        <div class="relatorio-card"><div class="relatorio-card-label">SALDO ATUAL</div><div class="relatorio-card-valor" id="relatorioSaldo">R$ 0,00</div></div>
-        <div class="relatorio-card"><div class="relatorio-card-label">RESULTADO DO MÊS</div><div class="relatorio-card-valor" id="relatorioResultado">R$ 0,00</div></div>
-        <div class="relatorio-card"><div class="relatorio-card-label">ASSERTIVIDADE</div><div class="relatorio-card-valor" id="relatorioAssert">0%</div></div>
-        <div class="relatorio-card"><div class="relatorio-card-label">OPERAÇÕES</div><div class="relatorio-card-valor" id="relatorioOps">0</div></div>
+        <div class="relatorio-card">
+          <div class="relatorio-card-label">SALDO ATUAL</div>
+          <div class="relatorio-card-valor" id="relatorioSaldo">R$ 0,00</div>
+        </div>
+        <div class="relatorio-card">
+          <div class="relatorio-card-label">RESULTADO DO MÊS</div>
+          <div class="relatorio-card-valor" id="relatorioResultado">R$ 0,00</div>
+        </div>
+        <div class="relatorio-card">
+          <div class="relatorio-card-label">ASSERTIVIDADE</div>
+          <div class="relatorio-card-valor" id="relatorioAssert">0%</div>
+        </div>
+        <div class="relatorio-card">
+          <div class="relatorio-card-label">OPERAÇÕES</div>
+          <div class="relatorio-card-valor" id="relatorioOps">0</div>
+        </div>
       </div>
+
       <div class="relatorio-secao">
-        <h2>📊 Estatísticas do Mês</h2>
+        <h2>Estatísticas do Mês</h2>
         <table class="relatorio-tabela">
           <tbody>
             <tr><td>Wins</td><td id="relatorioWins">0</td></tr>
@@ -466,34 +1012,34 @@
           </tbody>
         </table>
       </div>
+
       <div class="relatorio-secao">
-        <h2>📋 Operações do Mês</h2>
+        <h2>Operações do Mês</h2>
         <table class="relatorio-tabela relatorio-tabela-ops">
           <thead>
-            <tr><th>Data</th><th>Hora</th><th>Ativo</th><th>Tipo</th><th>Valor</th></tr>
+            <tr>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>Ativo</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+            </tr>
           </thead>
           <tbody id="relatorioOpsCorpo"></tbody>
         </table>
       </div>
+
       <div class="relatorio-footer">
         <p>Gerado por <strong>FerrTrading</strong> em <span id="relatorioData"></span></p>
       </div>
-      <div class="relatorio-botoes no-print">
-        <button onclick="window.print()" class="btn-imprimir">🖨️ Imprimir / Salvar PDF</button>
-        <button onclick="fecharRelatorioPDF()" class="btn-fechar">Fechar</button>
-      </div>
-    </div>
-  </div>
 
-  <div id="modalResetar" class="modal-simples" style="display:none;">
-    <div class="modal-simples-content">
-      <button class="modal-close" id="btnFecharModalReset">✕</button>
-      <h2>🗑️ Resetar dados</h2>
-      <p class="modal-simples-sub">Isso vai apagar <strong>todas as suas operações, depósitos, saques, PIN e configurações</strong>. Sua conta (login) continua ativa.</p>
-      <p class="modal-simples-aviso">⚠️ <strong>Não tem como desfazer.</strong></p>
-      <div class="modal-simples-botoes">
-        <button class="btn-modal-perigo" id="btnConfirmarReset">Sim, apagar tudo</button>
-        <button class="btn-modal-secundario" id="btnCancelarReset">Cancelar</button>
+      <div class="relatorio-botoes no-print">
+        <button onclick="window.print()" class="btn-vision-primario">
+          <i data-lucide="printer"></i> Imprimir / Salvar PDF
+        </button>
+        <button onclick="fecharRelatorioPDF()" class="btn-vision-secundario">
+          Fechar
+        </button>
       </div>
     </div>
   </div>
@@ -555,13 +1101,11 @@
   </script>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-          .then(() => console.log('✅ Service Worker registrado'))
-          .catch((err) => console.log('❌ Erro no Service Worker:', err));
-      });
-    }
+    window.addEventListener('load', () => {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
   </script>
 </body>
 </html>
