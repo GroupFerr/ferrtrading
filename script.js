@@ -2054,7 +2054,7 @@ if (btnSaq30) btnSaq30.addEventListener('click', () => registrarSaque(30));
     });
   });
 
-  const btnBaixarCard = document.getElementById('btnBaixarCard');
+ const btnBaixarCard = document.getElementById('btnBaixarCard');
 if (btnBaixarCard) btnBaixarCard.addEventListener('click', async () => {
   const canvas = document.querySelector('#cardPreview canvas');
   if (!canvas) return;
@@ -2062,23 +2062,61 @@ if (btnBaixarCard) btnBaixarCard.addEventListener('click', async () => {
   const nomeArquivo = 'ferrtrading-' + new Date().toISOString().split('T')[0] + '.png';
 
   try {
-    // Tenta usar Web Share API (funciona no celular)
-    if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    // Detecta mobile
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+    // ============ MOBILE: usa Web Share API ============
+    if (isMobile && navigator.share) {
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       const file = new File([blob], nomeArquivo, { type: 'image/png' });
 
+      // Verifica se pode compartilhar arquivos
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'FerrTrading',
-          text: 'Meu resultado no FerrTrading'
-        });
-        toast('📱 Compartilhado!', 'sucesso');
-        return;
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'FerrTrading',
+            text: 'Meu resultado no FerrTrading'
+          });
+          toast('✅ Imagem compartilhada!', 'sucesso');
+          return;
+        } catch (err) {
+          // Se cancelou, não mostra erro
+          if (err.name === 'AbortError') return;
+          console.error('Erro no share:', err);
+        }
       }
+
+      // Se chegou aqui, o Web Share falhou
+      // Fallback: mostra a imagem pra salvar manualmente
+      const dataUrl = canvas.toDataURL('image/png');
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Salvar imagem</title>
+            <style>
+              body { margin:0; background:#0a1120; color:#fff; font-family: sans-serif; text-align:center; padding:20px; }
+              img { max-width:100%; height:auto; border-radius:12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); margin-bottom:20px; }
+              p { font-size: 14px; color: #00e676; background: #0f1a2e; padding: 12px; border-radius: 8px; }
+            </style>
+          </head>
+          <body>
+            <p>📱 Segure na imagem e escolha <strong>"Salvar imagem"</strong></p>
+            <img src="${dataUrl}">
+          </body>
+          </html>
+        `);
+        win.document.close();
+      }
+      return;
     }
 
-    // Fallback: tenta baixar (PC)
+    // ============ PC: baixa normalmente ============
     canvas.toBlob((blob) => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -2090,14 +2128,10 @@ if (btnBaixarCard) btnBaixarCard.addEventListener('click', async () => {
       setTimeout(() => URL.revokeObjectURL(url), 100);
       toast('💾 Imagem baixada!', 'sucesso');
     }, 'image/png');
+
   } catch (err) {
-    console.error('Erro ao baixar:', err);
-    // Último recurso: abre a imagem em nova aba (pra salvar manual)
-    const url = canvas.toDataURL('image/png');
-    const win = window.open();
-    if (win) {
-      win.document.write('<img src="' + url + '" style="max-width:100%"><p style="color:#333;text-align:center;font-family:sans-serif;">Segure na imagem para salvar</p>');
-    }
+    console.error('Erro ao salvar imagem:', err);
+    toast('Erro ao salvar. Tente novamente.', 'erro');
   }
 });
 
