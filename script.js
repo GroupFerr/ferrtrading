@@ -1815,8 +1815,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // REGISTRAR SAQUE
-  const btnSaq = document.getElementById('btnRegistrarSaque');
-  if (btnSaq) btnSaq.addEventListener('click', registrarSaque);
+  const btnSaq15 = document.getElementById('btnSaqueQuinzenal');
+if (btnSaq15) btnSaq15.addEventListener('click', () => registrarSaque(15));
+
+const btnSaq30 = document.getElementById('btnSaqueMensal');
+if (btnSaq30) btnSaq30.addEventListener('click', () => registrarSaque(30));
 
   // FILTRO
   const filtro = document.getElementById('filtroMes');

@@ -23,7 +23,7 @@
   <div id="telaLogin" class="tela-login">
     <div class="login-box">
       <div class="login-logo">
-        <img src="logo.png" alt="FerrTrading" class="login-logo-img">
+        <h1>Ferr<strong>Trading</strong></h1>
       </div>
       <p class="login-sub">Entre para sincronizar seus dados</p>
       <div class="login-tabs">
@@ -74,7 +74,7 @@
     <div class="app-container">
       <aside class="sidebar">
         <div class="sidebar-logo">
-          <img src="logo.png" alt="FerrTrading" class="logo-completa">
+          <span class="logo-text">Ferr<strong>Trading</strong></span>
         </div>
 
         <nav class="sidebar-nav">
@@ -108,7 +108,6 @@
 
       <main class="main-content">
 
-        <!-- ABA: PAINEL -->
         <section class="tab-content active" id="tab-painel">
           <div class="page-header">
             <h1>Bem-vindo à elite do Trading.</h1>
@@ -155,7 +154,15 @@
           <div class="cards-gestao">
             <div class="card card-meta"><div class="card-label">🎯 META DO DIA</div><div class="card-valor" id="metaDia">R$ 0,00</div><div class="card-sub" id="metaInfo">Calculando...</div></div>
             <div class="card card-stop"><div class="card-label">🛑 STOP DO DIA</div><div class="card-valor" id="stopDia">R$ 0,00</div><div class="card-sub" id="stopInfo">Calculando...</div></div>
-            <div class="card card-saque"><div class="card-label">💸 PRÓXIMO SAQUE</div><div class="card-valor" id="proximoSaque">R$ 0,00</div><div class="card-sub" id="saqueInfo">Calculando...</div><button id="btnRegistrarSaque" class="btn-toggle">Registrar saque</button></div>
+            <div class="card card-saque">
+              <div class="card-label">💸 PRÓXIMO SAQUE</div>
+              <div class="card-valor" id="proximoSaque">R$ 0,00</div>
+              <div class="card-sub" id="saqueInfo">Calculando...</div>
+              <div class="botoes-saque">
+                <button id="btnSaqueQuinzenal" class="btn-toggle btn-saque-15">💸 SACAR 15%</button>
+                <button id="btnSaqueMensal" class="btn-toggle btn-saque-30">💰 SACAR 30%</button>
+              </div>
+            </div>
           </div>
 
           <div id="alertaStop" class="alerta-stop" style="display:none">🛑 PARE DE OPERAR HOJE — Stop atingido!</div>
@@ -229,7 +236,6 @@
           <div class="calendario-grid" id="calendarioGrid"></div>
         </section>
 
-        <!-- ABA: PERFORMANCE -->
         <section class="tab-content" id="tab-performance">
           <div class="page-header">
             <h1>📈 Performance Mensal</h1>
@@ -271,7 +277,6 @@
           <div class="grafico-container"><canvas id="graficoBarras"></canvas></div>
         </section>
 
-        <!-- ABA: MÉTRICAS -->
         <section class="tab-content" id="tab-metricas">
           <div class="page-header">
             <h1>🎯 Métricas</h1>
@@ -374,9 +379,6 @@
         <button id="mmRelatorioPDF" class="mm-item">📄 Relatório PDF</button>
         <button id="mmAnaliseIA" class="mm-item">🤖 Análise IA</button>
         <button id="mmCompartilhar" class="mm-item">📱 Compartilhar</button>
-        <button id="mmExportarCSV" class="mm-item">📤 Exportar CSV</button>
-        <button id="mmTema" class="mm-item">🌙 Alternar Tema</button>
-        <button id="mmModoCompacto" class="mm-item">🔎 Modo Compacto</button>
         <button id="mmOcultar" class="mm-item">👁️ Ocultar Valores</button>
         <button id="mmExportar" class="mm-item">⬇️ Exportar Backup</button>
         <button id="mmImportar" class="mm-item">⬆️ Importar Backup</button>
@@ -384,9 +386,7 @@
         <button id="mmSair" class="mm-item">🚪 Sair da conta</button>
       </div>
     </div>
-  </div>
-
-  <!-- MODAIS -->
+  </div>  <!-- MODAIS -->
   <div id="modalPrint" class="modal-print" style="display:none;">
     <div class="modal-print-content">
       <button class="modal-close" id="btnFecharModalPrint">✕</button>
@@ -437,11 +437,9 @@
     </div>
   </div>
 
-  <!-- RELATÓRIO PDF -->
   <div id="relatorioPDF" class="relatorio-pdf" style="display:none;">
     <div class="relatorio-conteudo">
       <div class="relatorio-header">
-        <img src="logo.png" alt="FerrTrading" class="relatorio-logo">
         <div class="relatorio-info">
           <h1>Relatório Mensal</h1>
           <p id="relatorioPeriodo"></p>
