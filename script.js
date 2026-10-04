@@ -2055,15 +2055,51 @@ if (btnSaq30) btnSaq30.addEventListener('click', () => registrarSaque(30));
   });
 
   const btnBaixarCard = document.getElementById('btnBaixarCard');
-  if (btnBaixarCard) btnBaixarCard.addEventListener('click', () => {
-    const canvas = document.querySelector('#cardPreview canvas');
-    if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = 'ferrtrading-' + new Date().toISOString().split('T')[0] + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    toast('💾 Imagem baixada!', 'sucesso');
-  });
+if (btnBaixarCard) btnBaixarCard.addEventListener('click', async () => {
+  const canvas = document.querySelector('#cardPreview canvas');
+  if (!canvas) return;
+
+  const nomeArquivo = 'ferrtrading-' + new Date().toISOString().split('T')[0] + '.png';
+
+  try {
+    // Tenta usar Web Share API (funciona no celular)
+    if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      const file = new File([blob], nomeArquivo, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'FerrTrading',
+          text: 'Meu resultado no FerrTrading'
+        });
+        toast('📱 Compartilhado!', 'sucesso');
+        return;
+      }
+    }
+
+    // Fallback: tenta baixar (PC)
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = nomeArquivo;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+      toast('💾 Imagem baixada!', 'sucesso');
+    }, 'image/png');
+  } catch (err) {
+    console.error('Erro ao baixar:', err);
+    // Último recurso: abre a imagem em nova aba (pra salvar manual)
+    const url = canvas.toDataURL('image/png');
+    const win = window.open();
+    if (win) {
+      win.document.write('<img src="' + url + '" style="max-width:100%"><p style="color:#333;text-align:center;font-family:sans-serif;">Segure na imagem para salvar</p>');
+    }
+  }
+});
 
   const btnFecharComp = document.getElementById('btnFecharCompartilhar');
   if (btnFecharComp) btnFecharComp.addEventListener('click', () => {
