@@ -284,13 +284,25 @@
                 <button id="btnSaqueMensal" class="btn-toggle btn-saque-30"><i data-lucide="coins"></i> SACAR 30%</button>
               </div>
             </div>
-            <div class="card card-stop">
+                        <div class="card card-stop">
               <div class="card-vision-header">
                 <div class="card-vision-label"><i data-lucide="ban"></i> STOP DO DIA</div>
               </div>
               <div class="card-vision-valor" id="stopDia">R$ 0,00</div>
               <div class="card-vision-sub" id="stopInfo">Calculando...</div>
             </div>
+          </div>
+
+          <!-- ✅ NOVO CARD: ENTRADA SUGERIDA -->
+          <div class="card card-entrada" style="margin-bottom: 20px;">
+            <div class="card-vision-header">
+              <div class="card-vision-label"><i data-lucide="calculator"></i> ENTRADA SUGERIDA</div>
+              <button id="btnAlternarEntrada" class="btn-small-vision">
+                <i data-lucide="refresh-cw"></i> Alternar 1% / 10%
+              </button>
+            </div>
+            <div class="card-vision-valor" id="entradaSugerida" style="color: var(--azul-claro); font-size: 32px;">R$ 0,00</div>
+            <div class="card-vision-sub" id="percentualEntrada">1% do saldo</div>
           </div>
 
           <div id="alertaStop" class="alerta-stop" style="display:none">
@@ -1068,36 +1080,36 @@
 
     window.__fb = { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, doc, setDoc, getDoc };
 
-    onAuthStateChanged(auth, async (user) => {
-      const login = document.getElementById('telaLogin');
-      const pin = document.getElementById('telaPin');
-      const wrap = document.getElementById('appWrapper');
+onAuthStateChanged(auth, async (user) => {
+  const login = document.getElementById('telaLogin');
+  const pin = document.getElementById('telaPin');
+  const wrap = document.getElementById('appWrapper');
 
-      if (user) {
-        if (login) login.style.display = 'none';
-        const pinSalvo = localStorage.getItem('ferrTradingPIN');
-        if (pinSalvo && !window.__pinLiberado) {
-          if (pin) pin.style.display = 'flex';
-          if (wrap) wrap.style.display = 'none';
-        } else {
-          if (pin) pin.style.display = 'none';
-          if (wrap) wrap.style.display = 'block';
-        }
-        try {
-          const ref = doc(db, 'usuarios', user.uid);
-          const snap = await getDoc(ref);
-          if (snap.exists()) {
-            if (window.carregarDadosDaNuvem) window.carregarDadosDaNuvem(snap.data());
-          } else {
-            if (window.enviarDadosPraNuvem) window.enviarDadosPraNuvem();
-          }
-        } catch (e) { console.error('Erro ao carregar da nuvem:', e); }
+  if (user) {
+    if (login) login.classList.add('escondida');   // ✅ USA CLASSE
+    const pinSalvo = localStorage.getItem('ferrTradingPIN');
+    if (pinSalvo && !window.__pinLiberado) {
+      if (pin) pin.style.display = 'flex';
+      if (wrap) wrap.style.display = 'none';
+    } else {
+      if (pin) pin.style.display = 'none';
+      if (wrap) wrap.style.display = 'block';
+    }
+    try {
+      const ref = doc(db, 'usuarios', user.uid);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        if (window.carregarDadosDaNuvem) window.carregarDadosDaNuvem(snap.data());
       } else {
-        if (login) login.style.display = 'flex';
-        if (pin) pin.style.display = 'none';
-        if (wrap) wrap.style.display = 'none';
+        if (window.enviarDadosPraNuvem) window.enviarDadosPraNuvem();
       }
-    });
+    } catch (e) { console.error('Erro ao carregar da nuvem:', e); }
+  } else {
+    if (login) login.classList.remove('escondida'); // ✅ USA CLASSE
+    if (pin) pin.style.display = 'none';
+    if (wrap) wrap.style.display = 'none';
+  }
+});
   </script>
 
   <script>

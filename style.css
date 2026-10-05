@@ -52,12 +52,16 @@ body {
 
 /* ============ TELA DE LOGIN (VISION UI) ============ */
  .tela-login {
-  position: fixed !important;
-  inset: 0 !important;
+  position: fixed;
+  inset: 0;
   display: grid !important;
   grid-template-columns: 1fr 480px !important;
-  z-index: 9999 !important;
-  background: #050B27 !important;
+  z-index: 9999;
+  background: #050B27;
+}
+
+.tela-login.escondida {
+  display: none !important;
 }
 
 /* LADO ESQUERDO: IMAGEM */

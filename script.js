@@ -60,6 +60,12 @@ function salvar() {
 
 function carregar() {
   const dados = localStorage.getItem('ferrTrading');
+  // 🔧 CORREÇÃO: remover style inline antigo do telaLogin (se existir)
+const telaLoginEl = document.getElementById('telaLogin');
+if (telaLoginEl && telaLoginEl.getAttribute('style')?.includes('display')) {
+  telaLoginEl.style.display = '';
+  console.log('🧹 Style inline do telaLogin foi limpo');
+}
   if (dados) estado = { ...estado, ...JSON.parse(dados) };
   if (!estado.ativos || estado.ativos.length === 0) {
     estado.ativos = ['BITCOIN','LITECOIN','CARDANO','BNB','ETHEREUM','SOLANA','AVAX','DOGE','SUI','XPL','STELLAR'];
