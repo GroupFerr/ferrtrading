@@ -225,13 +225,26 @@ body {
 /* ============ LOGIN MOBILE ============ */
 @media (max-width: 900px) {
   .tela-login {
-    grid-template-columns: 1fr;
+    display: block !important;
+    grid-template-columns: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow-y: auto !important;
   }
   .login-imagem {
-    display: none;
+    display: none !important;
   }
   .login-formulario {
-    padding: 30px 20px;
+    width: 100% !important;
+    min-height: 100vh !important;
+    padding: 30px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .login-box {
+    width: 100% !important;
+    max-width: 400px !important;
   }
 }
 
