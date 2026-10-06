@@ -10,7 +10,8 @@ let estado = {
   ativos: ['BITCOIN','LITECOIN','CARDANO','BNB','ETHEREUM','SOLANA','AVAX','DOGE','SUI','XPL','STELLAR'],
   ativoSelecionado: null,
   mesCalendario: new Date().getMonth(),
-  anoCalendario: new Date().getFullYear()
+  anoCalendario: new Date().getFullYear(),
+  membroDesde: null
 };
 
 let syncAtivo = false;
@@ -40,6 +41,10 @@ window.carregarDadosDaNuvem = function(dadosNuvem) {
   if (!estado.ativos || estado.ativos.length === 0) {
     estado.ativos = ['BITCOIN','LITECOIN','CARDANO','BNB','ETHEREUM','SOLANA','AVAX','DOGE','SUI','XPL','STELLAR'];
   }
+  if (!estado.membroDesde) {
+    estado.membroDesde = new Date().toISOString();
+    enviarPraNuvem();
+  }
   localStorage.setItem('ferrTrading', JSON.stringify(estado));
   syncAtivo = true;
   renderizarDropdownAtivos();
@@ -50,6 +55,9 @@ window.carregarDadosDaNuvem = function(dadosNuvem) {
 
 window.enviarDadosPraNuvem = function() {
   syncAtivo = true;
+  if (!estado.membroDesde) {
+    estado.membroDesde = new Date().toISOString();
+  }
   enviarPraNuvem();
 };
 
@@ -60,12 +68,6 @@ function salvar() {
 
 function carregar() {
   const dados = localStorage.getItem('ferrTrading');
-  // 🔧 CORREÇÃO: remover style inline antigo do telaLogin (se existir)
-const telaLoginEl = document.getElementById('telaLogin');
-if (telaLoginEl && telaLoginEl.getAttribute('style')?.includes('display')) {
-  telaLoginEl.style.display = '';
-  console.log('🧹 Style inline do telaLogin foi limpo');
-}
   if (dados) estado = { ...estado, ...JSON.parse(dados) };
   if (!estado.ativos || estado.ativos.length === 0) {
     estado.ativos = ['BITCOIN','LITECOIN','CARDANO','BNB','ETHEREUM','SOLANA','AVAX','DOGE','SUI','XPL','STELLAR'];
@@ -336,7 +338,20 @@ function calcularMetaMensal() {
   const meta = estado.metaMensal || 0;
   const percentual = meta > 0 ? Math.min(100, (resultadoMes / meta) * 100) : 0;
   return { meta, resultadoMes, percentual };
-}// ==================== DROPDOWN DE ATIVOS ====================
+}
+
+// ==================== STATS DA CONTA ====================
+function calcularStatsConta() {
+  const totalOps = estado.operacoes.length;
+  const diasUnicos = new Set(estado.operacoes.map(o => o.data));
+  const diasAtivos = diasUnicos.size;
+  const banca = bancaAtual();
+  const depositosTotal = estado.depositos.reduce((s, d) => s + d.valor, 0);
+  const roi = depositosTotal > 0 ? ((banca - depositosTotal) / depositosTotal) * 100 : 0;
+  return { totalOps, diasAtivos, roi, banca };
+}
+
+// ==================== DROPDOWN DE ATIVOS ====================
 function renderizarDropdownAtivos() {
   const lista = document.getElementById('dropdownAtivoLista');
   if (!lista) return;
@@ -473,7 +488,6 @@ function renderizar() {
   const mesAno = hoje.slice(0, 7);
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
 
-  // Banca + badge de variação
   animarNumero('bancaAtual', banca);
   const badgeSaldo = document.getElementById('badgeSaldo');
   if (badgeSaldo) {
@@ -483,12 +497,10 @@ function renderizar() {
     badgeSaldo.classList.toggle('negativo', perc < 0);
   }
 
-  // Entrada
   const entrada = banca * (estado.percentualEntrada / 100);
   set('entradaSugerida', formatarMoeda(entrada));
   set('percentualEntrada', estado.percentualEntrada + '% do saldo');
 
-  // Meta do dia + Stop
   const ms = calcularMetaStop();
   set('metaDia', formatarMoeda(ms.metaValor));
   set('metaInfo', `${ms.metaPercentual}% do saldo · ${ms.winsHoje} wins hoje`);
@@ -498,14 +510,12 @@ function renderizar() {
   const alerta = document.getElementById('alertaStop');
   if (alerta) alerta.style.display = (ms.resultadoHoje < 0 && Math.abs(ms.resultadoHoje) >= ms.stopValor) ? 'flex' : 'none';
 
-  // Contador do dia
   const opsDia = operacoesDoDia(hoje);
   const contDia = contarPorTipo(opsDia);
   set('winsHoje', contDia.wins);
   set('lossHoje', contDia.losses);
   set('empatesHoje', contDia.empates);
 
-  // Sequências
   const seq = calcularSequencias();
   const seqEl = document.getElementById('seqAtual');
   if (seqEl) {
@@ -516,25 +526,18 @@ function renderizar() {
   set('seqMaxWins', 'Máx: ' + seq.maxWins);
   set('seqMaxLoss', seq.maxLoss);
 
-  // Meta mensal (estilo Referral Tracking)
   const mm = calcularMetaMensal();
   set('metaMensalResultado', formatarMoeda(mm.resultadoMes));
   set('metaMensalFalta', formatarMoeda(Math.max(0, mm.meta - mm.resultadoMes)));
   set('metaMensalPercentual', mm.percentual.toFixed(1) + '%');
 
-  // Boas-vindas
   const bvSub = document.getElementById('boasVindasSub');
   if (bvSub) {
     bvSub.textContent = `Sua banca está em ${formatarMoeda(banca)}.`;
   }
 
-  // Saque
   renderizarSaque(banca);
-
-  // Últimas operações
   renderizarUltimasOperacoes();
-
-  // Histórico, tabelas, gráficos
   renderizarHistorico();
   renderizarResumoMensal();
   renderizarHorario();
@@ -546,7 +549,6 @@ function renderizar() {
   renderizarTodosGraficos();
   renderizarAssertividadeRosca();
 
-  // Data atual
   const dataEl = document.getElementById('dataAtual');
   if (dataEl) {
     const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -554,6 +556,203 @@ function renderizar() {
   }
 
   if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// ==================== RENDERIZAÇÃO DA PERFIL ====================
+function renderizarPerfil() {
+  if (!window.__fb || !window.__fb.auth.currentUser) return;
+  const user = window.__fb.auth.currentUser;
+  const email = user.email || 'sem email';
+  
+  const stats = calcularStatsConta();
+  
+  const emailEl = document.getElementById('perfilEmail');
+  if (emailEl) emailEl.textContent = email;
+  
+  const avatarEl = document.getElementById('perfilAvatar');
+  if (avatarEl) avatarEl.textContent = email.charAt(0).toUpperCase();
+  
+  const membroEl = document.getElementById('perfilMembro');
+  if (membroEl) {
+    const data = estado.membroDesde ? new Date(estado.membroDesde) : new Date();
+    const mes = data.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+    membroEl.textContent = `Membro desde ${mes}`;
+  }
+  
+  const saldoEl = document.getElementById('perfilSaldo');
+  if (saldoEl) saldoEl.textContent = formatarMoeda(stats.banca);
+  
+  const opsEl = document.getElementById('perfilTotalOps');
+  if (opsEl) opsEl.textContent = stats.totalOps;
+  
+  const diasEl = document.getElementById('perfilDiasAtivos');
+  if (diasEl) diasEl.textContent = stats.diasAtivos;
+  
+  const roiEl = document.getElementById('perfilROI');
+  if (roiEl) {
+    roiEl.textContent = (stats.roi >= 0 ? '+' : '') + stats.roi.toFixed(1) + '%';
+    roiEl.style.color = stats.roi >= 0 ? 'var(--verde)' : 'var(--vermelho)';
+  }
+  
+  const toggle = document.getElementById('toggleOcultarValores');
+  if (toggle) {
+    toggle.classList.toggle('ativo', estado.ocultarValores);
+  }
+}
+
+// ==================== TROCAR SENHA ====================
+async function trocarSenha() {
+  const novaSenha = prompt('Digite sua NOVA senha (mín. 6 caracteres):');
+  if (!novaSenha) return;
+  if (novaSenha.length < 6) { toast('Senha muito curta (mín. 6)', 'erro'); return; }
+  const confirmar = prompt('Confirme a nova senha:');
+  if (novaSenha !== confirmar) { toast('Senhas não coincidem', 'erro'); return; }
+  try {
+    const { auth, updatePassword } = window.__fb;
+    await updatePassword(auth.currentUser, novaSenha);
+    toast('✅ Senha alterada com sucesso!', 'sucesso');
+  } catch (e) {
+    console.error(e);
+    if (e.code === 'auth/requires-recent-login') {
+      toast('Faça login novamente para trocar a senha', 'aviso', 5000);
+    } else {
+      toast('Erro ao trocar senha: ' + e.message, 'erro');
+    }
+  }
+}
+
+// ==================== TROCAR EMAIL ====================
+async function trocarEmail() {
+  const novoEmail = prompt('Digite seu NOVO email:');
+  if (!novoEmail) return;
+  if (!novoEmail.includes('@')) { toast('Email inválido', 'erro'); return; }
+  if (!confirm('⚠️ IMPORTANTE: vai chegar um email de confirmação no NOVO endereço. Só depois de clicar no link a troca é efetiva.\n\nDeseja continuar?')) return;
+  try {
+    const { auth, updateEmail } = window.__fb;
+    await updateEmail(auth.currentUser, novoEmail);
+    toast('📧 Email alterado! Confirme no novo endereço.', 'sucesso', 6000);
+  } catch (e) {
+    console.error(e);
+    if (e.code === 'auth/requires-recent-login') {
+      toast('Faça login novamente para trocar o email', 'aviso', 5000);
+    } else if (e.code === 'auth/email-already-in-use') {
+      toast('Esse email já está em uso', 'erro');
+    } else {
+      toast('Erro ao trocar email: ' + e.message, 'erro');
+    }
+  }
+}
+
+// ==================== RESETAR SENHA POR EMAIL ====================
+async function resetarSenhaEmail() {
+  if (!window.__fb || !window.__fb.auth.currentUser) return;
+  const email = window.__fb.auth.currentUser.email;
+  if (!confirm(`Enviar email de recuperação para ${email}?`)) return;
+  try {
+    const { auth, sendPasswordResetEmail } = window.__fb;
+    await sendPasswordResetEmail(auth, email);
+    toast('📧 Email enviado! Verifique sua caixa de entrada.', 'sucesso', 5000);
+  } catch (e) {
+    console.error(e);
+    toast('Erro ao enviar email: ' + e.message, 'erro');
+  }
+}
+
+// ==================== ANÁLISE IA (GEMINI) ====================
+async function analisarComIA() {
+  if (!window.__fb || !window.__fb.model) {
+    toast('IA não configurada. Ative o AI Logic no Firebase.', 'erro', 5000);
+    return;
+  }
+  
+  const ops = estado.operacoes;
+  if (ops.length === 0) {
+    toast('Registre pelo menos 1 operação primeiro', 'aviso');
+    return;
+  }
+  
+  const modal = document.getElementById('modalIA');
+  const conteudo = document.getElementById('analiseIAConteudo');
+  if (modal) modal.style.display = 'flex';
+  if (conteudo) conteudo.innerHTML = '<p style="text-align:center;color:var(--texto-secundario);padding:40px;">🤖 Analisando seus dados... aguarde.</p>';
+  
+  const prompt = gerarTextoIA();
+  
+  try {
+    const { model } = window.__fb;
+    const result = await model.generateContent(prompt);
+    const texto = result.response.text();
+    
+    if (conteudo) {
+      conteudo.innerHTML = `
+        <div class="ia-resposta">
+          ${texto.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '<br>').join('')}
+        </div>
+      `;
+    }
+  } catch (e) {
+    console.error('Erro IA:', e);
+    if (conteudo) {
+      conteudo.innerHTML = `<p style="color:var(--vermelho);text-align:center;padding:20px;">❌ Erro ao gerar análise.<br><small>${e.message}</small></p>`;
+    }
+  }
+}
+
+function gerarTextoIA() {
+  const banca = bancaAtual();
+  const ops = estado.operacoes;
+  const wins = ops.filter(o => o.tipo === 'WIN');
+  const losses = ops.filter(o => o.tipo === 'LOSS');
+  const empates = ops.filter(o => o.tipo === 'EMPATE');
+  const total = ops.length;
+  const taxa = total > 0 ? (wins.length / total * 100) : 0;
+  const ganhoTotal = wins.reduce((s, o) => s + o.valor, 0);
+  const perdaTotal = Math.abs(losses.reduce((s, o) => s + o.valor, 0));
+  const resultado = ganhoTotal - perdaTotal;
+  const melhor = ops.reduce((m, o) => o.valor > m.valor ? o : m, ops[0]);
+  const pior = ops.reduce((m, o) => o.valor < m.valor ? o : m, ops[0]);
+  const sharpe = calcularSharpe();
+  const payoff = calcularPayoff();
+  const exp = calcularExpectancia();
+  const fator = calcularFatorLucro();
+
+  const porMes = {};
+  ops.forEach(o => {
+    const m = o.data.slice(0, 7);
+    if (!porMes[m]) porMes[m] = { wins: 0, losses: 0, lucro: 0 };
+    if (o.tipo === 'WIN') porMes[m].wins++;
+    if (o.tipo === 'LOSS') porMes[m].losses++;
+    porMes[m].lucro += o.valor;
+  });
+
+  let texto = '';
+  texto += 'Sou trader e uso o FerrTrading para gerenciar minha banca. ';
+  texto += 'Analise meus dados abaixo e me dê insights práticos sobre:\n';
+  texto += '1. O que estou fazendo certo\n2. O que preciso melhorar\n';
+  texto += '3. Padrões que você identifica\n4. Sugestões concretas para os próximos 30 dias\n\n';
+  texto += '=== MEUS DADOS ===\n';
+  texto += `Saldo atual: ${formatarMoeda(banca)}\n`;
+  texto += `Banca inicial: ${formatarMoeda(estado.bancaInicial)}\n`;
+  texto += `Total de operações: ${total}\n`;
+  texto += `Wins: ${wins.length} | Loss: ${losses.length} | Empates: ${empates.length}\n`;
+  texto += `Taxa de acerto: ${taxa.toFixed(1)}%\n`;
+  texto += `Resultado total: ${formatarMoeda(resultado)}\n`;
+  texto += `Total ganho: ${formatarMoeda(ganhoTotal)}\n`;
+  texto += `Total perdido: ${formatarMoeda(perdaTotal)}\n`;
+  texto += `Melhor operação: ${formatarMoeda(melhor.valor)}\n`;
+  texto += `Pior operação: ${formatarMoeda(pior.valor)}\n\n`;
+  texto += '=== MÉTRICAS ===\n';
+  texto += `Sharpe Ratio: ${sharpe.sharpe.toFixed(2)} (${sharpe.info})\n`;
+  texto += `Payoff: ${payoff.payoff.toFixed(2)} (${payoff.info})\n`;
+  texto += `Expectância: ${formatarMoeda(exp.expect)} (${exp.info})\n`;
+  texto += `Fator Lucro: ${fator.fator.toFixed(2)} (${fator.info})\n\n`;
+  texto += '=== DESEMPENHO MENSAL ===\n';
+  Object.keys(porMes).sort().forEach(m => {
+    const d = porMes[m];
+    texto += `${m.split('-').reverse().join('/')}: ${d.wins}W / ${d.losses}L | Lucro: ${formatarMoeda(d.lucro)}\n`;
+  });
+  texto += '\nSeja direto e prático. Foque no que posso mudar AGORA.';
+  return texto;
 }
 
 // ==================== ÚLTIMAS OPERAÇÕES ====================
@@ -634,7 +833,6 @@ function renderizarHistorico() {
 
   ops.forEach((o) => {
     const tipoClass = o.tipo.toLowerCase();
-    const temPrint = o.print ? `<button class="btn-ver-print-vision" onclick="verPrint('${o.id}')"><i data-lucide="image"></i> Ver</button>` : '';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${o.ativo || '-'}</td>
@@ -643,7 +841,6 @@ function renderizarHistorico() {
       <td><span class="badge-tabela ${tipoClass}">${o.tipo}</span></td>
       <td class="${tipoClass}">${formatarMoeda(o.valor)}</td>
       <td>
-        ${temPrint}
         <button class="btn-remover-vision" onclick="removerOperacao('${o.id}')"><i data-lucide="trash-2"></i></button>
       </td>
     `;
@@ -651,15 +848,6 @@ function renderizarHistorico() {
   });
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
-window.verPrint = function(id) {
-  const op = estado.operacoes.find(o => String(o.id) === String(id));
-  if (!op || !op.print) return;
-  const modal = document.getElementById('modalPrint');
-  const img = document.getElementById('modalPrintImg');
-  if (img) img.src = op.print;
-  if (modal) modal.style.display = 'flex';
-};
 
 // ==================== RESUMO MENSAL ====================
 function renderizarResumoMensal() {
@@ -834,7 +1022,9 @@ function renderizarCalendario() {
     `;
     grid.appendChild(el);
   }
-}// ==================== GRÁFICOS ====================
+}
+
+// ==================== GRÁFICOS ====================
 let chartLinha = null;
 let chartBarras = null;
 let chartPizzaTipo = null;
@@ -884,7 +1074,6 @@ function escalas() {
   };
 }
 
-// ==================== GRÁFICO META MENSAL (rosca) ====================
 function renderizarGraficoMetaMensal() {
   const canvas = document.getElementById('graficoMetaMensal');
   if (!canvas || typeof Chart === 'undefined') return;
@@ -915,7 +1104,6 @@ function renderizarGraficoMetaMensal() {
   });
 }
 
-// ==================== GRÁFICO LINHA ====================
 function renderizarGrafico() {
   const canvas = document.getElementById('graficoBanca');
   if (!canvas || typeof Chart === 'undefined') return;
@@ -967,7 +1155,6 @@ function renderizarGrafico() {
   });
 }
 
-// ==================== GRÁFICO BARRAS ====================
 function renderizarGraficoBarras() {
   const canvas = document.getElementById('graficoBarras');
   if (!canvas || typeof Chart === 'undefined') return;
@@ -1018,7 +1205,6 @@ function renderizarGraficoBarras() {
   });
 }
 
-// ==================== PIZZA / ROSCA ====================
 function renderizarPizzaTipo() {
   const canvas = document.getElementById('graficoPizzaTipo');
   if (!canvas) return;
@@ -1380,19 +1566,8 @@ function registrarOperacao(tipo) {
 
   estado.operacoes.push({
     id: Date.now() + Math.random(),
-    tipo, ativo, valor: valorFinal, data, hora,
-    print: window.printAtual || null
+    tipo, ativo, valor: valorFinal, data, hora
   });
-
-  if (window.printAtual) {
-    window.printAtual = null;
-    const preview = document.getElementById('printPreview');
-    if (preview) preview.style.display = 'none';
-    const inpCam = document.getElementById('inputPrintCamera');
-    const inpGal = document.getElementById('inputPrintGaleria');
-    if (inpCam) inpCam.value = '';
-    if (inpGal) inpGal.value = '';
-  }
 
   salvar();
   estado.ativoSelecionado = null;
@@ -1423,23 +1598,8 @@ function registrarSaque(percentual) {
   if (banca <= 0) { toast('Saldo zerado. Não há o que sacar.', 'erro'); return; }
 
   const tipo = percentual === 15 ? 'Quinzenal' : 'Mensal';
-  const saquesMesmoTipo = estado.saques.filter(s => s.tipo === tipo);
-  let aviso = '';
-
-  if (saquesMesmoTipo.length > 0) {
-    const ultimo = saquesMesmoTipo[saquesMesmoTipo.length - 1];
-    const dataUltimo = new Date(ultimo.data + 'T00:00');
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const diasPassados = Math.floor((hoje - dataUltimo) / (1000 * 60 * 60 * 24));
-    const diasNecessarios = percentual === 15 ? 15 : 30;
-    if (diasPassados < diasNecessarios) {
-      aviso = `\n\n⚠️ Você sacou ${tipo} há ${diasPassados} dia(s).\nO ideal é esperar ${diasNecessarios} dias.\nDeseja continuar mesmo assim?`;
-    }
-  }
-
   const valor = banca * (percentual / 100);
-  if (!confirm('Registrar saque ' + percentual + '% (' + tipo + ')?\n\nSaldo: ' + formatarMoeda(banca) + '\nSaque: ' + formatarMoeda(valor) + aviso)) return;
+  if (!confirm('Registrar saque ' + percentual + '% (' + tipo + ')?\n\nSaldo: ' + formatarMoeda(banca) + '\nSaque: ' + formatarMoeda(valor))) return;
 
   estado.saques.push({
     id: Date.now(), valor,
@@ -1465,140 +1625,9 @@ function registrarDeposito() {
   toast((tipo === 'DEPOSITO' ? '💰 Depósito' : '💸 Saque') + ' registrado: ' + formatarMoeda(valor), 'sucesso');
 }
 
-// ==================== PRINT ====================
-window.printAtual = null;
-
-function processarPrint(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { toast('Imagem muito grande (máx. 2MB)', 'erro'); return; }
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    window.printAtual = e.target.result;
-    const preview = document.getElementById('printPreview');
-    const img = document.getElementById('printPreviewImg');
-    if (preview) preview.style.display = 'block';
-    if (img) img.src = window.printAtual;
-    toast('📸 Print anexado!', 'sucesso', 2000);
-  };
-  reader.readAsDataURL(file);
-}
-
-// ==================== PIN ====================
-let pinDigitado = '';
-let pinSetupModo = false;
-let pinSetupTemp = '';
-
-function atualizarPinDisplay() {
-  const dots = document.querySelectorAll('.pin-dot');
-  dots.forEach((d, i) => {
-    d.classList.remove('preenchido', 'erro');
-    if (i < pinDigitado.length) d.classList.add('preenchido');
-  });
-  const err = document.getElementById('pinErro');
-  if (err) err.textContent = pinSetupModo ? 'Defina um PIN de 4 dígitos' : '';
-}
-
-function verificarPin() {
-  const pinSalvo = localStorage.getItem('ferrTradingPIN');
-  if (pinDigitado === pinSalvo) {
-    window.__pinLiberado = true;
-    document.getElementById('telaPin').style.display = 'none';
-    document.getElementById('appWrapper').style.display = 'block';
-    renderizar();
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    toast('🔓 Bem-vindo!', 'sucesso', 2000);
-  } else {
-    const dots = document.querySelectorAll('.pin-dot');
-    dots.forEach(d => d.classList.add('erro'));
-    const err = document.getElementById('pinErro');
-    if (err) err.textContent = 'PIN incorreto';
-    setTimeout(() => { pinDigitado = ''; atualizarPinDisplay(); }, 500);
-  }
-}
-
-function configurarPin() {
-  if (pinSetupTemp === '') {
-    pinSetupTemp = pinDigitado;
-    pinDigitado = '';
-    atualizarPinDisplay();
-    const err = document.getElementById('pinErro');
-    if (err) err.textContent = 'Confirme o PIN';
-  } else {
-    if (pinSetupTemp === pinDigitado) {
-      localStorage.setItem('ferrTradingPIN', pinDigitado);
-      window.__pinLiberado = true;
-      document.getElementById('telaPin').style.display = 'none';
-      document.getElementById('appWrapper').style.display = 'block';
-      renderizar();
-      toast('🔐 PIN configurado!', 'sucesso', 2000);
-    } else {
-      const err = document.getElementById('pinErro');
-      if (err) err.textContent = 'PINs não coincidem. Tente de novo.';
-      pinDigitado = '';
-      pinSetupTemp = '';
-      setTimeout(atualizarPinDisplay, 1000);
-    }
-  }
-}
-
-// ==================== IA ====================
-function gerarTextoIA() {
-  const banca = bancaAtual();
-  const ops = estado.operacoes;
-  if (ops.length === 0) return 'Ainda não tenho operações registradas para analisar.';
-  const wins = ops.filter(o => o.tipo === 'WIN');
-  const losses = ops.filter(o => o.tipo === 'LOSS');
-  const empates = ops.filter(o => o.tipo === 'EMPATE');
-  const total = ops.length;
-  const taxa = total > 0 ? (wins.length / total * 100) : 0;
-  const ganhoTotal = wins.reduce((s, o) => s + o.valor, 0);
-  const perdaTotal = Math.abs(losses.reduce((s, o) => s + o.valor, 0));
-  const resultado = ganhoTotal - perdaTotal;
-  const melhor = ops.reduce((m, o) => o.valor > m.valor ? o : m, ops[0]);
-  const pior = ops.reduce((m, o) => o.valor < m.valor ? o : m, ops[0]);
-  const sharpe = calcularSharpe();
-  const payoff = calcularPayoff();
-  const exp = calcularExpectancia();
-  const fator = calcularFatorLucro();
-
-  const porMes = {};
-  ops.forEach(o => {
-    const m = o.data.slice(0, 7);
-    if (!porMes[m]) porMes[m] = { wins: 0, losses: 0, lucro: 0 };
-    if (o.tipo === 'WIN') porMes[m].wins++;
-    if (o.tipo === 'LOSS') porMes[m].losses++;
-    porMes[m].lucro += o.valor;
-  });
-
-  let texto = '';
-  texto += 'Sou trader e uso o FerrTrading para gerenciar minha banca. ';
-  texto += 'Analise meus dados abaixo e me dê insights práticos sobre:\n';
-  texto += '1. O que estou fazendo certo\n2. O que preciso melhorar\n';
-  texto += '3. Padrões que você identifica\n4. Sugestões concretas para os próximos 30 dias\n\n';
-  texto += '=== MEUS DADOS ===\n';
-  texto += `Saldo atual: ${formatarMoeda(banca)}\n`;
-  texto += `Banca inicial: ${formatarMoeda(estado.bancaInicial)}\n`;
-  texto += `Total de operações: ${total}\n`;
-  texto += `Wins: ${wins.length} | Loss: ${losses.length} | Empates: ${empates.length}\n`;
-  texto += `Taxa de acerto: ${taxa.toFixed(1)}%\n`;
-  texto += `Resultado total: ${formatarMoeda(resultado)}\n`;
-  texto += `Total ganho: ${formatarMoeda(ganhoTotal)}\n`;
-  texto += `Total perdido: ${formatarMoeda(perdaTotal)}\n`;
-  texto += `Melhor operação: ${formatarMoeda(melhor.valor)}\n`;
-  texto += `Pior operação: ${formatarMoeda(pior.valor)}\n\n`;
-  texto += '=== MÉTRICAS ===\n';
-  texto += `Sharpe Ratio: ${sharpe.sharpe.toFixed(2)} (${sharpe.info})\n`;
-  texto += `Payoff: ${payoff.payoff.toFixed(2)} (${payoff.info})\n`;
-  texto += `Expectância: ${formatarMoeda(exp.expect)} (${exp.info})\n`;
-  texto += `Fator Lucro: ${fator.fator.toFixed(2)} (${fator.info})\n\n`;
-  texto += '=== DESEMPENHO MENSAL ===\n';
-  Object.keys(porMes).sort().forEach(m => {
-    const d = porMes[m];
-    texto += `${m.split('-').reverse().join('/')}: ${d.wins}W / ${d.losses}L | Lucro: ${formatarMoeda(d.lucro)}\n`;
-  });
-  texto += '\nSeja direto e prático. Foque no que posso mudar AGORA.';
-  return texto;
+// ==================== IA MODAL ====================
+function abrirAnaliseIA() {
+  analisarComIA();
 }
 
 // ==================== PDF ====================
@@ -1661,7 +1690,7 @@ window.fecharRelatorioPDF = function() {
   document.getElementById('relatorioPDF').style.display = 'none';
 };
 
-// ==================== COMPARTILHAR (card 9:16) ====================
+// ==================== COMPARTILHAR ====================
 function roundRect(ctx, x, y, width, height, radius) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -1681,29 +1710,24 @@ function gerarCardCompartilhar(periodo) {
   canvas.width = 1080;
   canvas.height = 1920;
   const ctx = canvas.getContext('2d');
-  // Fundo gradiente Vision UI
   const grad = ctx.createLinearGradient(0, 0, 0, 1920);
   grad.addColorStop(0, '#061332');
   grad.addColorStop(1, '#050B27');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 1080, 1920);
-  // Barra azul no topo
   ctx.fillStyle = '#0066FF';
   ctx.fillRect(0, 0, 1080, 6);
 
-  // Título
   ctx.fillStyle = '#1597FF';
   ctx.font = 'bold 52px Inter, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('FerrTrading', 540, 160);
 
-  // Subtítulo
   ctx.fillStyle = '#8B9BC2';
   ctx.font = '600 32px Inter, sans-serif';
   const titulos = { dia: 'RESULTADO DE HOJE', semana: 'RESULTADO DA SEMANA', mes: 'RESULTADO DO MÊS' };
   ctx.fillText(titulos[periodo] || 'RESULTADO', 540, 230);
 
-  // Filtra operações
   let ops = [];
   const hoje = new Date();
   if (periodo === 'dia') {
@@ -1720,7 +1744,6 @@ function gerarCardCompartilhar(periodo) {
   const wins = ops.filter(o => o.tipo === 'WIN').length;
   const losses = ops.filter(o => o.tipo === 'LOSS').length;
 
-  // Resultado gigante com glow
   ctx.shadowColor = resultado >= 0 ? 'rgba(0, 201, 139, 0.6)' : 'rgba(255, 59, 85, 0.6)';
   ctx.shadowBlur = 40;
   ctx.fillStyle = resultado >= 0 ? '#00C98B' : '#FF3B55';
@@ -1728,7 +1751,6 @@ function gerarCardCompartilhar(periodo) {
   ctx.fillText(resultado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 540, 500);
   ctx.shadowBlur = 0;
 
-  // Cards de wins/loss
   ctx.fillStyle = '#0A1738';
   ctx.strokeStyle = '#102653';
   ctx.lineWidth = 2;
@@ -1754,7 +1776,6 @@ function gerarCardCompartilhar(periodo) {
   ctx.font = '600 28px Inter, sans-serif';
   ctx.fillText('LOSS', 760, 960);
 
-  // Saldo
   ctx.fillStyle = '#8B9BC2';
   ctx.font = '600 32px Inter, sans-serif';
   ctx.fillText('SALDO ATUAL', 540, 1150);
@@ -1762,7 +1783,6 @@ function gerarCardCompartilhar(periodo) {
   ctx.font = 'bold 80px Inter, sans-serif';
   ctx.fillText(formatarMoeda(bancaAtual()), 540, 1250);
 
-  // Assertividade
   const t = wins + losses;
   const taxa = t > 0 ? ((wins / t) * 100).toFixed(0) : 0;
   ctx.fillStyle = '#8B9BC2';
@@ -1772,10 +1792,9 @@ function gerarCardCompartilhar(periodo) {
   ctx.font = 'bold 80px Inter, sans-serif';
   ctx.fillText(taxa + '%', 540, 1500);
 
-  // Rodapé
   ctx.fillStyle = '#0066FF';
   ctx.font = 'bold 36px Inter, sans-serif';
-  ctx.fillText('ferrtrading.com', 540, 1750);
+  ctx.fillText('groupferr.github.io/ferrtrading', 540, 1750);
   ctx.fillStyle = '#5A6B8C';
   ctx.font = '500 26px Inter, sans-serif';
   ctx.fillText('Gerencie sua banca com segurança', 540, 1800);
@@ -1810,10 +1829,10 @@ async function resetarDados() {
     ativos: ['BITCOIN','LITECOIN','CARDANO','BNB','ETHEREUM','SOLANA','AVAX','DOGE','SUI','XPL','STELLAR'],
     ativoSelecionado: null,
     mesCalendario: new Date().getMonth(),
-    anoCalendario: new Date().getFullYear()
+    anoCalendario: new Date().getFullYear(),
+    membroDesde: new Date().toISOString()
   };
   localStorage.setItem('ferrTrading', JSON.stringify(estado));
-  localStorage.removeItem('ferrTradingPIN');
   if (window.__fb && window.__fb.auth.currentUser) {
     const { auth, db, doc, setDoc } = window.__fb;
     try {
@@ -1892,17 +1911,6 @@ function inicializarLogin() {
   if (btnSair) btnSair.addEventListener('click', async () => {
     if (!confirm('Sair da conta?')) return;
     if (!window.__fb) return;
-    window.__pinLiberado = false;
-    const { auth, signOut } = window.__fb;
-    await signOut(auth);
-    location.reload();
-  });
-
-  const mmSair = document.getElementById('mmSair');
-  if (mmSair) mmSair.addEventListener('click', async () => {
-    if (!confirm('Sair da conta?')) return;
-    if (!window.__fb) return;
-    window.__pinLiberado = false;
     const { auth, signOut } = window.__fb;
     await signOut(auth);
     location.reload();
@@ -1932,6 +1940,7 @@ window.mudarAba = function(tab) {
   if (btn) btn.classList.add('active');
   const el = document.getElementById('tab-' + tab);
   if (el) el.classList.add('active');
+  if (tab === 'perfil') renderizarPerfil();
   setTimeout(() => {
     [chartLinha, chartBarras, chartRosca, chartPizzaTipo, chartDiaSemana,
      chartKelly, chartDrawdown, chartSharpe, chartGanhoPerda, chartAtivo,
@@ -1946,6 +1955,7 @@ document.addEventListener('DOMContentLoaded', () => {
   inicializarDropdownAtivos();
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
+  // Navegação da sidebar
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
@@ -1954,6 +1964,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.add('active');
       const el = document.getElementById('tab-' + tab);
       if (el) el.classList.add('active');
+      if (tab === 'perfil') renderizarPerfil();
       setTimeout(() => {
         [chartLinha, chartBarras, chartRosca, chartPizzaTipo, chartDiaSemana,
          chartKelly, chartDrawdown, chartSharpe, chartGanhoPerda, chartAtivo,
@@ -1962,6 +1973,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Botão Perfil da sidebar
+  const btnPerfil = document.getElementById('btnPerfil');
+  if (btnPerfil) btnPerfil.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    const el = document.getElementById('tab-perfil');
+    if (el) el.classList.add('active');
+    renderizarPerfil();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  });
+
+  // Navegação mobile
   document.querySelectorAll('.mobile-nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
@@ -1973,32 +1996,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (el) el.classList.add('active');
       document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => {
-        [chartLinha, chartBarras, chartRosca].forEach(c => c && c.resize());
-      }, 100);
     });
   });
 
-  document.querySelectorAll('.mm-item[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.dataset.tab;
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      const el = document.getElementById('tab-' + tab);
-      if (el) el.classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-      document.getElementById('mobileMenuMais').classList.remove('aberto');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => {
-        [chartLinha, chartBarras, chartRosca].forEach(c => c && c.resize());
-      }, 100);
-    });
-  });
-
-  const overlay = document.querySelector('.mm-overlay');
-  if (overlay) overlay.addEventListener('click', () => {
-    document.getElementById('mobileMenuMais').classList.remove('aberto');
-  });
-
+  // Toggle entrada 1%/10%
   const btnEnt = document.getElementById('btnAlternarEntrada');
   if (btnEnt) btnEnt.addEventListener('click', () => {
     estado.percentualEntrada = estado.percentualEntrada === 1 ? 10 : 1;
@@ -2006,15 +2007,15 @@ document.addEventListener('DOMContentLoaded', () => {
     toast('Entrada alterada para ' + estado.percentualEntrada + '%', 'info', 2000);
   });
 
-  const btnOc = document.getElementById('btnOcultar');
-  if (btnOc) btnOc.addEventListener('click', () => {
-    estado.ocultarValores = !estado.ocultarValores;
-    salvar(); renderizar();
-    toast(estado.ocultarValores ? '🔒 Valores ocultos' : '👁️ Visíveis', 'info', 2000);
-  });
-
-  const btnExp = document.getElementById('btnExportar');
-  if (btnExp) btnExp.addEventListener('click', () => {
+  // Botões da aba Perfil
+  const btnTrocarSenha = document.getElementById('btnTrocarSenha');
+  if (btnTrocarSenha) btnTrocarSenha.addEventListener('click', trocarSenha);
+  const btnTrocarEmail = document.getElementById('btnTrocarEmail');
+  if (btnTrocarEmail) btnTrocarEmail.addEventListener('click', trocarEmail);
+  const btnResetarSenhaEmail = document.getElementById('btnResetarSenhaEmail');
+  if (btnResetarSenhaEmail) btnResetarSenhaEmail.addEventListener('click', resetarSenhaEmail);
+  const btnExportarBackup = document.getElementById('btnExportarBackup');
+  if (btnExportarBackup) btnExportarBackup.addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2024,10 +2025,35 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
     toast('📥 Backup exportado!', 'sucesso');
   });
+  const btnImportarBackup = document.getElementById('btnImportarBackup');
+  if (btnImportarBackup) btnImportarBackup.addEventListener('click', () => {
+    document.getElementById('inputImportar').click();
+  });
+  const btnExportarCSVPerfil = document.getElementById('btnExportarCSVPerfil');
+  if (btnExportarCSVPerfil) btnExportarCSVPerfil.addEventListener('click', exportarCSV);
+  const btnRelatorioPDFPerfil = document.getElementById('btnRelatorioPDFPerfil');
+  if (btnRelatorioPDFPerfil) btnRelatorioPDFPerfil.addEventListener('click', gerarRelatorioPDF);
+  const btnAnaliseIAPerfil = document.getElementById('btnAnaliseIAPerfil');
+  if (btnAnaliseIAPerfil) btnAnaliseIAPerfil.addEventListener('click', analisarComIA);
+  const btnCompartilharPerfil = document.getElementById('btnCompartilharPerfil');
+  if (btnCompartilharPerfil) btnCompartilharPerfil.addEventListener('click', () => {
+    document.getElementById('modalCompartilhar').style.display = 'flex';
+    document.querySelectorAll('.btn-compartilhar-opcao').forEach(b => b.classList.remove('ativo'));
+    const btnDia = document.querySelector('.btn-compartilhar-opcao[data-periodo="dia"]');
+    if (btnDia) { btnDia.classList.add('ativo'); atualizarPreviewCard('dia'); }
+  });
+  const btnResetarDadosPerfil = document.getElementById('btnResetarDadosPerfil');
+  if (btnResetarDadosPerfil) btnResetarDadosPerfil.addEventListener('click', () => {
+    document.getElementById('modalResetar').style.display = 'flex';
+  });
+  const toggleOcultar = document.getElementById('toggleOcultarValores');
+  if (toggleOcultar) toggleOcultar.addEventListener('click', () => {
+    estado.ocultarValores = !estado.ocultarValores;
+    salvar(); renderizar(); renderizarPerfil();
+    toast(estado.ocultarValores ? '🔒 Valores ocultos' : '👁️ Visíveis', 'info', 2000);
+  });
 
-  const btnImp = document.getElementById('btnImportar');
-  if (btnImp) btnImp.addEventListener('click', () => { document.getElementById('inputImportar').click(); });
-
+  // Importar backup
   const inputImp = document.getElementById('inputImportar');
   if (inputImp) inputImp.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -2052,11 +2078,7 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.readAsText(file);
   });
 
-  const btnSaq15 = document.getElementById('btnSaqueQuinzenal');
-  if (btnSaq15) btnSaq15.addEventListener('click', () => registrarSaque(15));
-  const btnSaq30 = document.getElementById('btnSaqueMensal');
-  if (btnSaq30) btnSaq30.addEventListener('click', () => registrarSaque(30));
-
+  // Filtro mês
   const filtro = document.getElementById('filtroMes');
   if (filtro) filtro.addEventListener('change', renderizarHistorico);
   const btnLimpar = document.getElementById('btnLimparFiltro');
@@ -2065,11 +2087,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderizarHistorico();
   });
 
-  const btnCSV = document.getElementById('btnExportarCSV');
-  if (btnCSV) btnCSV.addEventListener('click', exportarCSV);
-  const btnCSVHist = document.getElementById('btnExportarCSVHistorico');
-  if (btnCSVHist) btnCSVHist.addEventListener('click', exportarCSV);
-
+  // Calendário
   const btnAnt = document.getElementById('btnMesAnterior');
   if (btnAnt) btnAnt.addEventListener('click', () => {
     estado.mesCalendario--;
@@ -2083,122 +2101,28 @@ document.addEventListener('DOMContentLoaded', () => {
     salvar(); renderizarCalendario();
   });
 
-  const mmOcultar = document.getElementById('mmOcultar');
-  if (mmOcultar) mmOcultar.addEventListener('click', () => {
-    estado.ocultarValores = !estado.ocultarValores;
-    salvar(); renderizar();
-    toast(estado.ocultarValores ? '🔒 Ocultos' : '👁️ Visíveis', 'info', 2000);
-    document.getElementById('mobileMenuMais').classList.remove('aberto');
-  });
+  // Saques
+  const btnSaq15 = document.getElementById('btnSaqueQuinzenal');
+  if (btnSaq15) btnSaq15.addEventListener('click', () => registrarSaque(15));
+  const btnSaq30 = document.getElementById('btnSaqueMensal');
+  if (btnSaq30) btnSaq30.addEventListener('click', () => registrarSaque(30));
 
-  const mmExp = document.getElementById('mmExportar');
-  if (mmExp) mmExp.addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'ferrtrading-backup-' + new Date().toISOString().split('T')[0] + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('📥 Backup exportado!', 'sucesso');
-    document.getElementById('mobileMenuMais').classList.remove('aberto');
-  });
-
-  const mmImp = document.getElementById('mmImportar');
-  if (mmImp) mmImp.addEventListener('click', () => {
-    document.getElementById('inputImportar').click();
-    document.getElementById('mobileMenuMais').classList.remove('aberto');
-  });
-
-  const btnPWA = document.getElementById('btnInstalarPWA');
-  if (btnPWA) btnPWA.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') toast('🎉 App instalado!', 'sucesso');
-    deferredPrompt = null;
-    btnPWA.style.display = 'none';
-  });
-
-  document.querySelectorAll('.pin-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const num = btn.dataset.num;
-      if (num === 'C') { pinDigitado = ''; atualizarPinDisplay(); return; }
-      if (num === '←') { pinDigitado = pinDigitado.slice(0, -1); atualizarPinDisplay(); return; }
-      if (pinDigitado.length < 4) {
-        pinDigitado += num;
-        atualizarPinDisplay();
-        if (pinDigitado.length === 4) {
-          setTimeout(() => {
-            if (pinSetupModo) configurarPin();
-            else verificarPin();
-          }, 200);
-        }
-      }
-    });
-  });
-
-  const btnEsqueci = document.getElementById('btnEsqueciPin');
-  if (btnEsqueci) btnEsqueci.addEventListener('click', () => {
-    if (!confirm('Redefinir o PIN?')) return;
-    localStorage.removeItem('ferrTradingPIN');
-    window.__pinLiberado = true;
-    document.getElementById('telaPin').style.display = 'none';
-    document.getElementById('appWrapper').style.display = 'block';
-    renderizar();
-    toast('PIN removido.', 'info', 4000);
-  });
-
-  function abrirAnaliseIA() {
-    const modal = document.getElementById('modalIA');
-    const texto = document.getElementById('textoIA');
-    if (texto) texto.value = gerarTextoIA();
-    if (modal) modal.style.display = 'flex';
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-  }
-  const btnIA = document.getElementById('btnAnaliseIA');
-  if (btnIA) btnIA.addEventListener('click', abrirAnaliseIA);
-  const mmIA = document.getElementById('mmAnaliseIA');
-  if (mmIA) mmIA.addEventListener('click', () => {
-    abrirAnaliseIA();
-    document.getElementById('mobileMenuMais').classList.remove('aberto');
-  });
+  // Modais IA
   const btnFecharIA = document.getElementById('btnFecharModalIA');
   if (btnFecharIA) btnFecharIA.addEventListener('click', () => {
     document.getElementById('modalIA').style.display = 'none';
   });
-  const btnCopiarIA = document.getElementById('btnCopiarIA');
-  if (btnCopiarIA) btnCopiarIA.addEventListener('click', () => {
-    const texto = document.getElementById('textoIA');
-    if (texto) {
-      texto.select();
-      document.execCommand('copy');
-      toast('📋 Texto copiado!', 'sucesso');
-    }
-  });
 
-  const btnPDF = document.getElementById('btnRelatorioPDF');
-  if (btnPDF) btnPDF.addEventListener('click', gerarRelatorioPDF);
-  const mmPDF = document.getElementById('mmRelatorioPDF');
-  if (mmPDF) mmPDF.addEventListener('click', () => {
-    gerarRelatorioPDF();
-    document.getElementById('mobileMenuMais').classList.remove('aberto');
-  });
-
+  // Modais Compartilhar
   const modalComp = document.getElementById('modalCompartilhar');
-  const btnComp = document.getElementById('btnCompartilhar');
-  const mmComp = document.getElementById('mmCompartilhar');
-
-  function abrirCompartilhar() {
-    if (modalComp) modalComp.style.display = 'flex';
-    document.querySelectorAll('.btn-compartilhar-opcao').forEach(b => b.classList.remove('ativo'));
-    const btnDia = document.querySelector('.btn-compartilhar-opcao[data-periodo="dia"]');
-    if (btnDia) {
-      btnDia.classList.add('ativo');
-      atualizarPreviewCard('dia');
-    }
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-  }
+  const btnFecharComp = document.getElementById('btnFecharCompartilhar');
+  if (btnFecharComp) btnFecharComp.addEventListener('click', () => {
+    if (modalComp) modalComp.style.display = 'none';
+  });
+  const btnFecharModalComp = document.getElementById('btnFecharModalCompartilhar');
+  if (btnFecharModalComp) btnFecharModalComp.addEventListener('click', () => {
+    if (modalComp) modalComp.style.display = 'none';
+  });
 
   function atualizarPreviewCard(periodo) {
     const preview = document.getElementById('cardPreview');
@@ -2212,12 +2136,6 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.style.borderRadius = '12px';
   }
 
-  if (btnComp) btnComp.addEventListener('click', abrirCompartilhar);
-  if (mmComp) mmComp.addEventListener('click', () => {
-    abrirCompartilhar();
-    document.getElementById('mobileMenuMais').classList.remove('aberto');
-  });
-
   document.querySelectorAll('.btn-compartilhar-opcao').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.btn-compartilhar-opcao').forEach(b => b.classList.remove('ativo'));
@@ -2227,56 +2145,21 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const btnBaixarCard = document.getElementById('btnBaixarCard');
-  if (btnBaixarCard) btnBaixarCard.addEventListener('click', async () => {
+  if (btnBaixarCard) btnBaixarCard.addEventListener('click', () => {
     const canvas = document.querySelector('#cardPreview canvas');
     if (!canvas) return;
-    const nomeArquivo = 'ferrtrading-' + new Date().toISOString().split('T')[0] + '.png';
-    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-    try {
-      if (isMobile && navigator.share) {
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        const file = new File([blob], nomeArquivo, { type: 'image/png' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({ files: [file], title: 'FerrTrading', text: 'Meu resultado no FerrTrading' });
-            toast('✅ Imagem compartilhada!', 'sucesso');
-            return;
-          } catch (err) { if (err.name === 'AbortError') return; }
-        }
-        const dataUrl = canvas.toDataURL('image/png');
-        const win = window.open('', '_blank');
-        if (win) {
-          win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Salvar imagem</title><style>body{margin:0;background:#050B27;color:#fff;font-family:sans-serif;text-align:center;padding:20px}img{max-width:100%;height:auto;border-radius:12px;box-shadow:0 10px 40px rgba(0,102,255,0.3);margin-bottom:20px}p{font-size:14px;color:#1597FF;background:#061332;padding:12px;border-radius:8px}</style></head><body><p>📱 Segure na imagem e escolha <strong>"Salvar imagem"</strong></p><img src="' + dataUrl + '"></body></html>');
-          win.document.close();
-        }
-        return;
-      }
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = nomeArquivo;
-        link.href = url;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-        toast('💾 Imagem baixada!', 'sucesso');
-      }, 'image/png');
-    } catch (err) {
-      console.error('Erro:', err);
-      toast('Erro ao salvar. Tente novamente.', 'erro');
-    }
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = 'ferrtrading-' + new Date().toISOString().split('T')[0] + '.png';
+      link.href = url;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+      toast('💾 Imagem baixada!', 'sucesso');
+    }, 'image/png');
   });
 
-  const btnFecharComp = document.getElementById('btnFecharCompartilhar');
-  if (btnFecharComp) btnFecharComp.addEventListener('click', () => {
-    if (modalComp) modalComp.style.display = 'none';
-  });
-  const btnFecharModalComp = document.getElementById('btnFecharModalCompartilhar');
-  if (btnFecharModalComp) btnFecharModalComp.addEventListener('click', () => {
-    if (modalComp) modalComp.style.display = 'none';
-  });
-
+  // Meta mensal
   const btnEditarMeta = document.getElementById('btnEditarMetaMensal');
   const modalMeta = document.getElementById('modalMetaMensal');
   const btnFecharModalMeta = document.getElementById('btnFecharModalMeta');
@@ -2285,7 +2168,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnEditarMeta) btnEditarMeta.addEventListener('click', () => {
     if (inputMeta) inputMeta.value = estado.metaMensal || '';
     if (modalMeta) modalMeta.style.display = 'flex';
-    if (typeof lucide !== 'undefined') lucide.createIcons();
   });
   if (btnFecharModalMeta) btnFecharModalMeta.addEventListener('click', () => {
     if (modalMeta) modalMeta.style.display = 'none';
@@ -2293,27 +2175,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnSalvarMeta) btnSalvarMeta.addEventListener('click', () => {
     const valor = parseFloat(inputMeta.value) || 0;
     estado.metaMensal = valor;
-    salvar();
-    renderizar();
+    salvar(); renderizar();
     if (modalMeta) modalMeta.style.display = 'none';
     toast(valor > 0 ? '🎯 Meta definida: ' + formatarMoeda(valor) : 'Meta removida', 'sucesso');
   });
 
-  const btnReset = document.getElementById('btnResetar');
-  const mmReset = document.getElementById('mmResetar');
+  // Resetar
   const modalReset = document.getElementById('modalResetar');
   const btnFecharModalReset = document.getElementById('btnFecharModalReset');
   const btnConfirmarReset = document.getElementById('btnConfirmarReset');
   const btnCancelarReset = document.getElementById('btnCancelarReset');
-  function abrirReset() {
-    if (modalReset) modalReset.style.display = 'flex';
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-  }
-  if (btnReset) btnReset.addEventListener('click', abrirReset);
-  if (mmReset) mmReset.addEventListener('click', () => {
-    abrirReset();
-    document.getElementById('mobileMenuMais').classList.remove('aberto');
-  });
   if (btnFecharModalReset) btnFecharModalReset.addEventListener('click', () => {
     if (modalReset) modalReset.style.display = 'none';
   });
@@ -2321,6 +2192,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalReset) modalReset.style.display = 'none';
   });
   if (btnConfirmarReset) btnConfirmarReset.addEventListener('click', resetarDados);
+
+  // Modal Print
+  const btnFecharModalPrint = document.getElementById('btnFecharModalPrint');
+  if (btnFecharModalPrint) btnFecharModalPrint.addEventListener('click', () => {
+    document.getElementById('modalPrint').style.display = 'none';
+  });
 
   inicializarLogin();
   renderizar();

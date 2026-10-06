@@ -248,71 +248,6 @@ body {
   }
 }
 
-/* ============ TELA DE PIN ============ */
-.tela-pin {
-  position: fixed; inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(0, 102, 255, 0.15), transparent 60%), #050B27;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px; z-index: 9998;
-}
-.pin-box {
-  background: #061332;
-  border: 1px solid var(--borda);
-  border-radius: 24px; padding: 40px 30px;
-  width: 100%; max-width: 360px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 102, 255, 0.1);
-  text-align: center;
-}
-.pin-icon {
-  width: 64px; height: 64px; margin: 0 auto 16px;
-  background: linear-gradient(135deg, var(--azul-principal), var(--azul-claro));
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
-}
-.pin-icon [data-lucide] { width: 32px; height: 32px; color: #ffffff; }
-.pin-box h2 { font-size: 22px; color: var(--texto-principal); margin-bottom: 8px; font-weight: 700; }
-.pin-sub { color: var(--texto-secundario); font-size: 13px; margin-bottom: 28px; }
-.pin-display { display: flex; justify-content: center; gap: 16px; margin-bottom: 32px; }
-.pin-dot {
-  width: 16px; height: 16px; border-radius: 50%;
-  background: transparent; border: 2px solid var(--borda);
-  transition: all 0.2s;
-}
-.pin-dot.preenchido {
-  background: var(--azul-claro); border-color: var(--azul-claro);
-  box-shadow: 0 0 12px rgba(21, 151, 255, 0.6);
-}
-.pin-dot.erro {
-  background: var(--vermelho); border-color: var(--vermelho);
-  box-shadow: 0 0 12px rgba(255, 59, 85, 0.6);
-  animation: shake 0.3s;
-}
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
-}
-.pin-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-.pin-btn {
-  background: #050B27;
-  border: 1px solid var(--borda);
-  color: var(--texto-principal);
-  font-size: 22px; font-weight: 700;
-  padding: 18px 0; border-radius: 12px;
-  cursor: pointer; transition: all 0.15s; font-family: inherit;
-}
-.pin-btn:hover { background: #07183D; border-color: var(--azul-principal); color: var(--azul-claro); }
-.pin-btn:active { transform: scale(0.95); }
-.pin-btn-limpar { color: var(--amarelo); }
-.pin-btn-back { color: var(--azul-claro); }
-.pin-erro { color: var(--vermelho); font-size: 13px; min-height: 18px; margin-bottom: 12px; }
-.pin-link {
-  background: transparent; border: none; color: var(--texto-secundario);
-  font-size: 12px; cursor: pointer; text-decoration: underline;
-  font-family: inherit;
-}
-.pin-link:hover { color: var(--azul-claro); }
-
 /* ============ APP CONTAINER ============ */
 .app-container { display: flex; min-height: 100vh; padding-top: 64px; }
 
@@ -2223,4 +2158,390 @@ input[type="number"] { -moz-appearance: textfield; }
 .card-boas-vindas,
 .card-meta-mensal-vision {
   animation: fadeIn 0.4s ease backwards;
+}
+/* ============================================ */
+/* ABA PERFIL — Estilo Vision UI                */
+/* ============================================ */
+
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* ============ CARD DO USUÁRIO (grande, estilo Credit Balance) ============ */
+.card-perfil-usuario {
+  grid-column: 1 / -1; /* Ocupa as duas colunas */
+  background: linear-gradient(135deg, #0A1A45 0%, #061332 50%, #1A0A45 100%);
+  border: 1px solid var(--borda-hover);
+  border-radius: 16px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 102, 255, 0.2);
+}
+
+.card-perfil-usuario::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.15), transparent 70%);
+  pointer-events: none;
+}
+
+.card-perfil-topo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-perfil-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--azul-principal), var(--azul-claro));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  box-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.card-perfil-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-perfil-email {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--texto-principal);
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.card-perfil-membro {
+  font-size: 13px;
+  color: var(--texto-secundario);
+}
+
+.card-perfil-saldo {
+  background: rgba(5, 11, 39, 0.5);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-perfil-saldo-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--texto-secundario);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.card-perfil-saldo-valor {
+  font-size: 36px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -1px;
+  text-shadow: 0 0 30px rgba(0, 102, 255, 0.4);
+}
+
+.card-perfil-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-perfil-stat {
+  background: rgba(5, 11, 39, 0.5);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.card-perfil-stat-valor {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--azul-claro);
+  margin-bottom: 4px;
+}
+
+.card-perfil-stat-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--texto-secundario);
+  font-weight: 700;
+}
+
+/* ============ SEÇÕES DO PERFIL ============ */
+.card-perfil-secao {
+  background: #061332;
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.card-perfil-secao:hover {
+  border-color: var(--borda-hover);
+  box-shadow: var(--sombra-hover);
+}
+
+.card-perfil-secao .card-vision-label {
+  margin-bottom: 14px;
+}
+
+.perfil-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.perfil-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--borda);
+  color: var(--texto-principal);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.perfil-item:last-child {
+  border-bottom: none;
+}
+
+.perfil-item:hover {
+  background: rgba(0, 102, 255, 0.05);
+  padding-left: 14px;
+}
+
+.perfil-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.perfil-item-icon [data-lucide] {
+  width: 18px;
+  height: 18px;
+  color: #ffffff;
+}
+
+.perfil-item-icon.azul {
+  background: rgba(0, 102, 255, 0.2);
+  border: 1px solid var(--azul-principal);
+}
+
+.perfil-item-icon.azul [data-lucide] {
+  color: var(--azul-claro);
+}
+
+.perfil-item-icon.verde {
+  background: rgba(0, 201, 139, 0.2);
+  border: 1px solid var(--verde);
+}
+
+.perfil-item-icon.verde [data-lucide] {
+  color: var(--verde);
+}
+
+.perfil-item-icon.roxo {
+  background: rgba(123, 97, 255, 0.2);
+  border: 1px solid #7B61FF;
+}
+
+.perfil-item-icon.roxo [data-lucide] {
+  color: #7B61FF;
+}
+
+.perfil-item-icon.vermelho {
+  background: rgba(255, 59, 85, 0.2);
+  border: 1px solid var(--vermelho);
+}
+
+.perfil-item-icon.vermelho [data-lucide] {
+  color: var(--vermelho);
+}
+
+.perfil-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.perfil-item-titulo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto-principal);
+  margin-bottom: 2px;
+}
+
+.perfil-item-sub {
+  font-size: 12px;
+  color: var(--texto-secundario);
+}
+
+.perfil-item-seta {
+  width: 18px;
+  height: 18px;
+  color: var(--texto-terciario);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.perfil-item:hover .perfil-item-seta {
+  color: var(--azul-claro);
+  transform: translateX(4px);
+}
+
+/* Toggle switch */
+.perfil-item-toggle {
+  cursor: default;
+  border-bottom: none;
+}
+
+.perfil-item-toggle:hover {
+  background: transparent;
+  padding-left: 8px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: #0A1738;
+  border: 1px solid var(--borda);
+  border-radius: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+  flex-shrink: 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+.toggle-switch.ativo {
+  background: linear-gradient(135deg, var(--azul-principal), var(--azul-claro));
+  border-color: var(--azul-claro);
+  box-shadow: 0 0 15px rgba(0, 102, 255, 0.4);
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-switch.ativo .toggle-slider {
+  transform: translateX(22px);
+}
+
+/* ============ ZONA DE PERIGO ============ */
+.card-perfil-perigo {
+  background: linear-gradient(135deg, rgba(255, 59, 85, 0.05), rgba(255, 59, 85, 0.02));
+  border: 1px solid rgba(255, 59, 85, 0.4);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card-perfil-perigo .card-vision-label.perigo {
+  color: var(--vermelho);
+  margin-bottom: 14px;
+}
+
+.card-perfil-perigo .card-vision-label.perigo [data-lucide] {
+  color: var(--vermelho);
+}
+
+.perfil-item-perigo {
+  border-bottom: none;
+}
+
+.perfil-item-perigo:hover {
+  background: rgba(255, 59, 85, 0.1);
+  padding-left: 14px;
+}
+
+/* ============ RESPONSIVO PERFIL ============ */
+@media (max-width: 1024px) {
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-perfil-usuario {
+    padding: 20px;
+  }
+  .card-perfil-saldo-valor {
+    font-size: 28px;
+  }
+  .card-perfil-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .card-perfil-stat {
+    padding: 10px;
+  }
+  .card-perfil-stat-valor {
+    font-size: 18px;
+  }
+}
+
+/* ============ MODAL IA ============ */
+.ia-conteudo {
+  background: #050B27;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--texto-principal);
+}
+
+.ia-conteudo p {
+  margin-bottom: 12px;
+}
+
+.ia-conteudo strong {
+  color: var(--azul-claro);
 }

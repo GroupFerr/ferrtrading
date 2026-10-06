@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#050B27">
+  <meta name="theme-color" content="#00A3FF">
   <meta name="apple-mobile-web-app-title" content="FerrTrading">
   <title>FerrTrading</title>
   <link rel="manifest" href="manifest.json">
@@ -79,24 +79,25 @@
 </div>
 
   <!-- TELA DE PIN -->
-  <div id="telaPin" class="tela-pin" style="display:none;">
-    <div class="pin-box">
-      <div class="pin-icon"><i data-lucide="lock"></i></div>
-      <h2>Acesso protegido</h2>
-      <p class="pin-sub">Digite seu PIN de 4 dígitos</p>
-      <div class="pin-display" id="pinDisplay">
-        <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
-      </div>
-      <div class="pin-teclado">
-        <button class="pin-btn" data-num="1">1</button><button class="pin-btn" data-num="2">2</button><button class="pin-btn" data-num="3">3</button>
-        <button class="pin-btn" data-num="4">4</button><button class="pin-btn" data-num="5">5</button><button class="pin-btn" data-num="6">6</button>
-        <button class="pin-btn" data-num="7">7</button><button class="pin-btn" data-num="8">8</button><button class="pin-btn" data-num="9">9</button>
-        <button class="pin-btn pin-btn-limpar" data-num="C">C</button><button class="pin-btn" data-num="0">0</button><button class="pin-btn pin-btn-back" data-num="←">←</button>
-      </div>
-      <p class="pin-erro" id="pinErro"></p>
-      <button id="btnEsqueciPin" class="pin-link">Esqueci meu PIN</button>
-    </div>
-  </div>
+          <div class="sidebar-footer">
+          <button id="btnInstalarPWA" class="btn-instalar-pwa" style="display:none;">
+            <i data-lucide="download"></i> Instalar App
+          </button>
+          
+          <button id="btnAnaliseIA" class="btn-side">
+            <i data-lucide="bot"></i> Análise IA
+          </button>
+          
+          <button id="btnPerfil" class="btn-side">
+            <i data-lucide="user"></i> Perfil
+          </button>
+          
+          <button id="btnSair" class="btn-side">
+            <i data-lucide="log-out"></i> Sair
+          </button>
+          
+          <input type="file" id="inputImportar" accept=".json" style="display:none">
+        </div>
 
   <!-- APP -->
   <div id="appWrapper" style="display:none;">
@@ -185,6 +186,168 @@
           <input type="file" id="inputImportar" accept=".json" style="display:none">
         </div>
       </aside>
+
+        <!-- ABA: PERFIL -->
+        <section class="tab-content" id="tab-perfil">
+          <div class="page-header">
+            <h1>Perfil</h1>
+            <div class="page-header-info">Sua conta e configurações</div>
+          </div>
+
+          <div class="perfil-grid">
+            <!-- CARD DO USUÁRIO -->
+            <div class="card card-perfil-usuario">
+              <div class="card-perfil-topo">
+                <div class="card-perfil-avatar" id="perfilAvatar">U</div>
+                <div class="card-perfil-info">
+                  <div class="card-perfil-email" id="perfilEmail">Carregando...</div>
+                  <div class="card-perfil-membro" id="perfilMembro">Membro desde ...</div>
+                </div>
+              </div>
+              <div class="card-perfil-saldo">
+                <div class="card-perfil-saldo-label">SALDO ATUAL</div>
+                <div class="card-perfil-saldo-valor" id="perfilSaldo">R$ 0,00</div>
+              </div>
+              <div class="card-perfil-stats">
+                <div class="card-perfil-stat">
+                  <div class="card-perfil-stat-valor" id="perfilTotalOps">0</div>
+                  <div class="card-perfil-stat-label">OPERAÇÕES</div>
+                </div>
+                <div class="card-perfil-stat">
+                  <div class="card-perfil-stat-valor" id="perfilDiasAtivos">0</div>
+                  <div class="card-perfil-stat-label">DIAS ATIVOS</div>
+                </div>
+                <div class="card-perfil-stat">
+                  <div class="card-perfil-stat-valor" id="perfilROI">0%</div>
+                  <div class="card-perfil-stat-label">ROI</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SEGURANÇA -->
+            <div class="card card-perfil-secao">
+              <div class="card-vision-label"><i data-lucide="shield"></i> SEGURANÇA</div>
+              <div class="perfil-lista">
+                <button class="perfil-item" id="btnTrocarSenha">
+                  <div class="perfil-item-icon azul"><i data-lucide="lock"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Trocar senha</div>
+                    <div class="perfil-item-sub">Atualize sua senha de acesso</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnTrocarEmail">
+                  <div class="perfil-item-icon azul"><i data-lucide="mail"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Trocar email</div>
+                    <div class="perfil-item-sub">Altere seu email de login</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnResetarSenhaEmail">
+                  <div class="perfil-item-icon azul"><i data-lucide="key"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Esqueci minha senha</div>
+                    <div class="perfil-item-sub">Enviar email de recuperação</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- DADOS & BACKUP -->
+            <div class="card card-perfil-secao">
+              <div class="card-vision-label"><i data-lucide="database"></i> DADOS & BACKUP</div>
+              <div class="perfil-lista">
+                <button class="perfil-item" id="btnExportarBackup">
+                  <div class="perfil-item-icon verde"><i data-lucide="download"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Exportar backup</div>
+                    <div class="perfil-item-sub">Baixar todos os dados (JSON)</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnImportarBackup">
+                  <div class="perfil-item-icon verde"><i data-lucide="upload"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Importar backup</div>
+                    <div class="perfil-item-sub">Restaurar dados de um arquivo</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnExportarCSVPerfil">
+                  <div class="perfil-item-icon verde"><i data-lucide="file-spreadsheet"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Exportar CSV</div>
+                    <div class="perfil-item-sub">Planilha de operações</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- RELATÓRIOS & ANÁLISE -->
+            <div class="card card-perfil-secao">
+              <div class="card-vision-label"><i data-lucide="bar-chart-3"></i> RELATÓRIOS & ANÁLISE</div>
+              <div class="perfil-lista">
+                <button class="perfil-item" id="btnRelatorioPDFPerfil">
+                  <div class="perfil-item-icon roxo"><i data-lucide="file-text"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Relatório PDF</div>
+                    <div class="perfil-item-sub">Relatório mensal completo</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnAnaliseIAPerfil">
+                  <div class="perfil-item-icon roxo"><i data-lucide="bot"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Análise IA</div>
+                    <div class="perfil-item-sub">Análise automática com Gemini</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnCompartilharPerfil">
+                  <div class="perfil-item-icon roxo"><i data-lucide="share-2"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Compartilhar resultado</div>
+                    <div class="perfil-item-sub">Gerar card para redes sociais</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- PREFERÊNCIAS -->
+            <div class="card card-perfil-secao">
+              <div class="card-vision-label"><i data-lucide="settings"></i> PREFERÊNCIAS</div>
+              <div class="perfil-lista">
+                <div class="perfil-item perfil-item-toggle">
+                  <div class="perfil-item-icon azul"><i data-lucide="eye-off"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Ocultar valores</div>
+                    <div class="perfil-item-sub">Esconde os valores monetários</div>
+                  </div>
+                  <button class="toggle-switch" id="toggleOcultarValores">
+                    <span class="toggle-slider"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ZONA DE PERIGO -->
+          <div class="card card-perfil-perigo">
+            <div class="card-vision-label perigo"><i data-lucide="alert-triangle"></i> ZONA DE PERIGO</div>
+            <button class="perfil-item perfil-item-perigo" id="btnResetarDadosPerfil">
+              <div class="perfil-item-icon vermelho"><i data-lucide="trash-2"></i></div>
+              <div class="perfil-item-info">
+                <div class="perfil-item-titulo">Resetar todos os dados</div>
+                <div class="perfil-item-sub">Apaga operações, depósitos, saques e configurações</div>
+              </div>
+              <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+            </button>
+          </div>
+        </section>
 
       <main class="main-content">
         <section class="tab-content active" id="tab-painel">
@@ -900,26 +1063,26 @@
     </div>
   </div>
 
-  <!-- MODAL IA -->
+    <!-- MODAL IA -->
   <div id="modalIA" class="modal-vision" style="display:none;">
     <div class="modal-vision-content">
       <button class="modal-vision-close" id="btnFecharModalIA">
         <i data-lucide="x"></i>
       </button>
       <h2><i data-lucide="bot"></i> Análise IA</h2>
-      <p class="modal-vision-sub">Copie o texto abaixo e cole no <strong>DeepSeek</strong> ou <strong>ChatGPT</strong>.</p>
-      <textarea id="textoIA" class="ia-textarea" readonly></textarea>
+      <p class="modal-vision-sub">Análise automática com Gemini baseada nos seus dados</p>
+      <div id="analiseIAConteudo" class="ia-conteudo">
+        <p style="text-align:center;color:var(--texto-secundario);padding:40px;">Clique em "Gerar análise" para começar</p>
+      </div>
       <div class="ia-botoes">
-        <button class="btn-vision-primario" id="btnCopiarIA">
-          <i data-lucide="copy"></i> Copiar texto
+        <button class="btn-vision-primario" id="btnGerarAnalise">
+          <i data-lucide="sparkles"></i> Gerar análise
         </button>
-        <a href="https://chat.deepseek.com" target="_blank" class="btn-vision-secundario">
-          <i data-lucide="external-link"></i> Abrir DeepSeek
-        </a>
+        <button class="btn-vision-secundario" id="btnFecharIA2">Fechar</button>
       </div>
     </div>
   </div>
-
+  
   <!-- MODAL COMPARTILHAR -->
   <div id="modalCompartilhar" class="modal-vision" style="display:none;">
     <div class="modal-vision-content">
@@ -1060,10 +1223,11 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, updateEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-ai.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBNUHVwusfQSXrXlqdWxBIrdtj-1xmC38s",
@@ -1078,46 +1242,41 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    window.__fb = { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, doc, setDoc, getDoc };
+    // 🤖 Firebase AI Logic — Gemini
+    const ai = getAI(app, { backend: new GoogleAIBackend() });
+    const model = getGenerativeModel(ai, { model: "gemini-3.5-flash" });
 
-onAuthStateChanged(auth, async (user) => {
-  const login = document.getElementById('telaLogin');
-  const pin = document.getElementById('telaPin');
-  const wrap = document.getElementById('appWrapper');
+    window.__fb = { 
+      auth, db, ai, model,
+      signInWithEmailAndPassword, 
+      createUserWithEmailAndPassword, 
+      signOut, 
+      updatePassword, 
+      updateEmail, 
+      sendPasswordResetEmail,
+      doc, setDoc, getDoc 
+    };
 
-  if (user) {
-    if (login) login.classList.add('escondida');   // ✅ USA CLASSE
-    const pinSalvo = localStorage.getItem('ferrTradingPIN');
-    if (pinSalvo && !window.__pinLiberado) {
-      if (pin) pin.style.display = 'flex';
-      if (wrap) wrap.style.display = 'none';
-    } else {
-      if (pin) pin.style.display = 'none';
-      if (wrap) wrap.style.display = 'block';
-    }
-    try {
-      const ref = doc(db, 'usuarios', user.uid);
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        if (window.carregarDadosDaNuvem) window.carregarDadosDaNuvem(snap.data());
+    onAuthStateChanged(auth, async (user) => {
+      const login = document.getElementById('telaLogin');
+      const wrap = document.getElementById('appWrapper');
+
+      if (user) {
+        if (login) login.classList.add('escondida');
+        if (wrap) wrap.style.display = 'block';
+        
+        try {
+          const ref = doc(db, 'usuarios', user.uid);
+          const snap = await getDoc(ref);
+          if (snap.exists()) {
+            if (window.carregarDadosDaNuvem) window.carregarDadosDaNuvem(snap.data());
+          } else {
+            if (window.enviarDadosPraNuvem) window.enviarDadosPraNuvem();
+          }
+        } catch (e) { console.error('Erro ao carregar da nuvem:', e); }
       } else {
-        if (window.enviarDadosPraNuvem) window.enviarDadosPraNuvem();
-      }
-    } catch (e) { console.error('Erro ao carregar da nuvem:', e); }
-  } else {
-    if (login) login.classList.remove('escondida'); // ✅ USA CLASSE
-    if (pin) pin.style.display = 'none';
-    if (wrap) wrap.style.display = 'none';
-  }
-});
-  </script>
-
-  <script>
-    window.addEventListener('load', () => {
-      if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
+        if (login) login.classList.remove('escondida');
+        if (wrap) wrap.style.display = 'none';
       }
     });
   </script>
-</body>
-</html>
