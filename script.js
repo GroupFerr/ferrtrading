@@ -17,7 +17,6 @@ let estado = {
 let syncAtivo = false;
 let debounceSync = null;
 
-// ==================== SYNC ====================
 async function enviarPraNuvem() {
   if (!syncAtivo || !window.__fb) return;
   const { auth, db, doc, setDoc } = window.__fb;
@@ -25,8 +24,7 @@ async function enviarPraNuvem() {
   if (!user) return;
   try {
     await setDoc(doc(db, 'usuarios', user.uid), estado);
-    console.log('☁️ Dados enviados pra nuvem');
-  } catch (e) { console.error('Erro ao enviar pra nuvem:', e); }
+  } catch (e) { console.error('Erro sync:', e); }
 }
 
 function agendarSync() {
@@ -41,23 +39,18 @@ window.carregarDadosDaNuvem = function(dadosNuvem) {
   if (!estado.ativos || estado.ativos.length === 0) {
     estado.ativos = ['BITCOIN','LITECOIN','CARDANO','BNB','ETHEREUM','SOLANA','AVAX','DOGE','SUI','XPL','STELLAR'];
   }
-  if (!estado.membroDesde) {
-    estado.membroDesde = new Date().toISOString();
-    enviarPraNuvem();
-  }
+  if (!estado.membroDesde) { estado.membroDesde = new Date().toISOString(); enviarPraNuvem(); }
   localStorage.setItem('ferrTrading', JSON.stringify(estado));
   syncAtivo = true;
   renderizarDropdownAtivos();
   renderizar();
   if (typeof lucide !== 'undefined') lucide.createIcons();
-  toast('☁️ Dados sincronizados', 'sucesso', 2000);
+  toast('☁️ Sincronizado', 'sucesso', 2000);
 };
 
 window.enviarDadosPraNuvem = function() {
   syncAtivo = true;
-  if (!estado.membroDesde) {
-    estado.membroDesde = new Date().toISOString();
-  }
+  if (!estado.membroDesde) estado.membroDesde = new Date().toISOString();
   enviarPraNuvem();
 };
 
@@ -81,7 +74,6 @@ function carregar() {
   if (inputDepositoData) inputDepositoData.value = hoje.toISOString().split('T')[0];
 }
 
-// ==================== FORMATAÇÃO ====================
 function formatarMoeda(valor) {
   if (estado.ocultarValores) return 'R$ ••••';
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -92,7 +84,6 @@ function formatarPercentual(valor) {
   return valor.toFixed(1) + '%';
 }
 
-// ==================== TOASTS ====================
 function toast(mensagem, tipo = 'info', duracao = 3000) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
@@ -101,26 +92,19 @@ function toast(mensagem, tipo = 'info', duracao = 3000) {
   el.className = `toast tipo-${tipo}`;
   el.innerHTML = `<span class="toast-icon">${icons[tipo] || 'ℹ️'}</span><span class="toast-msg">${mensagem}</span>`;
   container.appendChild(el);
-  setTimeout(() => {
-    el.classList.add('saindo');
-    setTimeout(() => el.remove(), 300);
-  }, duracao);
+  setTimeout(() => { el.classList.add('saindo'); setTimeout(() => el.remove(), 300); }, duracao);
 }
 
-// ==================== ANIMAÇÃO NÚMEROS ====================
 function animarNumero(id, valorFinal) {
   const el = document.getElementById(id);
   if (!el) return;
   if (estado.ocultarValores) { el.textContent = formatarMoeda(valorFinal); return; }
   const textoAtual = el.textContent.replace(/[^\d,-]/g, '').replace(',', '.');
   const valorAtual = parseFloat(textoAtual) || 0;
-  if (Math.abs(valorAtual - valorFinal) < 0.01) {
-    el.textContent = formatarMoeda(valorFinal);
-    return;
-  }
+  if (Math.abs(valorAtual - valorFinal) < 0.01) { el.textContent = formatarMoeda(valorFinal); return; }
   el.classList.add('numero-animando');
   setTimeout(() => el.classList.remove('numero-animando'), 400);
-  const duracao = 500, passos = 20;
+  const passos = 20;
   const incremento = (valorFinal - valorAtual) / passos;
   let atual = valorAtual, passo = 0;
   const timer = setInterval(() => {
@@ -128,10 +112,9 @@ function animarNumero(id, valorFinal) {
     atual += incremento;
     if (passo >= passos) { atual = valorFinal; clearInterval(timer); }
     el.textContent = formatarMoeda(atual);
-  }, duracao / passos);
+  }, 25);
 }
 
-// ==================== CÁLCULOS ====================
 function bancaAtual() {
   const totalOp = estado.operacoes.reduce((s, o) => s + o.valor, 0);
   const totalDep = estado.depositos.reduce((s, d) => s + d.valor, 0);
@@ -140,15 +123,6 @@ function bancaAtual() {
 }
 
 function operacoesDoDia(data) { return estado.operacoes.filter(o => o.data === data); }
-
-function operacoesDaSemana() {
-  const hoje = new Date();
-  const inicio = new Date(hoje);
-  inicio.setDate(hoje.getDate() - hoje.getDay());
-  inicio.setHours(0, 0, 0, 0);
-  return estado.operacoes.filter(o => new Date(o.data + 'T00:00') >= inicio);
-}
-
 function operacoesDoMes(mesAno) { return estado.operacoes.filter(o => o.data.startsWith(mesAno)); }
 function resultadoPeriodo(ops) { return ops.reduce((s, o) => s + o.valor, 0); }
 
@@ -166,16 +140,13 @@ function calcularSequencias() {
     const d2 = new Date(b.data + 'T' + (b.hora || '00:00'));
     return d - d2;
   });
-  let seqAtual = 0, seqTipo = null;
-  let maxWins = 0, maxLoss = 0, tempW = 0, tempL = 0;
+  let seqAtual = 0, seqTipo = null, maxWins = 0, maxLoss = 0, tempW = 0, tempL = 0;
   ops.forEach(o => {
     if (o.tipo === 'WIN') {
-      tempW++; tempL = 0;
-      maxWins = Math.max(maxWins, tempW);
+      tempW++; tempL = 0; maxWins = Math.max(maxWins, tempW);
       if (seqTipo === 'WIN') seqAtual++; else { seqTipo = 'WIN'; seqAtual = 1; }
     } else if (o.tipo === 'LOSS') {
-      tempL++; tempW = 0;
-      maxLoss = Math.max(maxLoss, tempL);
+      tempL++; tempW = 0; maxLoss = Math.max(maxLoss, tempL);
       if (seqTipo === 'LOSS') seqAtual++; else { seqTipo = 'LOSS'; seqAtual = 1; }
     }
   });
@@ -198,41 +169,30 @@ function calcularMetaStop() {
   const stopBanca = banca * (stopPercentual / 100);
   const stopFinal = Math.min(stopGanho, stopBanca);
   return {
-    metaValor: banca * (metaPercentual / 100),
-    metaPercentual,
+    metaValor: banca * (metaPercentual / 100), metaPercentual,
     stopValor: stopFinal === Infinity ? stopBanca : stopFinal,
-    stopPercentual,
-    resultadoHoje,
-    winsHoje: wins
+    stopPercentual, resultadoHoje, winsHoje: wins
   };
 }
 
 function calcularKelly() {
   const wins = estado.operacoes.filter(o => o.tipo === 'WIN');
   const losses = estado.operacoes.filter(o => o.tipo === 'LOSS');
-  if (wins.length === 0 || losses.length === 0) return { kelly: 0, info: 'Precisa de wins e losses no histórico' };
+  if (wins.length === 0 || losses.length === 0) return { kelly: 0, info: 'Precisa wins e losses' };
   const ganhoMedio = wins.reduce((s, o) => s + Math.abs(o.valor), 0) / wins.length;
   const perdaMedia = losses.reduce((s, o) => s + Math.abs(o.valor), 0) / losses.length;
-  if (perdaMedia === 0) return { kelly: 0, info: 'Sem perdas registradas' };
+  if (perdaMedia === 0) return { kelly: 0, info: 'Sem perdas' };
   const b = ganhoMedio / perdaMedia;
-  const total = wins.length + losses.length;
-  const p = wins.length / total;
+  const p = wins.length / (wins.length + losses.length);
   const q = 1 - p;
   const kelly = ((p * b - q) / b) * 100;
-  const kellyMeio = kelly / 2;
-  return {
-    kelly: Math.max(0, kelly),
-    kellyMeio: Math.max(0, kellyMeio),
-    info: `Cheio: ${Math.max(0, kelly).toFixed(1)}% · Meio: ${Math.max(0, kellyMeio).toFixed(1)}%`
-  };
+  return { kelly: Math.max(0, kelly), info: `Cheio: ${Math.max(0, kelly).toFixed(1)}%` };
 }
 
 function calcularDrawdown() {
-  if (estado.operacoes.length === 0) return { maxDD: 0, atualDD: 0, info: 'Sem dados ainda' };
+  if (estado.operacoes.length === 0) return { maxDD: 0, atualDD: 0, info: 'Sem dados' };
   const ops = estado.operacoes.slice().sort((a, b) => new Date(a.data) - new Date(b.data));
-  let saldo = estado.bancaInicial;
-  let topo = saldo;
-  let maxDD = 0, maxDDValor = 0;
+  let saldo = estado.bancaInicial, topo = saldo, maxDD = 0, maxDDValor = 0;
   ops.forEach(o => {
     saldo += o.valor;
     if (saldo > topo) topo = saldo;
@@ -240,53 +200,17 @@ function calcularDrawdown() {
     if (dd > maxDD) { maxDD = dd; maxDDValor = topo - saldo; }
   });
   const ddAtual = topo > 0 ? ((topo - saldo) / topo) * 100 : 0;
-  return {
-    maxDD, maxDDValor, atualDD: ddAtual,
-    info: `Atual: ${ddAtual.toFixed(1)}% · Máx: ${maxDDValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
-  };
-}
-
-function calcularVoceVoce() {
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  const diaSemana = hoje.getDay();
-  const inicioSemanaAtual = new Date(hoje);
-  inicioSemanaAtual.setDate(hoje.getDate() - diaSemana);
-  const inicioSemanaPassada = new Date(inicioSemanaAtual);
-  inicioSemanaPassada.setDate(inicioSemanaAtual.getDate() - 7);
-  const opsSemanaAtual = estado.operacoes.filter(o => new Date(o.data + 'T00:00') >= inicioSemanaAtual);
-  const opsSemanaPassada = estado.operacoes.filter(o => {
-    const d = new Date(o.data + 'T00:00');
-    return d >= inicioSemanaPassada && d < inicioSemanaAtual;
-  });
-  const resultadoSemanaAtual = opsSemanaAtual.reduce((s, o) => s + o.valor, 0);
-  const resultadoSemanaPassada = opsSemanaPassada.reduce((s, o) => s + o.valor, 0);
-  const diffSemana = resultadoSemanaAtual - resultadoSemanaPassada;
-  const mesAtual = hoje.getMonth();
-  const anoAtual = hoje.getFullYear();
-  const mesPassado = mesAtual === 0 ? 11 : mesAtual - 1;
-  const anoPassado = mesAtual === 0 ? anoAtual - 1 : anoAtual;
-  const prefixoAtual = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}`;
-  const prefixoPassado = `${anoPassado}-${String(mesPassado + 1).padStart(2, '0')}`;
-  const opsMesAtual = estado.operacoes.filter(o => o.data.startsWith(prefixoAtual));
-  const opsMesPassado = estado.operacoes.filter(o => o.data.startsWith(prefixoPassado));
-  const resultadoMesAtual = opsMesAtual.reduce((s, o) => s + o.valor, 0);
-  const resultadoMesPassado = opsMesPassado.reduce((s, o) => s + o.valor, 0);
-  const diffMes = resultadoMesAtual - resultadoMesPassado;
-  return {
-    semanaAtual: resultadoSemanaAtual, semanaPassada: resultadoSemanaPassada, diffSemana,
-    mesAtual: resultadoMesAtual, mesPassado: resultadoMesPassado, diffMes
-  };
+  return { maxDD, maxDDValor, atualDD: ddAtual, info: `Atual: ${ddAtual.toFixed(1)}%` };
 }
 
 function calcularSharpe() {
   const ops = estado.operacoes;
-  if (ops.length < 2) return { sharpe: 0, info: 'Precisa de pelo menos 2 operações' };
+  if (ops.length < 2) return { sharpe: 0, info: 'Precisa 2+ ops' };
   const retornos = ops.map(o => o.valor);
   const media = retornos.reduce((s, r) => s + r, 0) / retornos.length;
   const variancia = retornos.reduce((s, r) => s + Math.pow(r - media, 2), 0) / retornos.length;
   const desvio = Math.sqrt(variancia);
-  if (desvio === 0) return { sharpe: 0, info: 'Sem variação nas operações' };
+  if (desvio === 0) return { sharpe: 0, info: 'Sem variação' };
   const sharpe = media / desvio;
   return { sharpe, info: sharpe > 2 ? 'Excelente' : sharpe > 1 ? 'Bom' : sharpe > 0 ? 'Razoável' : 'Ruim' };
 }
@@ -294,30 +218,30 @@ function calcularSharpe() {
 function calcularPayoff() {
   const wins = estado.operacoes.filter(o => o.tipo === 'WIN');
   const losses = estado.operacoes.filter(o => o.tipo === 'LOSS');
-  if (wins.length === 0 || losses.length === 0) return { payoff: 0, info: 'Precisa de wins e losses' };
+  if (wins.length === 0 || losses.length === 0) return { payoff: 0, info: 'Precisa wins e losses' };
   const ganhoMedio = wins.reduce((s, o) => s + Math.abs(o.valor), 0) / wins.length;
   const perdaMedia = losses.reduce((s, o) => s + Math.abs(o.valor), 0) / losses.length;
   const payoff = perdaMedia === 0 ? 0 : ganhoMedio / perdaMedia;
-  return { payoff, info: payoff > 2 ? 'Excelente' : payoff > 1 ? 'Bom' : 'Precisa melhorar' };
+  return { payoff, info: payoff > 2 ? 'Excelente' : payoff > 1 ? 'Bom' : 'Melhorar' };
 }
 
 function calcularExpectancia() {
   const ops = estado.operacoes;
-  if (ops.length === 0) return { expect: 0, info: 'Sem operações ainda' };
+  if (ops.length === 0) return { expect: 0, info: 'Sem ops' };
   const wins = ops.filter(o => o.tipo === 'WIN');
   const losses = ops.filter(o => o.tipo === 'LOSS');
-  if (wins.length === 0 || losses.length === 0) return { expect: 0, info: 'Precisa de wins e losses' };
-  const taxaAcerto = wins.length / (wins.length + losses.length);
+  if (wins.length === 0 || losses.length === 0) return { expect: 0, info: 'Precisa wins e losses' };
+  const taxa = wins.length / (wins.length + losses.length);
   const ganhoMedio = wins.reduce((s, o) => s + Math.abs(o.valor), 0) / wins.length;
   const perdaMedia = losses.reduce((s, o) => s + Math.abs(o.valor), 0) / losses.length;
-  const expect = (taxaAcerto * ganhoMedio) - ((1 - taxaAcerto) * perdaMedia);
+  const expect = (taxa * ganhoMedio) - ((1 - taxa) * perdaMedia);
   return { expect, info: expect > 0 ? 'Positiva ✅' : 'Negativa ❌' };
 }
 
 function calcularFatorLucro() {
   const totalGanho = estado.operacoes.filter(o => o.valor > 0).reduce((s, o) => s + o.valor, 0);
   const totalPerdido = Math.abs(estado.operacoes.filter(o => o.valor < 0).reduce((s, o) => s + o.valor, 0));
-  if (totalPerdido === 0) return { fator: 0, info: 'Sem perdas registradas' };
+  if (totalPerdido === 0) return { fator: 0, info: 'Sem perdas' };
   const fator = totalGanho / totalPerdido;
   return { fator, info: fator > 2 ? 'Excelente' : fator > 1 ? 'Lucrativo' : 'Prejuízo' };
 }
@@ -325,8 +249,7 @@ function calcularFatorLucro() {
 function calcularMetaMensal() {
   const hoje = new Date();
   const mesAno = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
-  const opsMes = operacoesDoMes(mesAno);
-  const resultadoMes = resultadoPeriodo(opsMes);
+  const resultadoMes = resultadoPeriodo(operacoesDoMes(mesAno));
   const meta = estado.metaMensal || 0;
   const percentual = meta > 0 ? Math.min(100, (resultadoMes / meta) * 100) : 0;
   return { meta, resultadoMes, percentual };
@@ -334,15 +257,13 @@ function calcularMetaMensal() {
 
 function calcularStatsConta() {
   const totalOps = estado.operacoes.length;
-  const diasUnicos = new Set(estado.operacoes.map(o => o.data));
-  const diasAtivos = diasUnicos.size;
+  const diasAtivos = new Set(estado.operacoes.map(o => o.data)).size;
   const banca = bancaAtual();
   const depositosTotal = estado.depositos.reduce((s, d) => s + d.valor, 0);
   const roi = depositosTotal > 0 ? ((banca - depositosTotal) / depositosTotal) * 100 : 0;
   return { totalOps, diasAtivos, roi, banca };
 }
 
-// ==================== DROPDOWN DE ATIVOS ====================
 function renderizarDropdownAtivos() {
   const lista = document.getElementById('dropdownAtivoLista');
   if (!lista) return;
@@ -385,10 +306,6 @@ function abrirDropdownAtivo() {
   if (!lista || !btn) return;
   lista.style.display = 'block';
   btn.classList.add('aberto');
-  setTimeout(() => {
-    const selecionado = lista.querySelector('.dropdown-item.selecionado');
-    if (selecionado) selecionado.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }, 50);
 }
 
 function fecharDropdownAtivo() {
@@ -410,19 +327,14 @@ function inicializarDropdownAtivos() {
   const btnCancelar = document.getElementById('btnCancelarNovoAtivo');
   const addInput = document.getElementById('dropdownAddInput');
   const inputNovo = document.getElementById('inputNovoAtivo');
-
   if (btn) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const lista = document.getElementById('dropdownAtivoLista');
-      if (lista && lista.style.display === 'block') {
-        fecharDropdownAtivo();
-      } else {
-        abrirDropdownAtivo();
-      }
+      if (lista && lista.style.display === 'block') fecharDropdownAtivo();
+      else abrirDropdownAtivo();
     });
   }
-
   if (btnAdicionar) {
     btnAdicionar.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -430,23 +342,18 @@ function inicializarDropdownAtivos() {
       if (inputNovo) inputNovo.focus();
     });
   }
-
   if (btnConfirmar) {
     btnConfirmar.addEventListener('click', (e) => {
       e.stopPropagation();
       const nome = (inputNovo?.value || '').trim().toUpperCase();
-      if (!nome) { toast('Digite o nome do ativo', 'aviso'); return; }
-      if (estado.ativos.includes(nome)) { toast('Esse ativo já existe', 'aviso'); return; }
+      if (!nome) { toast('Digite o nome', 'aviso'); return; }
+      if (estado.ativos.includes(nome)) { toast('Já existe', 'aviso'); return; }
       estado.ativos.push(nome);
       estado.ativoSelecionado = nome;
-      salvar();
-      renderizarDropdownAtivos();
-      atualizarTextoAtivo();
-      fecharDropdownAtivo();
+      salvar(); renderizarDropdownAtivos(); atualizarTextoAtivo(); fecharDropdownAtivo();
       toast('✅ ' + nome + ' adicionado!', 'sucesso');
     });
   }
-
   if (btnCancelar) {
     btnCancelar.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -454,23 +361,20 @@ function inicializarDropdownAtivos() {
       if (inputNovo) inputNovo.value = '';
     });
   }
-
   if (inputNovo) {
     inputNovo.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); btnConfirmar?.click(); }
     });
   }
-
   document.addEventListener('click', (e) => {
     const lista = document.getElementById('dropdownAtivoLista');
     if (lista && lista.style.display === 'block') {
       if (!e.target.closest('.form-campo-ativo')) fecharDropdownAtivo();
     }
   });
-
   renderizarDropdownAtivos();
   atualizarTextoAtivo();
-}// ==================== RENDERIZAÇÃO PRINCIPAL ====================
+}
 function renderizar() {
   const banca = bancaAtual();
   const hoje = new Date().toISOString().split('T')[0];
@@ -494,7 +398,7 @@ function renderizar() {
   set('metaDia', formatarMoeda(ms.metaValor));
   set('metaInfo', `${ms.metaPercentual}% do saldo · ${ms.winsHoje} wins hoje`);
   set('stopDia', formatarMoeda(ms.stopValor));
-  set('stopInfo', `${ms.stopPercentual}% · ${ms.winsHoje > 20 ? '10% (dia excepcional)' : '5% padrão'}`);
+  set('stopInfo', `${ms.stopPercentual}% · ${ms.winsHoje > 20 ? '10%' : '5% padrão'}`);
 
   const alerta = document.getElementById('alertaStop');
   if (alerta) alerta.style.display = (ms.resultadoHoje < 0 && Math.abs(ms.resultadoHoje) >= ms.stopValor) ? 'flex' : 'none';
@@ -521,9 +425,7 @@ function renderizar() {
   set('metaMensalPercentual', mm.percentual.toFixed(1) + '%');
 
   const bvSub = document.getElementById('boasVindasSub');
-  if (bvSub) {
-    bvSub.textContent = `Sua banca está em ${formatarMoeda(banca)}.`;
-  }
+  if (bvSub) bvSub.textContent = `Sua banca está em ${formatarMoeda(banca)}.`;
 
   renderizarSaque(banca);
   renderizarUltimasOperacoes();
@@ -543,147 +445,98 @@ function renderizar() {
     const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     dataEl.textContent = new Date().toLocaleDateString('pt-BR', opcoes);
   }
-
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ==================== RENDERIZAÇÃO DA PERFIL ====================
 function renderizarPerfil() {
   if (!window.__fb || !window.__fb.auth.currentUser) return;
   const user = window.__fb.auth.currentUser;
   const email = user.email || 'sem email';
-  
   const stats = calcularStatsConta();
-  
   const emailEl = document.getElementById('perfilEmail');
   if (emailEl) emailEl.textContent = email;
-  
   const avatarEl = document.getElementById('perfilAvatar');
   if (avatarEl) avatarEl.textContent = email.charAt(0).toUpperCase();
-  
   const membroEl = document.getElementById('perfilMembro');
   if (membroEl) {
     const data = estado.membroDesde ? new Date(estado.membroDesde) : new Date();
     const mes = data.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
     membroEl.textContent = `Membro desde ${mes}`;
   }
-  
   const saldoEl = document.getElementById('perfilSaldo');
   if (saldoEl) saldoEl.textContent = formatarMoeda(stats.banca);
-  
   const opsEl = document.getElementById('perfilTotalOps');
   if (opsEl) opsEl.textContent = stats.totalOps;
-  
   const diasEl = document.getElementById('perfilDiasAtivos');
   if (diasEl) diasEl.textContent = stats.diasAtivos;
-  
   const roiEl = document.getElementById('perfilROI');
   if (roiEl) {
     roiEl.textContent = (stats.roi >= 0 ? '+' : '') + stats.roi.toFixed(1) + '%';
     roiEl.style.color = stats.roi >= 0 ? 'var(--verde)' : 'var(--vermelho)';
   }
-  
   const toggle = document.getElementById('toggleOcultarValores');
-  if (toggle) {
-    toggle.classList.toggle('ativo', estado.ocultarValores);
-  }
+  if (toggle) toggle.classList.toggle('ativo', estado.ocultarValores);
 }
 
-// ==================== TROCAR SENHA ====================
 async function trocarSenha() {
   const novaSenha = prompt('Digite sua NOVA senha (mín. 6 caracteres):');
   if (!novaSenha) return;
-  if (novaSenha.length < 6) { toast('Senha muito curta (mín. 6)', 'erro'); return; }
+  if (novaSenha.length < 6) { toast('Senha muito curta', 'erro'); return; }
   const confirmar = prompt('Confirme a nova senha:');
   if (novaSenha !== confirmar) { toast('Senhas não coincidem', 'erro'); return; }
   try {
     const { auth, updatePassword } = window.__fb;
     await updatePassword(auth.currentUser, novaSenha);
-    toast('✅ Senha alterada com sucesso!', 'sucesso');
+    toast('✅ Senha alterada!', 'sucesso');
   } catch (e) {
-    console.error(e);
-    if (e.code === 'auth/requires-recent-login') {
-      toast('Faça login novamente para trocar a senha', 'aviso', 5000);
-    } else {
-      toast('Erro ao trocar senha: ' + e.message, 'erro');
-    }
+    if (e.code === 'auth/requires-recent-login') toast('Faça login novamente', 'aviso', 5000);
+    else toast('Erro: ' + e.message, 'erro');
   }
 }
 
-// ==================== TROCAR EMAIL ====================
 async function trocarEmail() {
   const novoEmail = prompt('Digite seu NOVO email:');
   if (!novoEmail) return;
   if (!novoEmail.includes('@')) { toast('Email inválido', 'erro'); return; }
-  if (!confirm('⚠️ IMPORTANTE: vai chegar um email de confirmação no NOVO endereço. Só depois de clicar no link a troca é efetiva.\n\nDeseja continuar?')) return;
+  if (!confirm('⚠️ Vai chegar email de confirmação. Continuar?')) return;
   try {
     const { auth, updateEmail } = window.__fb;
     await updateEmail(auth.currentUser, novoEmail);
     toast('📧 Email alterado! Confirme no novo endereço.', 'sucesso', 6000);
   } catch (e) {
-    console.error(e);
-    if (e.code === 'auth/requires-recent-login') {
-      toast('Faça login novamente para trocar o email', 'aviso', 5000);
-    } else if (e.code === 'auth/email-already-in-use') {
-      toast('Esse email já está em uso', 'erro');
-    } else {
-      toast('Erro ao trocar email: ' + e.message, 'erro');
-    }
+    if (e.code === 'auth/requires-recent-login') toast('Faça login novamente', 'aviso', 5000);
+    else if (e.code === 'auth/email-already-in-use') toast('Email em uso', 'erro');
+    else toast('Erro: ' + e.message, 'erro');
   }
 }
 
-// ==================== RESETAR SENHA POR EMAIL ====================
 async function resetarSenhaEmail() {
   if (!window.__fb || !window.__fb.auth.currentUser) return;
   const email = window.__fb.auth.currentUser.email;
-  if (!confirm(`Enviar email de recuperação para ${email}?`)) return;
+  if (!confirm(`Enviar email para ${email}?`)) return;
   try {
     const { auth, sendPasswordResetEmail } = window.__fb;
     await sendPasswordResetEmail(auth, email);
-    toast('📧 Email enviado! Verifique sua caixa de entrada.', 'sucesso', 5000);
-  } catch (e) {
-    console.error(e);
-    toast('Erro ao enviar email: ' + e.message, 'erro');
-  }
+    toast('📧 Email enviado!', 'sucesso', 5000);
+  } catch (e) { toast('Erro: ' + e.message, 'erro'); }
 }
 
-// ==================== ANÁLISE IA (GEMINI) ====================
 async function analisarComIA() {
-  if (!window.__fb || !window.__fb.model) {
-    toast('IA não configurada. Ative o AI Logic no Firebase.', 'erro', 5000);
-    return;
-  }
-  
+  if (!window.__fb || !window.__fb.model) { toast('IA não configurada', 'erro', 5000); return; }
   const ops = estado.operacoes;
-  if (ops.length === 0) {
-    toast('Registre pelo menos 1 operação primeiro', 'aviso');
-    return;
-  }
-  
+  if (ops.length === 0) { toast('Registre pelo menos 1 operação', 'aviso'); return; }
   const modal = document.getElementById('modalIA');
   const conteudo = document.getElementById('analiseIAConteudo');
   if (modal) modal.style.display = 'flex';
-  if (conteudo) conteudo.innerHTML = '<p style="text-align:center;color:var(--texto-secundario);padding:40px;">🤖 Analisando seus dados... aguarde.</p>';
-  
+  if (conteudo) conteudo.innerHTML = '<p style="text-align:center;color:var(--texto-secundario);padding:40px;">🤖 Analisando...</p>';
   const prompt = gerarTextoIA();
-  
   try {
     const { model } = window.__fb;
     const result = await model.generateContent(prompt);
     const texto = result.response.text();
-    
-    if (conteudo) {
-      conteudo.innerHTML = `
-        <div class="ia-resposta">
-          ${texto.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '<br>').join('')}
-        </div>
-      `;
-    }
+    if (conteudo) conteudo.innerHTML = texto.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '<br>').join('');
   } catch (e) {
-    console.error('Erro IA:', e);
-    if (conteudo) {
-      conteudo.innerHTML = `<p style="color:var(--vermelho);text-align:center;padding:20px;">❌ Erro ao gerar análise.<br><small>${e.message}</small></p>`;
-    }
+    if (conteudo) conteudo.innerHTML = `<p style="color:var(--vermelho);text-align:center;padding:20px;">❌ Erro: ${e.message}</p>`;
   }
 }
 
@@ -698,53 +551,24 @@ function gerarTextoIA() {
   const ganhoTotal = wins.reduce((s, o) => s + o.valor, 0);
   const perdaTotal = Math.abs(losses.reduce((s, o) => s + o.valor, 0));
   const resultado = ganhoTotal - perdaTotal;
-  const melhor = ops.reduce((m, o) => o.valor > m.valor ? o : m, ops[0]);
-  const pior = ops.reduce((m, o) => o.valor < m.valor ? o : m, ops[0]);
   const sharpe = calcularSharpe();
   const payoff = calcularPayoff();
   const exp = calcularExpectancia();
   const fator = calcularFatorLucro();
-
-  const porMes = {};
-  ops.forEach(o => {
-    const m = o.data.slice(0, 7);
-    if (!porMes[m]) porMes[m] = { wins: 0, losses: 0, lucro: 0 };
-    if (o.tipo === 'WIN') porMes[m].wins++;
-    if (o.tipo === 'LOSS') porMes[m].losses++;
-    porMes[m].lucro += o.valor;
-  });
-
-  let texto = '';
-  texto += 'Sou trader e uso o FerrTrading para gerenciar minha banca. ';
-  texto += 'Analise meus dados abaixo e me dê insights práticos sobre:\n';
-  texto += '1. O que estou fazendo certo\n2. O que preciso melhorar\n';
-  texto += '3. Padrões que você identifica\n4. Sugestões concretas para os próximos 30 dias\n\n';
-  texto += '=== MEUS DADOS ===\n';
-  texto += `Saldo atual: ${formatarMoeda(banca)}\n`;
-  texto += `Banca inicial: ${formatarMoeda(estado.bancaInicial)}\n`;
-  texto += `Total de operações: ${total}\n`;
+  let texto = 'Sou trader e uso o FerrTrading. Analise:\n\n';
+  texto += `Saldo: ${formatarMoeda(banca)}\n`;
+  texto += `Total ops: ${total}\n`;
   texto += `Wins: ${wins.length} | Loss: ${losses.length} | Empates: ${empates.length}\n`;
-  texto += `Taxa de acerto: ${taxa.toFixed(1)}%\n`;
-  texto += `Resultado total: ${formatarMoeda(resultado)}\n`;
-  texto += `Total ganho: ${formatarMoeda(ganhoTotal)}\n`;
-  texto += `Total perdido: ${formatarMoeda(perdaTotal)}\n`;
-  texto += `Melhor operação: ${formatarMoeda(melhor.valor)}\n`;
-  texto += `Pior operação: ${formatarMoeda(pior.valor)}\n\n`;
-  texto += '=== MÉTRICAS ===\n';
-  texto += `Sharpe Ratio: ${sharpe.sharpe.toFixed(2)} (${sharpe.info})\n`;
-  texto += `Payoff: ${payoff.payoff.toFixed(2)} (${payoff.info})\n`;
-  texto += `Expectância: ${formatarMoeda(exp.expect)} (${exp.info})\n`;
-  texto += `Fator Lucro: ${fator.fator.toFixed(2)} (${fator.info})\n\n`;
-  texto += '=== DESEMPENHO MENSAL ===\n';
-  Object.keys(porMes).sort().forEach(m => {
-    const d = porMes[m];
-    texto += `${m.split('-').reverse().join('/')}: ${d.wins}W / ${d.losses}L | Lucro: ${formatarMoeda(d.lucro)}\n`;
-  });
-  texto += '\nSeja direto e prático. Foque no que posso mudar AGORA.';
+  texto += `Taxa acerto: ${taxa.toFixed(1)}%\n`;
+  texto += `Resultado: ${formatarMoeda(resultado)}\n\n`;
+  texto += `Sharpe: ${sharpe.sharpe.toFixed(2)}\n`;
+  texto += `Payoff: ${payoff.payoff.toFixed(2)}\n`;
+  texto += `Expectância: ${formatarMoeda(exp.expect)}\n`;
+  texto += `Fator Lucro: ${fator.fator.toFixed(2)}\n\n`;
+  texto += 'Me dê insights práticos e sugestões.';
   return texto;
 }
 
-// ==================== ÚLTIMAS OPERAÇÕES ====================
 function renderizarUltimasOperacoes() {
   const container = document.getElementById('listaUltimasOperacoes');
   if (!container) return;
@@ -753,17 +577,13 @@ function renderizarUltimasOperacoes() {
     const d2 = new Date(b.data + 'T' + (b.hora || '00:00'));
     return d2 - d;
   }).slice(0, 5);
-
   const badge = document.getElementById('ultimasBadge');
   const mesAno = new Date().toISOString().slice(0, 7);
-  const mesOps = operacoesDoMes(mesAno);
-  if (badge) badge.textContent = `+${mesOps.length} este mês`;
-
+  if (badge) badge.textContent = `+${operacoesDoMes(mesAno).length} este mês`;
   if (ops.length === 0) {
-    container.innerHTML = '<p class="placeholder-texto">Nenhuma operação registrada ainda</p>';
+    container.innerHTML = '<p class="placeholder-texto">Nenhuma operação registrada</p>';
     return;
   }
-
   container.innerHTML = '';
   ops.forEach(o => {
     const tipoClass = o.tipo.toLowerCase();
@@ -772,9 +592,7 @@ function renderizarUltimasOperacoes() {
     const div = document.createElement('div');
     div.className = 'item-vision';
     div.innerHTML = `
-      <div class="item-vision-icon ${tipoClass}">
-        <i data-lucide="${icone}"></i>
-      </div>
+      <div class="item-vision-icon ${tipoClass}"><i data-lucide="${icone}"></i></div>
       <div class="item-vision-info">
         <div class="item-vision-titulo">${o.ativo || 'Sem ativo'}</div>
         <div class="item-vision-sub">${o.data.split('-').reverse().join('/')} · ${o.hora || '--:--'}</div>
@@ -785,7 +603,6 @@ function renderizarUltimasOperacoes() {
   });
 }
 
-// ==================== SAQUE ====================
 function renderizarSaque(banca) {
   const hoje = new Date();
   const dia = hoje.getDate();
@@ -797,29 +614,21 @@ function renderizarSaque(banca) {
   if (el2) el2.textContent = `${tipo} · dia ${dia}`;
 }
 
-// ==================== HISTÓRICO ====================
 function renderizarHistorico() {
   const filtroEl = document.getElementById('filtroMes');
   const filtro = filtroEl ? filtroEl.value : '';
   let ops = estado.operacoes.slice().reverse();
   if (filtro) ops = ops.filter(o => o.data.startsWith(filtro));
-
   const badge = document.getElementById('historicoBadge');
   const mesAno = new Date().toISOString().slice(0, 7);
-  if (badge) {
-    const mesOps = estado.operacoes.filter(o => o.data.startsWith(mesAno));
-    badge.textContent = `${mesOps.length} operações este mês`;
-  }
-
+  if (badge) badge.textContent = `${estado.operacoes.filter(o => o.data.startsWith(mesAno)).length} operações este mês`;
   const corpo = document.getElementById('corpoHistorico');
   if (!corpo) return;
   corpo.innerHTML = '';
-
   if (ops.length === 0) {
-    corpo.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--texto-terciario);padding:40px;">Nenhuma operação registrada</td></tr>';
+    corpo.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--texto-terciario);padding:40px;">Nenhuma operação</td></tr>';
     return;
   }
-
   ops.forEach((o) => {
     const tipoClass = o.tipo.toLowerCase();
     const tr = document.createElement('tr');
@@ -829,16 +638,13 @@ function renderizarHistorico() {
       <td>${o.hora || '-'}</td>
       <td><span class="badge-tabela ${tipoClass}">${o.tipo}</span></td>
       <td class="${tipoClass}">${formatarMoeda(o.valor)}</td>
-      <td>
-        <button class="btn-remover-vision" onclick="removerOperacao('${o.id}')"><i data-lucide="trash-2"></i></button>
-      </td>
+      <td><button class="btn-remover-vision" onclick="removerOperacao('${o.id}')"><i data-lucide="trash-2"></i></button></td>
     `;
     corpo.appendChild(tr);
   });
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ==================== RESUMO MENSAL ====================
 function renderizarResumoMensal() {
   const meses = {};
   estado.operacoes.forEach(o => {
@@ -853,19 +659,14 @@ function renderizarResumoMensal() {
   corpo.innerHTML = '';
   const banca = bancaAtual();
   const mesAtual = new Date().toISOString().slice(0, 7);
-
   if (Object.keys(meses).length === 0) {
-    corpo.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--texto-terciario);padding:40px;">Sem dados ainda</td></tr>';
+    corpo.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--texto-terciario);padding:40px;">Sem dados</td></tr>';
   }
-
   Object.keys(meses).sort().reverse().forEach(mes => {
     const m = meses[mes];
     const tr = document.createElement('tr');
     let metaTexto = '-';
-    if (mes === mesAtual && estado.metaMensal > 0) {
-      const p = ((m.lucro / estado.metaMensal) * 100).toFixed(0);
-      metaTexto = `${p}%`;
-    }
+    if (mes === mesAtual && estado.metaMensal > 0) metaTexto = `${((m.lucro / estado.metaMensal) * 100).toFixed(0)}%`;
     tr.innerHTML = `
       <td>${mes.split('-').reverse().join('/')}</td>
       <td class="win">${m.wins}</td>
@@ -876,7 +677,6 @@ function renderizarResumoMensal() {
     `;
     corpo.appendChild(tr);
   });
-
   const filtro = document.getElementById('filtroMes');
   if (filtro) {
     const valorAtual = filtro.value;
@@ -891,18 +691,14 @@ function renderizarResumoMensal() {
   }
 }
 
-// ==================== HORÁRIO ====================
 function renderizarHorario() {
   const corpo = document.getElementById('corpoHorario');
   if (!corpo) return;
   corpo.innerHTML = '';
   const faixas = [
-    { label: '00h - 06h', min: 0, max: 6 },
-    { label: '06h - 09h', min: 6, max: 9 },
-    { label: '09h - 12h', min: 9, max: 12 },
-    { label: '12h - 15h', min: 12, max: 15 },
-    { label: '15h - 18h', min: 15, max: 18 },
-    { label: '18h - 21h', min: 18, max: 21 },
+    { label: '00h - 06h', min: 0, max: 6 }, { label: '06h - 09h', min: 6, max: 9 },
+    { label: '09h - 12h', min: 9, max: 12 }, { label: '12h - 15h', min: 12, max: 15 },
+    { label: '15h - 18h', min: 15, max: 18 }, { label: '18h - 21h', min: 18, max: 21 },
     { label: '21h - 00h', min: 21, max: 24 }
   ];
   faixas.forEach(f => {
@@ -916,10 +712,8 @@ function renderizarHorario() {
     const assert = (wins + losses) === 0 ? 0 : (wins / (wins + losses)) * 100;
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${f.label}</td>
-      <td>${ops.length}</td>
-      <td class="win">${wins}</td>
-      <td class="loss">${losses}</td>
+      <td>${f.label}</td><td>${ops.length}</td>
+      <td class="win">${wins}</td><td class="loss">${losses}</td>
       <td class="${resultado >= 0 ? 'win' : 'loss'}">${formatarMoeda(resultado)}</td>
       <td>${formatarPercentual(assert)}</td>
     `;
@@ -927,7 +721,6 @@ function renderizarHorario() {
   });
 }
 
-// ==================== SAQUES ====================
 function renderizarSaques() {
   const container = document.getElementById('listaSaques');
   const saques = estado.saques.slice().reverse();
@@ -935,21 +728,14 @@ function renderizarSaques() {
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
   set('saquesTotal', formatarMoeda(total));
   set('saquesQuantidade', estado.saques.length);
-  if (saques.length > 0) {
-    const ultimo = saques[0];
-    set('saquesUltimo', ultimo.data.split('-').reverse().join('/') + ' · ' + formatarMoeda(ultimo.valor));
-  } else {
-    set('saquesUltimo', '-');
-  }
-
+  if (saques.length > 0) set('saquesUltimo', saques[0].data.split('-').reverse().join('/') + ' · ' + formatarMoeda(saques[0].valor));
+  else set('saquesUltimo', '-');
   if (!container) return;
   container.innerHTML = '';
-
   if (saques.length === 0) {
-    container.innerHTML = '<p class="placeholder-texto">Nenhum saque registrado ainda</p>';
+    container.innerHTML = '<p class="placeholder-texto">Nenhum saque registrado</p>';
     return;
   }
-
   saques.forEach(s => {
     const div = document.createElement('div');
     div.className = 'transacao-vision';
@@ -970,12 +756,10 @@ function renderizarSaques() {
 window.removerSaque = function(id) {
   if (!confirm('Remover este saque?')) return;
   estado.saques = estado.saques.filter(s => String(s.id) !== String(id));
-  salvar();
-  renderizar();
+  salvar(); renderizar();
   toast('Saque removido', 'info');
 };
 
-// ==================== CALENDÁRIO ====================
 function renderizarCalendario() {
   const grid = document.getElementById('calendarioGrid');
   const titulo = document.getElementById('tituloCalendario');
@@ -989,8 +773,7 @@ function renderizarCalendario() {
   grid.innerHTML = '';
   ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(d => {
     const el = document.createElement('div');
-    el.className = 'cal-dia-semana';
-    el.textContent = d;
+    el.className = 'cal-dia-semana'; el.textContent = d;
     grid.appendChild(el);
   });
   for (let i = 0; i < primeiroDia; i++) {
@@ -1005,113 +788,18 @@ function renderizarCalendario() {
     const el = document.createElement('div');
     el.className = 'cal-dia';
     if (ops.length > 0) el.classList.add(resultado > 0 ? 'positivo' : resultado < 0 ? 'negativo' : '');
-    el.innerHTML = `
-      <div class="cal-dia-num">${dia}</div>
-      <div class="cal-dia-valor">${ops.length > 0 ? formatarMoeda(resultado) : ''}</div>
-    `;
+    el.innerHTML = `<div class="cal-dia-num">${dia}</div><div class="cal-dia-valor">${ops.length > 0 ? formatarMoeda(resultado) : ''}</div>`;
     grid.appendChild(el);
   }
 }
 
-// ==================== AÇÕES ====================
-function registrarOperacao(tipo) {
-  const ativo = estado.ativoSelecionado || '';
-  const valor = parseFloat(document.getElementById('inputValor').value);
-  const data = document.getElementById('inputData').value;
-  const hora = document.getElementById('inputHora').value;
+let chartLinha = null, chartBarras = null, chartPizzaTipo = null, chartDiaSemana = null;
+let chartKelly = null, chartDrawdown = null, chartSharpe = null, chartGanhoPerda = null;
+let chartAtivo = null, chartMes = null, chartRosca = null, chartMetaMensal = null;
 
-  if (!ativo) return toast('Escolha um ativo primeiro.', 'erro');
-  if (!data) return toast('Informe a data.', 'erro');
-  if (isNaN(valor) || valor <= 0) return toast('Informe um valor válido.', 'erro');
-
-  let valorFinal;
-  if (tipo === 'LOSS') valorFinal = -Math.abs(valor);
-  else if (tipo === 'EMPATE') valorFinal = 0;
-  else valorFinal = Math.abs(valor);
-
-  estado.operacoes.push({
-    id: Date.now() + Math.random(),
-    tipo, ativo, valor: valorFinal, data, hora
-  });
-
-  salvar();
-  estado.ativoSelecionado = null;
-  document.getElementById('inputValor').value = '';
-  renderizarDropdownAtivos();
-  atualizarTextoAtivo();
-  renderizar();
-
-  const emoji = tipo === 'WIN' ? '✅' : tipo === 'LOSS' ? '❌' : '➖';
-  toast(emoji + ' ' + tipo + ' ' + ativo + ' registrado: ' + formatarMoeda(Math.abs(valorFinal)),
-    tipo === 'WIN' ? 'sucesso' : tipo === 'LOSS' ? 'erro' : 'info');
-}
-
-function removerOperacao(id) {
-  if (!confirm('Remover esta operação?')) return;
-  estado.operacoes = estado.operacoes.filter(o => String(o.id) !== String(id));
-  salvar();
-  renderizar();
-  toast('Operação removida', 'info');
-}
-
-function registrarSaque(percentual) {
-  if (!percentual) {
-    const hoje = new Date();
-    percentual = hoje.getDate() <= 15 ? 15 : 30;
-  }
-  const banca = bancaAtual();
-  if (banca <= 0) { toast('Saldo zerado. Não há o que sacar.', 'erro'); return; }
-
-  const tipo = percentual === 15 ? 'Quinzenal' : 'Mensal';
-  const valor = banca * (percentual / 100);
-  if (!confirm('Registrar saque ' + percentual + '% (' + tipo + ')?\n\nSaldo: ' + formatarMoeda(banca) + '\nSaque: ' + formatarMoeda(valor))) return;
-
-  estado.saques.push({
-    id: Date.now(), valor,
-    data: new Date().toISOString().split('T')[0],
-    tipo
-  });
-  salvar();
-  renderizar();
-  toast('💸 Saque ' + tipo + ' registrado: ' + formatarMoeda(valor), 'sucesso');
-}
-
-function registrarDeposito() {
-  const valor = parseFloat(document.getElementById('inputDeposito').value);
-  const data = document.getElementById('inputDepositoData').value;
-  const tipo = document.getElementById('inputDepositoTipo').value;
-  if (isNaN(valor) || valor <= 0) return toast('Informe um valor válido.', 'erro');
-  if (!data) return toast('Informe a data.', 'erro');
-  if (tipo === 'DEPOSITO') estado.depositos.push({ id: Date.now(), valor, data });
-  else estado.saques.push({ id: Date.now(), valor, data, tipo: 'Manual' });
-  salvar();
-  document.getElementById('inputDeposito').value = '';
-  renderizar();
-  toast((tipo === 'DEPOSITO' ? '💰 Depósito' : '💸 Saque') + ' registrado: ' + formatarMoeda(valor), 'sucesso');
-}// ==================== GRÁFICOS ====================
-let chartLinha = null;
-let chartBarras = null;
-let chartPizzaTipo = null;
-let chartDiaSemana = null;
-let chartKelly = null;
-let chartDrawdown = null;
-let chartSharpe = null;
-let chartGanhoPerda = null;
-let chartAtivo = null;
-let chartMes = null;
-let chartRosca = null;
-let chartMetaMensal = null;
-
-const COR_AZUL = '#0066FF';
-const COR_AZUL_CLARO = '#1597FF';
-const COR_AZUL_ESCURO = '#0755C9';
-const COR_VERDE = '#00C98B';
-const COR_VERMELHO = '#FF3B55';
-const COR_AMARELO = '#FFB547';
-const COR_TEXTO = '#8B9BC2';
-const COR_GRID = '#102653';
-const COR_FUNDO = '#061332';
-
+const COR_AZUL = '#0066FF', COR_AZUL_CLARO = '#1597FF', COR_AZUL_ESCURO = '#0755C9';
+const COR_VERDE = '#00C98B', COR_VERMELHO = '#FF3B55', COR_AMARELO = '#FFB547';
+const COR_TEXTO = '#8B9BC2', COR_GRID = '#102653', COR_FUNDO = '#061332';
 const fmtMoeda = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 function optsBase() {
@@ -1119,14 +807,7 @@ function optsBase() {
     responsive: true, maintainAspectRatio: false,
     plugins: {
       legend: { labels: { color: COR_TEXTO, font: { size: 11, weight: '600' }, padding: 12, usePointStyle: true } },
-      tooltip: {
-        backgroundColor: COR_FUNDO,
-        borderColor: COR_GRID,
-        borderWidth: 1,
-        titleColor: COR_AZUL_CLARO,
-        bodyColor: '#F5F7FF',
-        padding: 12, cornerRadius: 8, displayColors: false
-      }
+      tooltip: { backgroundColor: COR_FUNDO, borderColor: COR_GRID, borderWidth: 1, titleColor: COR_AZUL_CLARO, bodyColor: '#F5F7FF', padding: 12, cornerRadius: 8, displayColors: false }
     }
   };
 }
@@ -1143,28 +824,11 @@ function renderizarGraficoMetaMensal() {
   if (!canvas || typeof Chart === 'undefined') return;
   const mm = calcularMetaMensal();
   const dados = [mm.percentual, Math.max(0, 100 - mm.percentual)];
-  if (chartMetaMensal) {
-    chartMetaMensal.data.datasets[0].data = dados;
-    chartMetaMensal.update('none');
-    return;
-  }
+  if (chartMetaMensal) { chartMetaMensal.data.datasets[0].data = dados; chartMetaMensal.update('none'); return; }
   chartMetaMensal = new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
-    data: {
-      labels: ['Concluído', 'Restante'],
-      datasets: [{
-        data: dados,
-        backgroundColor: [COR_AZUL_CLARO, COR_GRID],
-        borderColor: 'transparent',
-        borderWidth: 0,
-        hoverOffset: 6
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      cutout: '78%',
-      plugins: { legend: { display: false }, tooltip: { enabled: false } }
-    }
+    data: { labels: ['Concluído', 'Restante'], datasets: [{ data: dados, backgroundColor: [COR_AZUL_CLARO, COR_GRID], borderColor: 'transparent', borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '78%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
   });
 }
 
@@ -1173,49 +837,21 @@ function renderizarGrafico() {
   if (!canvas || typeof Chart === 'undefined') return;
   const ops = estado.operacoes.slice().sort((a, b) => new Date(a.data) - new Date(b.data));
   let saldo = estado.bancaInicial;
-  const labels = ['Início'];
-  const valores = [saldo];
+  const labels = ['Início'], valores = [saldo];
   ops.forEach(o => {
     saldo += o.valor;
     labels.push(new Date(o.data + 'T00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
     valores.push(saldo);
   });
-  if (chartLinha) {
-    chartLinha.data.labels = labels;
-    chartLinha.data.datasets[0].data = valores;
-    chartLinha.update('none');
-    return;
-  }
+  if (chartLinha) { chartLinha.data.labels = labels; chartLinha.data.datasets[0].data = valores; chartLinha.update('none'); return; }
   const ctx = canvas.getContext('2d');
   const gradiente = ctx.createLinearGradient(0, 0, 0, 320);
   gradiente.addColorStop(0, 'rgba(0, 102, 255, 0.4)');
   gradiente.addColorStop(1, 'rgba(0, 102, 255, 0)');
   chartLinha = new Chart(ctx, {
     type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Saldo', data: valores,
-        borderColor: COR_AZUL_CLARO, backgroundColor: gradiente,
-        borderWidth: 2, fill: true, tension: 0.4,
-        pointBackgroundColor: COR_AZUL_CLARO,
-        pointBorderColor: COR_FUNDO,
-        pointBorderWidth: 2, pointRadius: 0, pointHoverRadius: 6
-      }]
-    },
-    options: {
-      ...optsBase(),
-      interaction: { intersect: false, mode: 'index' },
-      plugins: {
-        ...optsBase().plugins,
-        legend: { display: false },
-        tooltip: {
-          ...optsBase().plugins.tooltip,
-          callbacks: { label: (ctx) => 'Saldo: ' + fmtMoeda(ctx.parsed.y) }
-        }
-      },
-      scales: escalas()
-    }
+    data: { labels, datasets: [{ label: 'Saldo', data: valores, borderColor: COR_AZUL_CLARO, backgroundColor: gradiente, borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 6 }] },
+    options: { ...optsBase(), interaction: { intersect: false, mode: 'index' }, plugins: { ...optsBase().plugins, legend: { display: false } }, scales: escalas() }
   });
 }
 
@@ -1228,44 +864,14 @@ function renderizarGraficoBarras() {
     const d = new Date(hoje);
     d.setDate(hoje.getDate() - i);
     const dataStr = d.toISOString().split('T')[0];
-    const ops = operacoesDoDia(dataStr);
     labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
-    valores.push(resultadoPeriodo(ops));
+    valores.push(resultadoPeriodo(operacoesDoDia(dataStr)));
   }
-  if (chartBarras) {
-    chartBarras.data.labels = labels;
-    chartBarras.data.datasets[0].data = valores;
-    chartBarras.update('none');
-    return;
-  }
+  if (chartBarras) { chartBarras.data.labels = labels; chartBarras.data.datasets[0].data = valores; chartBarras.update('none'); return; }
   chartBarras = new Chart(canvas.getContext('2d'), {
     type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Resultado',
-        data: valores,
-        backgroundColor: '#F5F7FF',
-        borderRadius: 4,
-        borderSkipped: false,
-        barThickness: 8
-      }]
-    },
-    options: {
-      ...optsBase(),
-      plugins: {
-        ...optsBase().plugins,
-        legend: { display: false },
-        tooltip: {
-          ...optsBase().plugins.tooltip,
-          callbacks: { label: (ctx) => 'Resultado: ' + fmtMoeda(ctx.parsed.y) }
-        }
-      },
-      scales: {
-        x: { grid: { display: false, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 15 } },
-        y: { grid: { color: COR_GRID, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 10 }, callback: (v) => 'R$ ' + v.toLocaleString('pt-BR') } }
-      }
-    }
+    data: { labels, datasets: [{ label: 'Resultado', data: valores, backgroundColor: '#F5F7FF', borderRadius: 4, borderSkipped: false, barThickness: 8 }] },
+    options: { ...optsBase(), plugins: { ...optsBase().plugins, legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: COR_TEXTO, font: { size: 9 }, maxTicksLimit: 15 } }, y: { grid: { color: COR_GRID }, ticks: { color: COR_TEXTO, font: { size: 10 }, callback: (v) => 'R$ ' + v.toLocaleString('pt-BR') } } } }
   });
 }
 
@@ -1277,39 +883,11 @@ function renderizarPizzaTipo() {
     estado.operacoes.filter(o => o.tipo === 'LOSS').length,
     estado.operacoes.filter(o => o.tipo === 'EMPATE').length
   ];
-  if (chartPizzaTipo) {
-    chartPizzaTipo.data.datasets[0].data = dados;
-    chartPizzaTipo.update('none');
-    return;
-  }
+  if (chartPizzaTipo) { chartPizzaTipo.data.datasets[0].data = dados; chartPizzaTipo.update('none'); return; }
   chartPizzaTipo = new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
-    data: {
-      labels: ['Wins', 'Loss', 'Empates'],
-      datasets: [{
-        data: dados,
-        backgroundColor: [COR_VERDE, COR_VERMELHO, COR_AMARELO],
-        borderColor: COR_FUNDO, borderWidth: 3, hoverOffset: 8
-      }]
-    },
-    options: {
-      ...optsBase(),
-      cutout: '60%',
-      plugins: {
-        ...optsBase().plugins,
-        legend: { position: 'bottom', labels: { color: COR_TEXTO, font: { size: 11, weight: '600' }, padding: 12, usePointStyle: true } },
-        tooltip: {
-          ...optsBase().plugins.tooltip,
-          callbacks: {
-            label: (ctx) => {
-              const total = ctx.dataset.data.reduce((s, v) => s + v, 0);
-              const p = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-              return `${ctx.label}: ${ctx.parsed} (${p}%)`;
-            }
-          }
-        }
-      }
-    }
+    data: { labels: ['Wins', 'Loss', 'Empates'], datasets: [{ data: dados, backgroundColor: [COR_VERDE, COR_VERMELHO, COR_AMARELO], borderColor: COR_FUNDO, borderWidth: 3 }] },
+    options: { ...optsBase(), cutout: '60%', plugins: { ...optsBase().plugins, legend: { position: 'bottom' } } }
   });
 }
 
@@ -1318,28 +896,13 @@ function renderizarDiaSemana() {
   if (!canvas) return;
   const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const valores = [0, 0, 0, 0, 0, 0, 0];
-  estado.operacoes.forEach(o => {
-    const d = new Date(o.data + 'T00:00');
-    valores[d.getDay()] += o.valor;
-  });
+  estado.operacoes.forEach(o => { valores[new Date(o.data + 'T00:00').getDay()] += o.valor; });
   const cores = valores.map(v => v >= 0 ? COR_VERDE : COR_VERMELHO);
-  if (chartDiaSemana) {
-    chartDiaSemana.data.datasets[0].data = valores;
-    chartDiaSemana.data.datasets[0].backgroundColor = cores;
-    chartDiaSemana.update('none');
-    return;
-  }
+  if (chartDiaSemana) { chartDiaSemana.data.datasets[0].data = valores; chartDiaSemana.data.datasets[0].backgroundColor = cores; chartDiaSemana.update('none'); return; }
   chartDiaSemana = new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: { labels: dias, datasets: [{ data: valores, backgroundColor: cores, borderRadius: 6, borderSkipped: false }] },
-    options: {
-      ...optsBase(),
-      plugins: { ...optsBase().plugins, legend: { display: false }, tooltip: { ...optsBase().plugins.tooltip, callbacks: { label: (ctx) => fmtMoeda(ctx.parsed.y) } } },
-      scales: {
-        x: { grid: { display: false, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 11 } } },
-        y: { grid: { color: COR_GRID, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 10 }, callback: (v) => 'R$ ' + v.toLocaleString('pt-BR') } }
-      }
-    }
+    options: { ...optsBase(), plugins: { ...optsBase().plugins, legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: COR_TEXTO } }, y: { grid: { color: COR_GRID }, ticks: { color: COR_TEXTO, callback: (v) => 'R$ ' + v.toLocaleString('pt-BR') } } } }
   });
 }
 
@@ -1348,22 +911,11 @@ function renderizarKelly() {
   if (!canvas) return;
   const k = calcularKelly();
   const dados = [k.kelly, Math.max(0, 100 - k.kelly)];
-  if (chartKelly) {
-    chartKelly.data.datasets[0].data = dados;
-    chartKelly.update('none');
-    return;
-  }
+  if (chartKelly) { chartKelly.data.datasets[0].data = dados; chartKelly.update('none'); return; }
   chartKelly = new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
-    data: {
-      labels: ['Kelly', 'Restante'],
-      datasets: [{ data: dados, backgroundColor: [COR_AZUL_CLARO, COR_GRID], borderColor: 'transparent', borderWidth: 0, hoverOffset: 8 }]
-    },
-    options: {
-      ...optsBase(),
-      cutout: '75%',
-      plugins: { legend: { display: false }, tooltip: { enabled: false } }
-    }
+    data: { labels: ['Kelly', 'Restante'], datasets: [{ data: dados, backgroundColor: [COR_AZUL_CLARO, COR_GRID], borderColor: 'transparent', borderWidth: 0 }] },
+    options: { ...optsBase(), cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
   });
 }
 
@@ -1371,43 +923,19 @@ function renderizarDrawdown() {
   const canvas = document.getElementById('graficoDrawdown');
   if (!canvas) return;
   const ops = estado.operacoes.slice().sort((a, b) => new Date(a.data) - new Date(b.data));
-  let saldo = estado.bancaInicial;
-  let topo = saldo;
-  const labels = ['Início'];
-  const valores = [0];
+  let saldo = estado.bancaInicial, topo = saldo;
+  const labels = ['Início'], valores = [0];
   ops.forEach(o => {
     saldo += o.valor;
     if (saldo > topo) topo = saldo;
-    const dd = topo > 0 ? -((topo - saldo) / topo) * 100 : 0;
     labels.push(new Date(o.data + 'T00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
-    valores.push(dd);
+    valores.push(topo > 0 ? -((topo - saldo) / topo) * 100 : 0);
   });
-  if (chartDrawdown) {
-    chartDrawdown.data.labels = labels;
-    chartDrawdown.data.datasets[0].data = valores;
-    chartDrawdown.update('none');
-    return;
-  }
+  if (chartDrawdown) { chartDrawdown.data.labels = labels; chartDrawdown.data.datasets[0].data = valores; chartDrawdown.update('none'); return; }
   chartDrawdown = new Chart(canvas.getContext('2d'), {
     type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Drawdown %', data: valores,
-        borderColor: COR_VERMELHO,
-        backgroundColor: 'rgba(255, 59, 85, 0.15)',
-        borderWidth: 2, fill: true, tension: 0.4,
-        pointBackgroundColor: COR_VERMELHO, pointRadius: 0, pointHoverRadius: 5
-      }]
-    },
-    options: {
-      ...optsBase(),
-      plugins: { ...optsBase().plugins, legend: { display: false }, tooltip: { ...optsBase().plugins.tooltip, callbacks: { label: (ctx) => `${ctx.parsed.y.toFixed(2)}%` } } },
-      scales: {
-        x: { grid: { color: COR_GRID, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } },
-        y: { grid: { color: COR_GRID, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 10 }, callback: (v) => v.toFixed(0) + '%' } }
-      }
-    }
+    data: { labels, datasets: [{ data: valores, borderColor: COR_VERMELHO, backgroundColor: 'rgba(255, 59, 85, 0.15)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0 }] },
+    options: { ...optsBase(), plugins: { ...optsBase().plugins, legend: { display: false } }, scales: { x: { grid: { color: COR_GRID }, ticks: { color: COR_TEXTO, font: { size: 9 }, maxTicksLimit: 6 } }, y: { grid: { color: COR_GRID }, ticks: { color: COR_TEXTO, callback: (v) => v.toFixed(0) + '%' } } } }
   });
 }
 
@@ -1415,25 +943,13 @@ function renderizarSharpe() {
   const canvas = document.getElementById('graficoSharpe');
   if (!canvas) return;
   const s = calcularSharpe();
-  const valor = Math.max(0, Math.min(3, s.sharpe));
-  const perc = (valor / 3) * 100;
+  const perc = (Math.max(0, Math.min(3, s.sharpe)) / 3) * 100;
   const dados = [perc, 100 - perc];
-  if (chartSharpe) {
-    chartSharpe.data.datasets[0].data = dados;
-    chartSharpe.update('none');
-    return;
-  }
+  if (chartSharpe) { chartSharpe.data.datasets[0].data = dados; chartSharpe.update('none'); return; }
   chartSharpe = new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
-    data: {
-      labels: ['Sharpe', 'Restante'],
-      datasets: [{ data: dados, backgroundColor: [COR_VERDE, COR_GRID], borderColor: 'transparent', borderWidth: 0, hoverOffset: 8 }]
-    },
-    options: {
-      ...optsBase(),
-      cutout: '75%',
-      plugins: { legend: { display: false }, tooltip: { enabled: false } }
-    }
+    data: { labels: ['Sharpe', 'Restante'], datasets: [{ data: dados, backgroundColor: [COR_VERDE, COR_GRID], borderColor: 'transparent', borderWidth: 0 }] },
+    options: { ...optsBase(), cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
   });
 }
 
@@ -1445,26 +961,11 @@ function renderizarGanhoPerda() {
   const ganhoMedio = wins.length > 0 ? wins.reduce((s, o) => s + Math.abs(o.valor), 0) / wins.length : 0;
   const perdaMedia = losses.length > 0 ? losses.reduce((s, o) => s + Math.abs(o.valor), 0) / losses.length : 0;
   const dados = [ganhoMedio, perdaMedia];
-  if (chartGanhoPerda) {
-    chartGanhoPerda.data.datasets[0].data = dados;
-    chartGanhoPerda.update('none');
-    return;
-  }
+  if (chartGanhoPerda) { chartGanhoPerda.data.datasets[0].data = dados; chartGanhoPerda.update('none'); return; }
   chartGanhoPerda = new Chart(canvas.getContext('2d'), {
     type: 'bar',
-    data: {
-      labels: ['Ganho', 'Perda'],
-      datasets: [{ data: dados, backgroundColor: [COR_VERDE, COR_VERMELHO], borderRadius: 6, borderSkipped: false }]
-    },
-    options: {
-      ...optsBase(),
-      indexAxis: 'y',
-      plugins: { ...optsBase().plugins, legend: { display: false }, tooltip: { ...optsBase().plugins.tooltip, callbacks: { label: (ctx) => fmtMoeda(ctx.parsed.x) } } },
-      scales: {
-        x: { grid: { color: COR_GRID, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 10 }, callback: (v) => 'R$ ' + v.toLocaleString('pt-BR') } },
-        y: { grid: { display: false, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 12, weight: '600' } } }
-      }
-    }
+    data: { labels: ['Ganho', 'Perda'], datasets: [{ data: dados, backgroundColor: [COR_VERDE, COR_VERMELHO], borderRadius: 6, borderSkipped: false }] },
+    options: { ...optsBase(), indexAxis: 'y', plugins: { ...optsBase().plugins, legend: { display: false } }, scales: { x: { grid: { color: COR_GRID }, ticks: { color: COR_TEXTO, callback: (v) => 'R$ ' + v.toLocaleString('pt-BR') } }, y: { grid: { display: false }, ticks: { color: COR_TEXTO, font: { size: 12 } } } } }
   });
 }
 
@@ -1474,44 +975,17 @@ function renderizarAtivo() {
   const ativos = {};
   estado.operacoes.forEach(o => {
     const ativo = o.ativo && o.ativo.trim() ? o.ativo.trim() : 'Sem ativo';
-    if (!ativos[ativo]) ativos[ativo] = 0;
-    ativos[ativo] += o.valor;
+    ativos[ativo] = (ativos[ativo] || 0) + o.valor;
   });
   const labels = Object.keys(ativos);
   const valores = labels.map(a => ativos[a]);
   const cores = [COR_AZUL, COR_AZUL_CLARO, COR_AZUL_ESCURO, COR_VERDE, COR_AMARELO, '#7B61FF', '#FF9800', '#4CAF50'];
   const bgCores = labels.map((_, i) => cores[i % cores.length]);
-  if (chartAtivo) {
-    chartAtivo.data.labels = labels;
-    chartAtivo.data.datasets[0].data = valores;
-    chartAtivo.data.datasets[0].backgroundColor = bgCores;
-    chartAtivo.update('none');
-    return;
-  }
+  if (chartAtivo) { chartAtivo.data.labels = labels; chartAtivo.data.datasets[0].data = valores; chartAtivo.data.datasets[0].backgroundColor = bgCores; chartAtivo.update('none'); return; }
   chartAtivo = new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
-    data: {
-      labels: labels.length ? labels : ['Sem dados'],
-      datasets: [{ data: valores.length ? valores : [1], backgroundColor: bgCores, borderColor: COR_FUNDO, borderWidth: 3, hoverOffset: 8 }]
-    },
-    options: {
-      ...optsBase(),
-      cutout: '60%',
-      plugins: {
-        ...optsBase().plugins,
-        legend: { position: 'bottom', labels: { color: COR_TEXTO, font: { size: 11 }, padding: 12, usePointStyle: true } },
-        tooltip: {
-          ...optsBase().plugins.tooltip,
-          callbacks: {
-            label: (ctx) => {
-              const total = ctx.dataset.data.reduce((s, v) => s + Math.abs(v), 0);
-              const p = total > 0 ? ((Math.abs(ctx.parsed) / total) * 100).toFixed(1) : 0;
-              return `${ctx.label}: ${fmtMoeda(ctx.parsed)} (${p}%)`;
-            }
-          }
-        }
-      }
-    }
+    data: { labels: labels.length ? labels : ['Sem dados'], datasets: [{ data: valores.length ? valores : [1], backgroundColor: bgCores, borderColor: COR_FUNDO, borderWidth: 3 }] },
+    options: { ...optsBase(), cutout: '60%', plugins: { ...optsBase().plugins, legend: { position: 'bottom' } } }
   });
 }
 
@@ -1519,46 +993,24 @@ function renderizarMes() {
   const canvas = document.getElementById('graficoMes');
   if (!canvas) return;
   const meses = {};
-  estado.operacoes.forEach(o => {
-    const mes = o.data.slice(0, 7);
-    if (!meses[mes]) meses[mes] = 0;
-    meses[mes] += o.valor;
-  });
+  estado.operacoes.forEach(o => { meses[o.data.slice(0, 7)] = (meses[o.data.slice(0, 7)] || 0) + o.valor; });
   const chaves = Object.keys(meses).sort().slice(-6);
   const labels = chaves.map(m => m.split('-').reverse().join('/'));
   const valores = chaves.map(m => meses[m]);
   const cores = valores.map(v => v >= 0 ? COR_VERDE : COR_VERMELHO);
-  if (chartMes) {
-    chartMes.data.labels = labels;
-    chartMes.data.datasets[0].data = valores;
-    chartMes.data.datasets[0].backgroundColor = cores;
-    chartMes.update('none');
-    return;
-  }
+  if (chartMes) { chartMes.data.labels = labels; chartMes.data.datasets[0].data = valores; chartMes.data.datasets[0].backgroundColor = cores; chartMes.update('none'); return; }
   chartMes = new Chart(canvas.getContext('2d'), {
     type: 'bar',
-    data: { labels: labels, datasets: [{ data: valores, backgroundColor: cores, borderRadius: 6, borderSkipped: false }] },
-    options: {
-      ...optsBase(),
-      plugins: { ...optsBase().plugins, legend: { display: false }, tooltip: { ...optsBase().plugins.tooltip, callbacks: { label: (ctx) => fmtMoeda(ctx.parsed.y) } } },
-      scales: {
-        x: { grid: { display: false, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 11 } } },
-        y: { grid: { color: COR_GRID, drawBorder: false }, ticks: { color: COR_TEXTO, font: { size: 10 }, callback: (v) => 'R$ ' + v.toLocaleString('pt-BR') } }
-      }
-    }
+    data: { labels, datasets: [{ data: valores, backgroundColor: cores, borderRadius: 6, borderSkipped: false }] },
+    options: { ...optsBase(), plugins: { ...optsBase().plugins, legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: COR_TEXTO } }, y: { grid: { color: COR_GRID }, ticks: { color: COR_TEXTO, callback: (v) => 'R$ ' + v.toLocaleString('pt-BR') } } } }
   });
 }
 
 function renderizarTodosGraficos() {
   if (typeof Chart === 'undefined') return;
-  renderizarPizzaTipo();
-  renderizarDiaSemana();
-  renderizarKelly();
-  renderizarDrawdown();
-  renderizarSharpe();
-  renderizarGanhoPerda();
-  renderizarAtivo();
-  renderizarMes();
+  renderizarPizzaTipo(); renderizarDiaSemana(); renderizarKelly();
+  renderizarDrawdown(); renderizarSharpe(); renderizarGanhoPerda();
+  renderizarAtivo(); renderizarMes();
 }
 
 function renderizarAssertividadeRosca() {
@@ -1568,51 +1020,113 @@ function renderizarAssertividadeRosca() {
   const losses = estado.operacoes.filter(o => o.tipo === 'LOSS').length;
   const total = wins + losses;
   const percentual = total > 0 ? (wins / total) * 100 : 0;
-
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
   set('assertividadePercentualCentro', percentual.toFixed(1) + '%');
   set('assertividadeContadorCentro', `${wins}W · ${losses}L`);
   set('roscaInfoBase', `Baseado em ${total} operações`);
-
   const barraProg = document.getElementById('roscaBarraProgresso');
   if (barraProg) barraProg.style.width = percentual + '%';
-
   const dados = total === 0 ? [1, 0] : [wins, losses];
   const cores = total === 0 ? [COR_GRID, COR_GRID] : [COR_VERDE, COR_VERMELHO];
-
-  if (chartRosca) {
-    chartRosca.data.datasets[0].data = dados;
-    chartRosca.data.datasets[0].backgroundColor = cores;
-    chartRosca.update('none');
-    return;
-  }
-
+  if (chartRosca) { chartRosca.data.datasets[0].data = dados; chartRosca.data.datasets[0].backgroundColor = cores; chartRosca.update('none'); return; }
   chartRosca = new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
-    data: {
-      labels: total === 0 ? ['Sem dados'] : ['Wins', 'Loss'],
-      datasets: [{ data: dados, backgroundColor: cores, borderColor: 'transparent', borderWidth: 0, hoverOffset: 6 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '78%',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          ...optsBase().plugins.tooltip,
-          callbacks: {
-            label: (ctx) => {
-              if (total === 0) return 'Sem operações';
-              const p = ((ctx.parsed / total) * 100).toFixed(1);
-              return `${ctx.label}: ${ctx.parsed} (${p}%)`;
-            }
-          }
-        }
-      }
-    }
+    data: { labels: total === 0 ? ['Sem dados'] : ['Wins', 'Loss'], datasets: [{ data: dados, backgroundColor: cores, borderColor: 'transparent', borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '78%', plugins: { legend: { display: false } } }
   });
 }
 
-// ==================== PDF ====================
+function registrarOperacao(tipo) {
+  const ativo = estado.ativoSelecionado || '';
+  const valor = parseFloat(document.getElementById('inputValor').value);
+  const data = document.getElementById('inputData').value;
+  const hora = document.getElementById('inputHora').value;
+  if (!ativo) return toast('Escolha um ativo', 'erro');
+  if (!data) return toast('Informe a data', 'erro');
+  if (isNaN(valor) || valor <= 0) return toast('Valor inválido', 'erro');
+  let valorFinal;
+  if (tipo === 'LOSS') valorFinal = -Math.abs(valor);
+  else if (tipo === 'EMPATE') valorFinal = 0;
+  else valorFinal = Math.abs(valor);
+  estado.operacoes.push({ id: Date.now() + Math.random(), tipo, ativo, valor: valorFinal, data, hora });
+  salvar();
+  estado.ativoSelecionado = null;
+  document.getElementById('inputValor').value = '';
+  renderizarDropdownAtivos(); atualizarTextoAtivo(); renderizar();
+  if (tipo === 'WIN') tocarBeep('win');
+  else if (tipo === 'LOSS') tocarBeep('loss');
+  else tocarBeep('empate');
+  const emoji = tipo === 'WIN' ? '✅' : tipo === 'LOSS' ? '❌' : '➖';
+  toast(emoji + ' ' + tipo + ' ' + ativo + ': ' + formatarMoeda(Math.abs(valorFinal)),
+    tipo === 'WIN' ? 'sucesso' : tipo === 'LOSS' ? 'erro' : 'info');
+}
+
+function removerOperacao(id) {
+  if (!confirm('Remover esta operação?')) return;
+  estado.operacoes = estado.operacoes.filter(o => String(o.id) !== String(id));
+  salvar(); renderizar();
+  toast('Operação removida', 'info');
+}
+
+function registrarSaque(percentual) {
+  if (!percentual) {
+    const hoje = new Date();
+    percentual = hoje.getDate() <= 15 ? 15 : 30;
+  }
+  const banca = bancaAtual();
+  if (banca <= 0) { toast('Saldo zerado', 'erro'); return; }
+  const tipo = percentual === 15 ? 'Quinzenal' : 'Mensal';
+  const valor = banca * (percentual / 100);
+  if (!confirm('Saque ' + percentual + '% (' + tipo + ')?\n\nSaldo: ' + formatarMoeda(banca) + '\nSaque: ' + formatarMoeda(valor))) return;
+  estado.saques.push({ id: Date.now(), valor, data: new Date().toISOString().split('T')[0], tipo });
+  salvar(); renderizar();
+  toast('💸 Saque ' + tipo + ': ' + formatarMoeda(valor), 'sucesso');
+}
+
+function registrarDeposito() {
+  const valor = parseFloat(document.getElementById('inputDeposito').value);
+  const data = document.getElementById('inputDepositoData').value;
+  const tipo = document.getElementById('inputDepositoTipo').value;
+  if (isNaN(valor) || valor <= 0) return toast('Valor inválido', 'erro');
+  if (!data) return toast('Informe a data', 'erro');
+  if (tipo === 'DEPOSITO') estado.depositos.push({ id: Date.now(), valor, data });
+  else estado.saques.push({ id: Date.now(), valor, data, tipo: 'Manual' });
+  salvar();
+  document.getElementById('inputDeposito').value = '';
+  renderizar();
+  toast((tipo === 'DEPOSITO' ? '💰 Depósito' : '💸 Saque') + ': ' + formatarMoeda(valor), 'sucesso');
+}
+
+function tocarBeep(tipo) {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    if (tipo === 'sinal') {
+      osc.frequency.value = 880; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    } else if (tipo === 'win') {
+      osc.frequency.value = 1200; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    } else if (tipo === 'loss') {
+      osc.frequency.value = 300; osc.type = 'sawtooth';
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    } else if (tipo === 'empate') {
+      osc.frequency.value = 600; osc.type = 'triangle';
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    }
+  } catch (e) {}
+}
+
 function gerarRelatorioPDF() {
   const hoje = new Date();
   const mesAno = hoje.toISOString().slice(0, 7);
@@ -1624,7 +1138,6 @@ function gerarRelatorioPDF() {
   const resultado = ops.reduce((s, o) => s + o.valor, 0);
   const nomesMes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-
   set('relatorioPeriodo', `${nomesMes[hoje.getMonth()]} de ${hoje.getFullYear()}`);
   set('relatorioSaldo', formatarMoeda(banca));
   set('relatorioResultado', formatarMoeda(resultado));
@@ -1636,26 +1149,18 @@ function gerarRelatorioPDF() {
   if (ops.length > 0) {
     set('relatorioMelhor', formatarMoeda(Math.max(...ops.map(o => o.valor))));
     set('relatorioPior', formatarMoeda(Math.min(...ops.map(o => o.valor))));
-  } else {
-    set('relatorioMelhor', 'R$ 0,00');
-    set('relatorioPior', 'R$ 0,00');
   }
-  const payoff = calcularPayoff();
-  const exp = calcularExpectancia();
-  const fator = calcularFatorLucro();
+  const payoff = calcularPayoff(), exp = calcularExpectancia(), fator = calcularFatorLucro();
   set('relatorioPayoff', payoff.payoff.toFixed(2));
   set('relatorioExpect', formatarMoeda(exp.expect));
   set('relatorioFator', fator.fator.toFixed(2));
-
   const corpo = document.getElementById('relatorioOpsCorpo');
   if (corpo) {
     corpo.innerHTML = '';
     ops.slice().reverse().forEach(o => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${o.data.split('-').reverse().join('/')}</td>
-        <td>${o.hora || '-'}</td>
-        <td>${o.ativo || '-'}</td>
+        <td>${o.data.split('-').reverse().join('/')}</td><td>${o.hora || '-'}</td><td>${o.ativo || '-'}</td>
         <td style="color: ${o.tipo === 'WIN' ? '#00C98B' : o.tipo === 'LOSS' ? '#FF3B55' : '#FFB547'}; font-weight: 700;">${o.tipo}</td>
         <td style="text-align: right; font-weight: 700;">${formatarMoeda(o.valor)}</td>
       `;
@@ -1668,11 +1173,8 @@ function gerarRelatorioPDF() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-window.fecharRelatorioPDF = function() {
-  document.getElementById('relatorioPDF').style.display = 'none';
-};
+window.fecharRelatorioPDF = function() { document.getElementById('relatorioPDF').style.display = 'none'; };
 
-// ==================== COMPARTILHAR ====================
 function roundRect(ctx, x, y, width, height, radius) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -1689,107 +1191,69 @@ function roundRect(ctx, x, y, width, height, radius) {
 
 function gerarCardCompartilhar(periodo) {
   const canvas = document.createElement('canvas');
-  canvas.width = 1080;
-  canvas.height = 1920;
+  canvas.width = 1080; canvas.height = 1920;
   const ctx = canvas.getContext('2d');
   const grad = ctx.createLinearGradient(0, 0, 0, 1920);
-  grad.addColorStop(0, '#061332');
-  grad.addColorStop(1, '#050B27');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 1080, 1920);
-  ctx.fillStyle = '#0066FF';
-  ctx.fillRect(0, 0, 1080, 6);
-
-  ctx.fillStyle = '#1597FF';
-  ctx.font = 'bold 52px Inter, sans-serif';
+  grad.addColorStop(0, '#061332'); grad.addColorStop(1, '#050B27');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, 1080, 1920);
+  ctx.fillStyle = '#0066FF'; ctx.fillRect(0, 0, 1080, 6);
+  ctx.fillStyle = '#1597FF'; ctx.font = 'bold 52px Inter, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('FerrTrading', 540, 160);
-
-  ctx.fillStyle = '#8B9BC2';
-  ctx.font = '600 32px Inter, sans-serif';
+  ctx.fillStyle = '#8B9BC2'; ctx.font = '600 32px Inter, sans-serif';
   const titulos = { dia: 'RESULTADO DE HOJE', semana: 'RESULTADO DA SEMANA', mes: 'RESULTADO DO MÊS' };
   ctx.fillText(titulos[periodo] || 'RESULTADO', 540, 230);
-
   let ops = [];
   const hoje = new Date();
-  if (periodo === 'dia') {
-    ops = estado.operacoes.filter(o => o.data === hoje.toISOString().split('T')[0]);
-  } else if (periodo === 'semana') {
+  if (periodo === 'dia') ops = estado.operacoes.filter(o => o.data === hoje.toISOString().split('T')[0]);
+  else if (periodo === 'semana') {
     const inicio = new Date(hoje);
     inicio.setDate(hoje.getDate() - hoje.getDay());
     inicio.setHours(0, 0, 0, 0);
     ops = estado.operacoes.filter(o => new Date(o.data + 'T00:00') >= inicio);
-  } else if (periodo === 'mes') {
-    ops = estado.operacoes.filter(o => o.data.startsWith(hoje.toISOString().slice(0, 7)));
-  }
+  } else if (periodo === 'mes') ops = estado.operacoes.filter(o => o.data.startsWith(hoje.toISOString().slice(0, 7)));
   const resultado = ops.reduce((s, o) => s + o.valor, 0);
   const wins = ops.filter(o => o.tipo === 'WIN').length;
   const losses = ops.filter(o => o.tipo === 'LOSS').length;
-
   ctx.shadowColor = resultado >= 0 ? 'rgba(0, 201, 139, 0.6)' : 'rgba(255, 59, 85, 0.6)';
   ctx.shadowBlur = 40;
   ctx.fillStyle = resultado >= 0 ? '#00C98B' : '#FF3B55';
   ctx.font = 'bold 140px Inter, sans-serif';
   ctx.fillText(resultado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 540, 500);
   ctx.shadowBlur = 0;
-
-  ctx.fillStyle = '#0A1738';
-  ctx.strokeStyle = '#102653';
-  ctx.lineWidth = 2;
-
-  ctx.beginPath();
-  roundRect(ctx, 120, 780, 400, 220, 24);
-  ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#00C98B';
-  ctx.font = 'bold 100px Inter, sans-serif';
+  ctx.fillStyle = '#0A1738'; ctx.strokeStyle = '#102653'; ctx.lineWidth = 2;
+  ctx.beginPath(); roundRect(ctx, 120, 780, 400, 220, 24); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#00C98B'; ctx.font = 'bold 100px Inter, sans-serif';
   ctx.fillText(wins, 320, 900);
-  ctx.fillStyle = '#8B9BC2';
-  ctx.font = '600 28px Inter, sans-serif';
+  ctx.fillStyle = '#8B9BC2'; ctx.font = '600 28px Inter, sans-serif';
   ctx.fillText('WINS', 320, 960);
-
   ctx.fillStyle = '#0A1738';
-  ctx.beginPath();
-  roundRect(ctx, 560, 780, 400, 220, 24);
-  ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#FF3B55';
-  ctx.font = 'bold 100px Inter, sans-serif';
+  ctx.beginPath(); roundRect(ctx, 560, 780, 400, 220, 24); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#FF3B55'; ctx.font = 'bold 100px Inter, sans-serif';
   ctx.fillText(losses, 760, 900);
-  ctx.fillStyle = '#8B9BC2';
-  ctx.font = '600 28px Inter, sans-serif';
+  ctx.fillStyle = '#8B9BC2'; ctx.font = '600 28px Inter, sans-serif';
   ctx.fillText('LOSS', 760, 960);
-
-  ctx.fillStyle = '#8B9BC2';
-  ctx.font = '600 32px Inter, sans-serif';
+  ctx.fillStyle = '#8B9BC2'; ctx.font = '600 32px Inter, sans-serif';
   ctx.fillText('SALDO ATUAL', 540, 1150);
-  ctx.fillStyle = '#F5F7FF';
-  ctx.font = 'bold 80px Inter, sans-serif';
+  ctx.fillStyle = '#F5F7FF'; ctx.font = 'bold 80px Inter, sans-serif';
   ctx.fillText(formatarMoeda(bancaAtual()), 540, 1250);
-
   const t = wins + losses;
   const taxa = t > 0 ? ((wins / t) * 100).toFixed(0) : 0;
-  ctx.fillStyle = '#8B9BC2';
-  ctx.font = '600 32px Inter, sans-serif';
+  ctx.fillStyle = '#8B9BC2'; ctx.font = '600 32px Inter, sans-serif';
   ctx.fillText('ASSERTIVIDADE', 540, 1400);
-  ctx.fillStyle = '#1597FF';
-  ctx.font = 'bold 80px Inter, sans-serif';
+  ctx.fillStyle = '#1597FF'; ctx.font = 'bold 80px Inter, sans-serif';
   ctx.fillText(taxa + '%', 540, 1500);
-
-  ctx.fillStyle = '#0066FF';
-  ctx.font = 'bold 36px Inter, sans-serif';
+  ctx.fillStyle = '#0066FF'; ctx.font = 'bold 36px Inter, sans-serif';
   ctx.fillText('groupferr.github.io/ferrtrading', 540, 1750);
-  ctx.fillStyle = '#5A6B8C';
-  ctx.font = '500 26px Inter, sans-serif';
+  ctx.fillStyle = '#5A6B8C'; ctx.font = '500 26px Inter, sans-serif';
   ctx.fillText('Gerencie sua banca com segurança', 540, 1800);
-
   return canvas;
 }
 
-// ==================== CSV ====================
 function exportarCSV() {
   if (estado.operacoes.length === 0) return toast('Sem operações para exportar', 'erro');
   let csv = 'Data,Hora,Ativo,Tipo,Valor\n';
-  const ops = estado.operacoes.slice().sort((a, b) => new Date(a.data) - new Date(b.data));
-  ops.forEach(o => {
+  estado.operacoes.slice().sort((a, b) => new Date(a.data) - new Date(b.data)).forEach(o => {
     csv += `${o.data},${o.hora || ''},${o.ativo || ''},${o.tipo},${o.valor.toFixed(2).replace('.', ',')}\n`;
   });
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
@@ -1802,11 +1266,9 @@ function exportarCSV() {
   toast('📤 CSV exportado!', 'sucesso');
 }
 
-// ==================== RESET ====================
 async function resetarDados() {
   estado = {
-    bancaInicial: 0,
-    operacoes: [], depositos: [], saques: [],
+    bancaInicial: 0, operacoes: [], depositos: [], saques: [],
     percentualEntrada: 1, ocultarValores: false, metaMensal: 0,
     ativos: ['BITCOIN','LITECOIN','CARDANO','BNB','ETHEREUM','SOLANA','AVAX','DOGE','SUI','XPL','STELLAR'],
     ativoSelecionado: null,
@@ -1817,22 +1279,16 @@ async function resetarDados() {
   localStorage.setItem('ferrTrading', JSON.stringify(estado));
   if (window.__fb && window.__fb.auth.currentUser) {
     const { auth, db, doc, setDoc } = window.__fb;
-    try {
-      await setDoc(doc(db, 'usuarios', auth.currentUser.uid), estado);
-      console.log('☁️ Nuvem limpa');
-    } catch (e) { console.error('Erro ao limpar nuvem:', e); }
+    try { await setDoc(doc(db, 'usuarios', auth.currentUser.uid), estado); } catch (e) {}
   }
   syncAtivo = false;
   document.getElementById('modalResetar').style.display = 'none';
-  renderizarDropdownAtivos();
-  atualizarTextoAtivo();
+  renderizarDropdownAtivos(); atualizarTextoAtivo();
   toast('🗑️ Dados resetados!', 'sucesso');
   setTimeout(() => { syncAtivo = true; renderizar(); }, 500);
 }
 
-// ==================== LOGIN ====================
 function inicializarLogin() {
-  console.log('🔐 Carregando handlers de login...');
   document.querySelectorAll('.login-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const form = tab.dataset.form;
@@ -1843,7 +1299,6 @@ function inicializarLogin() {
       if (formEl) formEl.classList.add('active');
     });
   });
-
   const formEntrar = document.getElementById('formEntrar');
   if (formEntrar) formEntrar.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1865,7 +1320,6 @@ function inicializarLogin() {
       if (erro) erro.textContent = msgs[err.code] || 'Erro ao entrar';
     }
   });
-
   const formCriar = document.getElementById('formCriar');
   if (formCriar) formCriar.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1874,7 +1328,7 @@ function inicializarLogin() {
     const senha2 = document.getElementById('criarSenha2').value;
     const erro = document.getElementById('erroCriar');
     if (erro) erro.textContent = '';
-    if (senha !== senha2) { if (erro) erro.textContent = 'As senhas não coincidem'; return; }
+    if (senha !== senha2) { if (erro) erro.textContent = 'Senhas não coincidem'; return; }
     if (!window.__fb) { if (erro) erro.textContent = 'Firebase carregando...'; return; }
     try {
       const { auth, createUserWithEmailAndPassword } = window.__fb;
@@ -1882,13 +1336,12 @@ function inicializarLogin() {
     } catch (err) {
       const msgs = {
         'auth/email-already-in-use': 'E-mail já cadastrado',
-        'auth/weak-password': 'Senha muito fraca (mín. 6 caracteres)',
+        'auth/weak-password': 'Senha muito fraca (mín. 6)',
         'auth/invalid-email': 'E-mail inválido'
       };
       if (erro) erro.textContent = msgs[err.code] || 'Erro ao criar conta';
     }
   });
-
   const btnSair = document.getElementById('btnSair');
   if (btnSair) btnSair.addEventListener('click', async () => {
     if (!confirm('Sair da conta?')) return;
@@ -1899,7 +1352,6 @@ function inicializarLogin() {
   });
 }
 
-// ==================== PWA ====================
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -1907,14 +1359,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
   const btn = document.getElementById('btnInstalarPWA');
   if (btn) btn.style.display = 'flex';
 });
-
 window.addEventListener('appinstalled', () => {
   toast('🎉 FerrTrading instalado!', 'sucesso');
   const btn = document.getElementById('btnInstalarPWA');
   if (btn) btn.style.display = 'none';
 });
 
-// ==================== HELPER ABAS ====================
 window.mudarAba = function(tab) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -1923,102 +1373,58 @@ window.mudarAba = function(tab) {
   const el = document.getElementById('tab-' + tab);
   if (el) el.classList.add('active');
   if (tab === 'perfil') renderizarPerfil();
-  setTimeout(() => {
-    [chartLinha, chartBarras, chartRosca, chartPizzaTipo, chartDiaSemana,
-     chartKelly, chartDrawdown, chartSharpe, chartGanhoPerda, chartAtivo,
-     chartMes, chartMetaMensal].forEach(c => c && c.resize());
-  }, 100);
 };
 
-// ==================== ANALISTA IA — BINANCE WEBSOCKET ====================
 let binanceSocket = null;
 let binanceAtivos = [];
 let binancePrices = {};
 
 const ATIVO_PARA_PAR = {
-  'BITCOIN': 'BTCUSDT',
-  'LITECOIN': 'LTCUSDT',
-  'CARDANO': 'ADAUSDT',
-  'BNB': 'BNBUSDT',
-  'ETHEREUM': 'ETHUSDT',
-  'SOLANA': 'SOLUSDT',
-  'AVAX': 'AVAXUSDT',
-  'DOGE': 'DOGEUSDT',
-  'SUI': 'SUIUSDT',
-  'XPL': 'XPLUSDT',
-  'STELLAR': 'XLMUSDT',
-  'XRP': 'XRPUSDT',
-  'POLKADOT': 'DOTUSDT',
-  'CHAINLINK': 'LINKUSDT',
-  'MATIC': 'MATICUSDT',
-  'TRON': 'TRXUSDT',
-  'SHIBA': 'SHIBUSDT',
-  'PEPE': 'PEPEUSDT'
+  'BITCOIN': 'BTCUSDT', 'LITECOIN': 'LTCUSDT', 'CARDANO': 'ADAUSDT', 'BNB': 'BNBUSDT',
+  'ETHEREUM': 'ETHUSDT', 'SOLANA': 'SOLUSDT', 'AVAX': 'AVAXUSDT', 'DOGE': 'DOGEUSDT',
+  'SUI': 'SUIUSDT', 'XPL': 'XPLUSDT', 'STELLAR': 'XLMUSDT', 'XRP': 'XRPUSDT',
+  'POLKADOT': 'DOTUSDT', 'CHAINLINK': 'LINKUSDT', 'MATIC': 'MATICUSDT', 'TRON': 'TRXUSDT'
 };
 
 function getAtivosMonitorados() {
-  if (!estado.ativos || estado.ativos.length === 0) {
-    return ['BITCOIN', 'ETHEREUM', 'SOLANA', 'BNB', 'XRP'];
-  }
+  if (!estado.ativos || estado.ativos.length === 0) return ['BITCOIN', 'ETHEREUM', 'SOLANA'];
   return estado.ativos.filter(a => ATIVO_PARA_PAR[a]);
 }
 
 function conectarBinance() {
   const ativos = getAtivosMonitorados();
-  if (ativos.length === 0) { console.warn('⚠️ Nenhum ativo'); return; }
-
-  if (binanceSocket) {
-    try { binanceSocket.close(); } catch(e) {}
-    binanceSocket = null;
-  }
-
+  if (ativos.length === 0) return;
+  if (binanceSocket) { try { binanceSocket.close(); } catch(e) {} binanceSocket = null; }
   const streams = ativos.map(a => `${ATIVO_PARA_PAR[a].toLowerCase()}@ticker`).join('/');
   const url = `wss://stream.binance.com:9443/stream?streams=${streams}`;
-  console.log('🔌 Conectando à Binance:', url);
+  console.log('🔌 Binance:', url);
   atualizarStatusAnalista('conectando');
-
   binanceSocket = new WebSocket(url);
-
   binanceSocket.onopen = () => {
-    console.log('✅ WebSocket Binance conectado!');
     atualizarStatusAnalista('conectado');
     binanceAtivos = ativos;
     renderizarListaAnalista();
   };
-
   binanceSocket.onmessage = (event) => {
     try {
       const msg = JSON.parse(event.data);
       const data = msg.data;
       if (!data || !data.s) return;
-
       binancePrices[data.s] = {
-        preco: parseFloat(data.c),
-        variacao: parseFloat(data.P),
-        volume: parseFloat(data.q),
-        alta24h: parseFloat(data.h),
-        baixa24h: parseFloat(data.l),
-        ultimaAtualizacao: Date.now()
+        preco: parseFloat(data.c), variacao: parseFloat(data.P),
+        volume: parseFloat(data.q), alta24h: parseFloat(data.h),
+        baixa24h: parseFloat(data.l), ultimaAtualizacao: Date.now()
       };
-
       atualizarLinhaAtivo(data.s);
-    } catch(e) { /* ignora */ }
+    } catch(e) {}
   };
-
-  binanceSocket.onerror = (err) => {
-    console.error('❌ Erro WebSocket Binance:', err);
-    atualizarStatusAnalista('desconectado');
-  };
-
+  binanceSocket.onerror = () => atualizarStatusAnalista('desconectado');
   binanceSocket.onclose = () => {
-    console.log('🔌 WebSocket Binance fechado');
     atualizarStatusAnalista('desconectado');
     const tabAtiva = document.getElementById('tab-analista');
     if (tabAtiva && tabAtiva.classList.contains('active')) {
       setTimeout(() => {
-        if (document.getElementById('tab-analista')?.classList.contains('active')) {
-          conectarBinance();
-        }
+        if (document.getElementById('tab-analista')?.classList.contains('active')) conectarBinance();
       }, 5000);
     }
   };
@@ -2028,27 +1434,19 @@ function atualizarStatusAnalista(status) {
   const el = document.getElementById('analistaStatus');
   if (!el) return;
   el.classList.remove('conectado', 'desconectado');
-  if (status === 'conectado') {
-    el.innerHTML = '<i data-lucide="wifi"></i> Conectado';
-    el.classList.add('conectado');
-  } else if (status === 'desconectado') {
-    el.innerHTML = '<i data-lucide="wifi-off"></i> Desconectado';
-    el.classList.add('desconectado');
-  } else {
-    el.innerHTML = '<i data-lucide="loader"></i> Conectando...';
-  }
+  if (status === 'conectado') { el.innerHTML = '<i data-lucide="wifi"></i> Conectado'; el.classList.add('conectado'); }
+  else if (status === 'desconectado') { el.innerHTML = '<i data-lucide="wifi-off"></i> Desconectado'; el.classList.add('desconectado'); }
+  else { el.innerHTML = '<i data-lucide="loader"></i> Conectando...'; }
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function renderizarListaAnalista() {
   const container = document.getElementById('analistaLista');
   if (!container) return;
-
   const ativos = getAtivosMonitorados();
   container.innerHTML = '';
   const totalEl = document.getElementById('analistaTotalAtivos');
   if (totalEl) totalEl.textContent = ativos.length;
-
   ativos.forEach(ativo => {
     const par = ATIVO_PARA_PAR[ativo];
     const linha = document.createElement('div');
@@ -2065,72 +1463,43 @@ function renderizarListaAnalista() {
       <div class="analista-preco" id="analista-preco-${par}">--</div>
       <div class="analista-variacao neutra" id="analista-var-${par}">--</div>
       <div class="analista-volume" id="analista-vol-${par}">--</div>
-      <div class="analista-sinal aguardar" id="analista-sinal-${par}">🟡 AGUARDAR</div>
+      <div class="analista-sinal aguardar" id="analista-sinal-${par}">🟡 --</div>
     `;
     container.appendChild(linha);
   });
-
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function atualizarLinhaAtivo(par) {
   const data = binancePrices[par];
   if (!data) return;
-
   const precoEl = document.getElementById(`analista-preco-${par}`);
   const varEl = document.getElementById(`analista-var-${par}`);
   const volEl = document.getElementById(`analista-vol-${par}`);
-  const linhaEl = document.getElementById(`analista-linha-${par}`);
   const sinalEl = document.getElementById(`analista-sinal-${par}`);
-
   if (precoEl) {
-    const precoFormatado = data.preco >= 1 
+    const precoFormatado = data.preco >= 1
       ? data.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       : data.preco.toLocaleString('pt-BR', { minimumFractionDigits: 6, maximumFractionDigits: 6 });
-    const precoAntigo = parseFloat(precoEl.textContent.replace(/[^\d.-]/g, '').replace(',', '.')) || 0;
     precoEl.textContent = `$ ${precoFormatado}`;
-    if (linhaEl && precoAntigo > 0) {
-      if (data.preco > precoAntigo) {
-        linhaEl.classList.remove('piscou-baixa');
-        linhaEl.classList.add('piscou-alta');
-      } else if (data.preco < precoAntigo) {
-        linhaEl.classList.remove('piscou-alta');
-        linhaEl.classList.add('piscou-baixa');
-      }
-      setTimeout(() => linhaEl.classList.remove('piscou-alta', 'piscou-baixa'), 800);
-    }
   }
-
   if (varEl) {
     const v = data.variacao;
     varEl.className = 'analista-variacao ' + (v > 0 ? 'positiva' : v < 0 ? 'negativa' : 'neutra');
-    const icone = v > 0 ? 'trending-up' : v < 0 ? 'trending-down' : 'minus';
-    const sinal = v > 0 ? '+' : '';
-    varEl.innerHTML = `<i data-lucide="${icone}"></i> ${sinal}${v.toFixed(2)}%`;
+    varEl.textContent = (v > 0 ? '+' : '') + v.toFixed(2) + '%';
   }
-
   if (volEl) {
     const vol = data.volume;
-    const volFormatado = vol >= 1e9 ? `Vol: $${(vol/1e9).toFixed(2)}B`
-                       : vol >= 1e6 ? `Vol: $${(vol/1e6).toFixed(2)}M`
-                       : vol >= 1e3 ? `Vol: $${(vol/1e3).toFixed(2)}K`
-                       : `Vol: $${vol.toFixed(2)}`;
-    volEl.textContent = volFormatado;
+    volEl.textContent = vol >= 1e9 ? `Vol: $${(vol/1e9).toFixed(2)}B` : vol >= 1e6 ? `Vol: $${(vol/1e6).toFixed(2)}M` : `Vol: $${(vol/1e3).toFixed(2)}K`;
   }
-
   if (sinalEl) {
-    const sinal = calcularSinal(data);
+    const sinal = calcularSinalRapido(data);
     sinalEl.className = 'analista-sinal ' + sinal.tipo;
     sinalEl.textContent = sinal.label;
-    sinalEl.title = sinal.motivo;
   }
-
   atualizarContadoresAnalista();
-  atualizarMelhorOportunidade();
-  
   const tsEl = document.getElementById('analistaUltimaAtualizacao');
   if (tsEl) tsEl.textContent = new Date().toLocaleTimeString('pt-BR');
-  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function atualizarContadoresAnalista() {
@@ -2145,97 +1514,164 @@ function atualizarContadoresAnalista() {
   if (elBaixa) elBaixa.textContent = baixa;
 }
 
-// ==================== CÁLCULO DE SINAL ====================
-function calcularSinal(data) {
-  const variacao = data.variacao;
-  let scoreCompra = 0;
-  let scoreVenda = 0;
-  const motivos = [];
-
-  if (variacao <= -5) {
-    scoreCompra += 3;
-    motivos.push('Queda forte (' + variacao.toFixed(1) + '%) → possível reversão');
-  } else if (variacao <= -3) {
-    scoreCompra += 2;
-    motivos.push('Queda moderada (' + variacao.toFixed(1) + '%)');
-  } else if (variacao >= 5) {
-    scoreVenda += 3;
-    motivos.push('Alta forte (+' + variacao.toFixed(1) + '%) → possível correção');
-  } else if (variacao >= 3) {
-    scoreVenda += 2;
-    motivos.push('Alta moderada (+' + variacao.toFixed(1) + '%)');
-  }
-
-  if (data.volume > 1e8) motivos.push('Volume alto → movimento confiável');
-
+function calcularSinalRapido(data) {
+  let scoreC = 0, scoreV = 0;
+  if (data.variacao <= -5) scoreC += 3;
+  else if (data.variacao <= -3) scoreC += 2;
+  else if (data.variacao >= 5) scoreV += 3;
+  else if (data.variacao >= 3) scoreV += 2;
   const range = data.alta24h - data.baixa24h;
   if (range > 0) {
-    const posicao = (data.preco - data.baixa24h) / range;
-    if (posicao < 0.2) {
-      scoreCompra += 2;
-      motivos.push('Preço próximo da mínima 24h');
-    } else if (posicao > 0.8) {
-      scoreVenda += 2;
-      motivos.push('Preço próximo da máxima 24h');
-    }
+    const pos = (data.preco - data.baixa24h) / range;
+    if (pos < 0.2) scoreC += 2;
+    else if (pos > 0.8) scoreV += 2;
   }
-
-  const diff = scoreCompra - scoreVenda;
-  if (diff >= 3) {
-    return { tipo: 'compra', label: '🟢 COMPRA', score: scoreCompra, motivo: motivos.join(' · '), confianca: Math.min(95, 50 + scoreCompra * 8) };
-  } else if (diff <= -3) {
-    return { tipo: 'venda', label: '🔴 VENDA', score: scoreVenda, motivo: motivos.join(' · '), confianca: Math.min(95, 50 + scoreVenda * 8) };
-  } else {
-    return { tipo: 'aguardar', label: '🟡 AGUARDAR', score: 0, motivo: 'Sem confluência. ' + (motivos.join(' · ') || 'Aguardar.'), confianca: 40 + Math.abs(diff) * 5 };
-  }
+  const diff = scoreC - scoreV;
+  if (diff >= 3) return { tipo: 'compra', label: '🟢 COMPRA' };
+  if (diff <= -3) return { tipo: 'venda', label: '🔴 VENDA' };
+  return { tipo: 'aguardar', label: '🟡 AGUARDAR' };
 }
 
-// ==================== MELHOR OPORTUNIDADE ====================
-function atualizarMelhorOportunidade() {
+async function buscarVelasBinance(par, limite = 150) {
+  try {
+    const url = `https://api.binance.com/api/v3/klines?symbol=${par}&interval=1m&limit=${limite}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Erro');
+    const dados = await response.json();
+    return dados.map(v => ({
+      abertura: parseFloat(v[1]), maxima: parseFloat(v[2]),
+      minima: parseFloat(v[3]), fechamento: parseFloat(v[4]),
+      volume: parseFloat(v[5]), timestamp: v[0]
+    }));
+  } catch (e) { return null; }
+}
+
+function calcularRSI(velas, periodo = 14) {
+  if (velas.length < periodo + 1) return 50;
+  let ganhos = 0, perdas = 0;
+  for (let i = 1; i <= periodo; i++) {
+    const diff = velas[i].fechamento - velas[i-1].fechamento;
+    if (diff > 0) ganhos += diff;
+    else perdas += Math.abs(diff);
+  }
+  const mg = ganhos / periodo, mp = perdas / periodo;
+  if (mp === 0) return 100;
+  return 100 - (100 / (1 + (mg / mp)));
+}
+
+function calcularMediaMovel(velas, periodo) {
+  if (velas.length < periodo) return 0;
+  return velas.slice(-periodo).reduce((s, v) => s + v.fechamento, 0) / periodo;
+}
+
+function detectarPadrao(velas) {
+  if (velas.length < 3) return null;
+  const u = velas[velas.length - 1], p = velas[velas.length - 2];
+  const corpoU = Math.abs(u.fechamento - u.abertura);
+  const corpoP = Math.abs(p.fechamento - p.abertura);
+  const rangeU = u.maxima - u.minima;
+  const sombraSup = u.maxima - Math.max(u.abertura, u.fechamento);
+  const sombraInf = Math.min(u.abertura, u.fechamento) - u.minima;
+  if (p.fechamento < p.abertura && u.fechamento > u.abertura && u.fechamento > p.abertura && u.abertura < p.fechamento && corpoU > corpoP * 1.2)
+    return { tipo: 'engolfo_alta', descricao: 'Engolfo de Alta' };
+  if (p.fechamento > p.abertura && u.fechamento < u.abertura && u.fechamento < p.abertura && u.abertura > p.fechamento && corpoU > corpoP * 1.2)
+    return { tipo: 'engolfo_baixa', descricao: 'Engolfo de Baixa' };
+  if (sombraInf > corpoU * 2 && sombraSup < corpoU * 0.5 && rangeU > 0)
+    return { tipo: 'martelo', descricao: 'Martelo' };
+  if (sombraSup > corpoU * 2 && sombraInf < corpoU * 0.5 && rangeU > 0)
+    return { tipo: 'shooting_star', descricao: 'Shooting Star' };
+  if (corpoU < rangeU * 0.1 && rangeU > 0)
+    return { tipo: 'doji', descricao: 'Doji' };
+  return null;
+}
+
+async function analisarAtivoCompleto(par) {
+  const velas = await buscarVelasBinance(par, 150);
+  if (!velas || velas.length < 30) return null;
+  const confirmacoes = [];
+  let scoreC = 0, scoreV = 0;
+  const rsi = calcularRSI(velas);
+  if (rsi < 30) { confirmacoes.push({ ok: true, texto: `RSI ${rsi.toFixed(1)} (sobrevendido)` }); scoreC += 3; }
+  else if (rsi > 70) { confirmacoes.push({ ok: true, texto: `RSI ${rsi.toFixed(1)} (sobrecomprado)` }); scoreV += 3; }
+  else if (rsi < 40) { confirmacoes.push({ ok: true, texto: `RSI ${rsi.toFixed(1)} (baixo)` }); scoreC += 1; }
+  else if (rsi > 60) { confirmacoes.push({ ok: true, texto: `RSI ${rsi.toFixed(1)} (alto)` }); scoreV += 1; }
+  else confirmacoes.push({ ok: false, texto: `RSI ${rsi.toFixed(1)} (neutro)` });
+  const mm9 = calcularMediaMovel(velas, 9);
+  const mm21 = calcularMediaMovel(velas, 21);
+  const precoAtual = velas[velas.length - 1].fechamento;
+  if (mm9 > mm21 && precoAtual > mm9) { confirmacoes.push({ ok: true, texto: 'Tendência ALTA' }); scoreC += 2; }
+  else if (mm9 < mm21 && precoAtual < mm9) { confirmacoes.push({ ok: true, texto: 'Tendência BAIXA' }); scoreV += 2; }
+  else confirmacoes.push({ ok: false, texto: 'Médias cruzadas' });
+  const padrao = detectarPadrao(velas);
+  if (padrao) {
+    if (padrao.tipo === 'engolfo_alta' || padrao.tipo === 'martelo') { confirmacoes.push({ ok: true, texto: padrao.descricao + ' (ALTA)' }); scoreC += 3; }
+    else if (padrao.tipo === 'engolfo_baixa' || padrao.tipo === 'shooting_star') { confirmacoes.push({ ok: true, texto: padrao.descricao + ' (BAIXA)' }); scoreV += 3; }
+    else confirmacoes.push({ ok: false, texto: padrao.descricao });
+  } else confirmacoes.push({ ok: false, texto: 'Sem padrão' });
+  const volMedio = velas.slice(-50).reduce((s, v) => s + v.volume, 0) / 50;
+  const volAtual = velas[velas.length - 1].volume;
+  if (volAtual > volMedio * 1.5) {
+    confirmacoes.push({ ok: true, texto: 'Volume alto' });
+    if (scoreC > scoreV) scoreC += 1; else if (scoreV > scoreC) scoreV += 1;
+  } else confirmacoes.push({ ok: false, texto: 'Volume baixo' });
+  const diff = scoreC - scoreV;
+  const totalConf = confirmacoes.filter(c => c.ok).length;
+  let tipo, label, confianca;
+  if (diff >= 3) {
+    tipo = 'compra'; label = '🟢 COMPRA';
+    confianca = totalConf === 1 ? 50 : totalConf === 2 ? 65 : totalConf === 3 ? 80 : 90;
+  } else if (diff <= -3) {
+    tipo = 'venda'; label = '🔴 VENDA';
+    confianca = totalConf === 1 ? 50 : totalConf === 2 ? 65 : totalConf === 3 ? 80 : 90;
+  } else {
+    tipo = 'aguardar'; label = '🟡 AGUARDAR'; confianca = 40;
+  }
+  return { par, tipo, label, confianca, confirmacoes, preco: precoAtual };
+}
+
+async function atualizarMelhorOportunidade() {
   const container = document.getElementById('cardOportunidadeConteudo');
+  const containerConf = document.getElementById('cardConfirmacoes');
+  const containerAcoes = document.getElementById('cardAcoes');
   if (!container) return;
-
-  const analises = Object.keys(binancePrices).map(par => {
-    const data = binancePrices[par];
-    const sinal = calcularSinal(data);
-    return { par, data, sinal };
-  });
-
-  const oportunidades = analises.filter(a => a.sinal.tipo !== 'aguardar');
-  oportunidades.sort((a, b) => b.sinal.confianca - a.sinal.confianca);
-
-  if (oportunidades.length === 0) {
-    container.innerHTML = `<p class="placeholder-texto">Nenhuma oportunidade clara no momento. Aguarde...</p>`;
+  const ativos = getAtivosMonitorados();
+  const analises = [];
+  for (const ativo of ativos) {
+    const par = ATIVO_PARA_PAR[ativo];
+    const analise = await analisarAtivoCompleto(par);
+    if (analise && analise.tipo !== 'aguardar') {
+      analise.ativoNome = ativo;
+      analises.push(analise);
+    }
+  }
+  analises.sort((a, b) => b.confianca - a.confianca);
+  if (analises.length === 0) {
+    container.innerHTML = `<p class="placeholder-texto">Nenhuma oportunidade clara. Aguarde...</p>`;
+    if (containerConf) containerConf.style.display = 'none';
+    if (containerAcoes) containerAcoes.style.display = 'none';
     return;
   }
-
-  const melhor = oportunidades[0];
-  const ativoNome = Object.keys(ATIVO_PARA_PAR).find(k => ATIVO_PARA_PAR[k] === melhor.par) || melhor.par;
-  const sinalClass = melhor.sinal.tipo === 'compra' ? '' : melhor.sinal.tipo;
-
-  const preco = melhor.data.preco;
-  const isCompra = melhor.sinal.tipo === 'compra';
-  const stopPercent = 2;
-  const alvoPercent = 4;
+  const melhor = analises[0];
+  const sinalClass = melhor.tipo === 'compra' ? '' : melhor.tipo;
+  const preco = melhor.preco;
+  const isCompra = melhor.tipo === 'compra';
   const entrada = preco;
-  const stop = isCompra ? preco * (1 - stopPercent / 100) : preco * (1 + stopPercent / 100);
-  const alvo = isCompra ? preco * (1 + alvoPercent / 100) : preco * (1 - alvoPercent / 100);
-
-  const formatarPreco = (v) => v >= 1 
+  const stop = isCompra ? preco * 0.98 : preco * 1.02;
+  const alvo = isCompra ? preco * 1.04 : preco * 0.96;
+  const formatarPreco = (v) => v >= 1
     ? '$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : '$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 6, maximumFractionDigits: 6 });
-
   container.innerHTML = `
     <div class="oportunidade-ativo">
-      <div class="oportunidade-ativo-icon ${sinalClass}">${ativoNome.substring(0, 2)}</div>
+      <div class="oportunidade-ativo-icon ${sinalClass}">${melhor.ativoNome.substring(0, 2)}</div>
       <div>
-        <div class="oportunidade-ativo-nome">${ativoNome}</div>
+        <div class="oportunidade-ativo-nome">${melhor.ativoNome}</div>
         <div class="oportunidade-ativo-par">${melhor.par}</div>
       </div>
     </div>
     <div class="oportunidade-sinal ${sinalClass}">
       <div class="oportunidade-sinal-label">SINAL</div>
-      <div class="oportunidade-sinal-valor">${melhor.sinal.label}</div>
+      <div class="oportunidade-sinal-valor">${melhor.label}</div>
     </div>
     <div class="oportunidade-info">
       <div class="oportunidade-info-label">ENTRADA / STOP</div>
@@ -2249,32 +1685,54 @@ function atualizarMelhorOportunidade() {
       <div class="oportunidade-info-valor" style="color:var(--verde);">${formatarPreco(alvo)}</div>
     </div>
     <div class="oportunidade-confianca">
-      <div class="oportunidade-info-label">CONFIANÇA ${melhor.sinal.confianca}%</div>
+      <div class="oportunidade-info-label">CONFIANÇA ${melhor.confianca}%</div>
       <div class="oportunidade-confianca-barra">
-        <div class="oportunidade-confianca-preenchida" style="width:${melhor.sinal.confianca}%"></div>
+        <div class="oportunidade-confianca-preenchida" style="width:${melhor.confianca}%"></div>
       </div>
     </div>
   `;
-}
-
-function desconectarBinance() {
-  if (binanceSocket) {
-    try { binanceSocket.close(); } catch(e) {}
-    binanceSocket = null;
-    console.log('🔌 WebSocket Binance desconectado');
+  if (containerConf) {
+    const lista = document.getElementById('confirmacoesLista');
+    if (lista) {
+      lista.innerHTML = melhor.confirmacoes.map(c => `
+        <div class="confirmacao-item ${c.ok ? '' : 'falhou'}">
+          <span class="confirmacao-item-icon">${c.ok ? '✅' : '❌'}</span>
+          <span>${c.texto}</span>
+        </div>
+      `).join('');
+    }
+    containerConf.style.display = 'block';
+  }
+  if (containerAcoes) {
+    containerAcoes.style.display = 'flex';
+    const btn = document.getElementById('btnCopiarAbrirBinance');
+    if (btn) btn.onclick = () => executarOportunidade(melhor);
+  }
+  if (melhor.confianca >= 80 && window.__ultimoBeep !== melhor.par + melhor.confianca) {
+    window.__ultimoBeep = melhor.par + melhor.confianca;
+    tocarBeep('sinal');
   }
 }
 
-window.conectarBinance = conectarBinance;
-window.desconectarBinance = desconectarBinance;
-window.renderizarListaAnalista = renderizarListaAnalista;
+function executarOportunidade(oportunidade) {
+  const preco = oportunidade.preco;
+  navigator.clipboard.writeText(preco.toString()).then(() => {
+    toast(`📋 Preço ${preco} copiado!`, 'sucesso');
+  });
+  const url = `https://www.binance.com/pt-BR/trade/${oportunidade.par.replace('USDT', '_USDT')}?type=spot`;
+  window.open(url, '_blank');
+  toast('🚀 Binance aberta!', 'info', 4000);
+}
 
-// ==================== SESSÕES ====================
+function desconectarBinance() {
+  if (binanceSocket) { try { binanceSocket.close(); } catch(e) {} binanceSocket = null; }
+}
+
 const SESSOES = {
-  asiatica: { nome: 'Sessão Asiática', icon: '🇯🇵', inicio: 21, fim: 4, status: '🟡 Liquidez Média' },
-  europeia: { nome: 'Sessão Europeia', icon: '🇪🇺', inicio: 4, fim: 10, status: '🟢 Alta Liquidez — Bom horário' },
-  americana: { nome: 'Sessão Americana', icon: '🇺🇸', inicio: 10, fim: 17, status: '🟢🟢 Alta Liquidez — Melhor horário' },
-  foraSessao: { nome: 'Fora de Sessão', icon: '🌙', inicio: 17, fim: 21, status: '🔴 Baixa Liquidez — Evite operar' }
+  asiatica: { nome: 'Sessão Asiática', icon: '🇯🇵', inicio: 21, status: '🟡 Liquidez Média' },
+  europeia: { nome: 'Sessão Europeia', icon: '🇪🇺', inicio: 4, status: '🟢 Alta Liquidez — Bom horário' },
+  americana: { nome: 'Sessão Americana', icon: '🇺🇸', inicio: 10, status: '🟢🟢 Alta Liquidez — Melhor horário' },
+  foraSessao: { nome: 'Fora de Sessão', icon: '🌙', inicio: 17, status: '🔴 Baixa Liquidez — Evite' }
 };
 
 function getSessaoAtual() {
@@ -2289,42 +1747,35 @@ function getProximaSessao(sessaoAtual) {
   const ordem = ['asiatica', 'europeia', 'americana', 'foraSessao'];
   const idx = ordem.indexOf(sessaoAtual);
   const proxima = ordem[(idx + 1) % ordem.length];
-  return { nome: SESSOES[proxima].nome, icon: SESSOES[proxima].icon, horario: String(SESSOES[proxima].inicio).padStart(2, '0') + ':00' };
+  return { icon: SESSOES[proxima].icon, horario: String(SESSOES[proxima].inicio).padStart(2, '0') + ':00' };
 }
 
 function atualizarCardSessao() {
   const card = document.getElementById('cardSessao');
   if (!card) return;
-
   const sessaoAtual = getSessaoAtual();
   const sessao = SESSOES[sessaoAtual];
-
   card.classList.remove('asiatica', 'europeia', 'americana', 'fora-sessao');
   card.classList.add(sessaoAtual === 'foraSessao' ? 'fora-sessao' : sessaoAtual);
-
   const iconEl = document.getElementById('sessaoIcon');
   const nomeEl = document.getElementById('sessaoNome');
   const statusEl = document.getElementById('sessaoStatus');
   const horarioEl = document.getElementById('sessaoHorario');
   const proximaEl = document.getElementById('sessaoProxima');
-
   if (iconEl) iconEl.textContent = sessao.icon;
   if (nomeEl) nomeEl.textContent = sessao.nome;
   if (statusEl) statusEl.textContent = sessao.status;
   if (horarioEl) horarioEl.textContent = new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false });
   if (proximaEl) {
-    const proxima = getProximaSessao(sessaoAtual);
-    proximaEl.textContent = `${proxima.icon} ${proxima.horario}`;
+    const p = getProximaSessao(sessaoAtual);
+    proximaEl.textContent = `${p.icon} ${p.horario}`;
   }
 }
 
 setInterval(atualizarCardSessao, 30000);
-window.atualizarCardSessao = atualizarCardSessao;
-window.getSessaoAtual = getSessaoAtual;
 
-// ==================== INICIALIZAÇÃO ====================
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 DOMContentLoaded — iniciando FerrTrading');
+  console.log('🚀 FerrTrading iniciando...');
   carregar();
   inicializarDropdownAtivos();
   if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -2370,15 +1821,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnAnalistaReconectar = document.getElementById('btnAnalistaReconectar');
   if (btnAnalistaReconectar) btnAnalistaReconectar.addEventListener('click', () => {
     conectarBinance();
-    toast('🔄 Reconectando à Binance...', 'info', 2000);
+    toast('🔄 Reconectando...', 'info', 2000);
   });
 
   document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
-      if (tab && tab !== 'analista' && typeof desconectarBinance === 'function') {
-        desconectarBinance();
-      }
+      if (tab && tab !== 'analista' && typeof desconectarBinance === 'function') desconectarBinance();
     });
   });
 
@@ -2391,7 +1840,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       const el = document.getElementById('tab-' + tab);
       if (el) el.classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
@@ -2421,9 +1869,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toast('📥 Backup exportado!', 'sucesso');
   });
   const btnImportarBackup = document.getElementById('btnImportarBackup');
-  if (btnImportarBackup) btnImportarBackup.addEventListener('click', () => {
-    document.getElementById('inputImportar').click();
-  });
+  if (btnImportarBackup) btnImportarBackup.addEventListener('click', () => document.getElementById('inputImportar').click());
   const btnExportarCSVPerfil = document.getElementById('btnExportarCSVPerfil');
   if (btnExportarCSVPerfil) btnExportarCSVPerfil.addEventListener('click', exportarCSV);
   const btnRelatorioPDFPerfil = document.getElementById('btnRelatorioPDFPerfil');
@@ -2442,7 +1888,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (toggleOcultar) toggleOcultar.addEventListener('click', () => {
     estado.ocultarValores = !estado.ocultarValores;
     salvar(); renderizar(); renderizarPerfil();
-    toast(estado.ocultarValores ? '🔒 Valores ocultos' : '👁️ Visíveis', 'info', 2000);
+    toast(estado.ocultarValores ? '🔒 Ocultos' : '👁️ Visíveis', 'info', 2000);
   });
 
   const inputImp = document.getElementById('inputImportar');
@@ -2453,18 +1899,15 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.onload = (ev) => {
       try {
         const dados = JSON.parse(ev.target.result);
-        if (confirm('Substituir todos os dados atuais?')) {
+        if (confirm('Substituir todos os dados?')) {
           estado = { ...estado, ...dados };
           if (!estado.ativos || estado.ativos.length === 0) {
             estado.ativos = ['BITCOIN','LITECOIN','CARDANO','BNB','ETHEREUM','SOLANA','AVAX','DOGE','SUI','XPL','STELLAR'];
           }
-          salvar();
-          renderizarDropdownAtivos();
-          atualizarTextoAtivo();
-          renderizar();
+          salvar(); renderizarDropdownAtivos(); atualizarTextoAtivo(); renderizar();
           toast('📤 Backup importado!', 'sucesso');
         }
-      } catch (err) { toast('Arquivo inválido.', 'erro'); }
+      } catch (err) { toast('Arquivo inválido', 'erro'); }
     };
     reader.readAsText(file);
   });
@@ -2539,7 +1982,7 @@ document.addEventListener('DOMContentLoaded', () => {
       link.href = url;
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 100);
-      toast('💾 Imagem baixada!', 'sucesso');
+      toast('💾 Baixado!', 'sucesso');
     }, 'image/png');
   });
 
@@ -2558,7 +2001,7 @@ document.addEventListener('DOMContentLoaded', () => {
     estado.metaMensal = valor;
     salvar(); renderizar();
     if (modalMeta) modalMeta.style.display = 'none';
-    toast(valor > 0 ? '🎯 Meta definida: ' + formatarMoeda(valor) : 'Meta removida', 'sucesso');
+    toast(valor > 0 ? '🎯 Meta: ' + formatarMoeda(valor) : 'Meta removida', 'sucesso');
   });
 
   const modalReset = document.getElementById('modalResetar');
@@ -2570,13 +2013,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnConfirmarReset) btnConfirmarReset.addEventListener('click', resetarDados);
 
   const btnFecharModalPrint = document.getElementById('btnFecharModalPrint');
-  if (btnFecharModalPrint) btnFecharModalPrint.addEventListener('click', () => {
-    document.getElementById('modalPrint').style.display = 'none';
-  });
+  if (btnFecharModalPrint) btnFecharModalPrint.addEventListener('click', () => document.getElementById('modalPrint').style.display = 'none');
 
   inicializarLogin();
   renderizar();
   console.log('✅ FerrTrading inicializado');
 });
+
+setInterval(() => {
+  const tabAnalista = document.getElementById('tab-analista');
+  if (tabAnalista && tabAnalista.classList.contains('active')) {
+    atualizarMelhorOportunidade();
+  }
+}, 30000);
 
 console.log('📦 FerrTrading script.js carregado com sucesso');
