@@ -152,14 +152,6 @@ function operacoesDaSemana() {
 function operacoesDoMes(mesAno) { return estado.operacoes.filter(o => o.data.startsWith(mesAno)); }
 function resultadoPeriodo(ops) { return ops.reduce((s, o) => s + o.valor, 0); }
 
-function calcularAssertividade(ops) {
-  const wins = ops.filter(o => o.tipo === 'WIN').length;
-  const losses = ops.filter(o => o.tipo === 'LOSS').length;
-  const total = wins + losses;
-  if (total === 0) return 0;
-  return (wins / total) * 100;
-}
-
 function contarPorTipo(ops) {
   return {
     wins: ops.filter(o => o.tipo === 'WIN').length,
@@ -340,7 +332,6 @@ function calcularMetaMensal() {
   return { meta, resultadoMes, percentual };
 }
 
-// ==================== STATS DA CONTA ====================
 function calcularStatsConta() {
   const totalOps = estado.operacoes.length;
   const diasUnicos = new Set(estado.operacoes.map(o => o.data));
@@ -479,9 +470,7 @@ function inicializarDropdownAtivos() {
 
   renderizarDropdownAtivos();
   atualizarTextoAtivo();
-}
-
-// ==================== RENDERIZAÇÃO PRINCIPAL ====================
+}// ==================== RENDERIZAÇÃO PRINCIPAL ====================
 function renderizar() {
   const banca = bancaAtual();
   const hoje = new Date().toISOString().split('T')[0];
@@ -1024,7 +1013,82 @@ function renderizarCalendario() {
   }
 }
 
-// ==================== GRÁFICOS ====================
+// ==================== AÇÕES ====================
+function registrarOperacao(tipo) {
+  const ativo = estado.ativoSelecionado || '';
+  const valor = parseFloat(document.getElementById('inputValor').value);
+  const data = document.getElementById('inputData').value;
+  const hora = document.getElementById('inputHora').value;
+
+  if (!ativo) return toast('Escolha um ativo primeiro.', 'erro');
+  if (!data) return toast('Informe a data.', 'erro');
+  if (isNaN(valor) || valor <= 0) return toast('Informe um valor válido.', 'erro');
+
+  let valorFinal;
+  if (tipo === 'LOSS') valorFinal = -Math.abs(valor);
+  else if (tipo === 'EMPATE') valorFinal = 0;
+  else valorFinal = Math.abs(valor);
+
+  estado.operacoes.push({
+    id: Date.now() + Math.random(),
+    tipo, ativo, valor: valorFinal, data, hora
+  });
+
+  salvar();
+  estado.ativoSelecionado = null;
+  document.getElementById('inputValor').value = '';
+  renderizarDropdownAtivos();
+  atualizarTextoAtivo();
+  renderizar();
+
+  const emoji = tipo === 'WIN' ? '✅' : tipo === 'LOSS' ? '❌' : '➖';
+  toast(emoji + ' ' + tipo + ' ' + ativo + ' registrado: ' + formatarMoeda(Math.abs(valorFinal)),
+    tipo === 'WIN' ? 'sucesso' : tipo === 'LOSS' ? 'erro' : 'info');
+}
+
+function removerOperacao(id) {
+  if (!confirm('Remover esta operação?')) return;
+  estado.operacoes = estado.operacoes.filter(o => String(o.id) !== String(id));
+  salvar();
+  renderizar();
+  toast('Operação removida', 'info');
+}
+
+function registrarSaque(percentual) {
+  if (!percentual) {
+    const hoje = new Date();
+    percentual = hoje.getDate() <= 15 ? 15 : 30;
+  }
+  const banca = bancaAtual();
+  if (banca <= 0) { toast('Saldo zerado. Não há o que sacar.', 'erro'); return; }
+
+  const tipo = percentual === 15 ? 'Quinzenal' : 'Mensal';
+  const valor = banca * (percentual / 100);
+  if (!confirm('Registrar saque ' + percentual + '% (' + tipo + ')?\n\nSaldo: ' + formatarMoeda(banca) + '\nSaque: ' + formatarMoeda(valor))) return;
+
+  estado.saques.push({
+    id: Date.now(), valor,
+    data: new Date().toISOString().split('T')[0],
+    tipo
+  });
+  salvar();
+  renderizar();
+  toast('💸 Saque ' + tipo + ' registrado: ' + formatarMoeda(valor), 'sucesso');
+}
+
+function registrarDeposito() {
+  const valor = parseFloat(document.getElementById('inputDeposito').value);
+  const data = document.getElementById('inputDepositoData').value;
+  const tipo = document.getElementById('inputDepositoTipo').value;
+  if (isNaN(valor) || valor <= 0) return toast('Informe um valor válido.', 'erro');
+  if (!data) return toast('Informe a data.', 'erro');
+  if (tipo === 'DEPOSITO') estado.depositos.push({ id: Date.now(), valor, data });
+  else estado.saques.push({ id: Date.now(), valor, data, tipo: 'Manual' });
+  salvar();
+  document.getElementById('inputDeposito').value = '';
+  renderizar();
+  toast((tipo === 'DEPOSITO' ? '💰 Depósito' : '💸 Saque') + ' registrado: ' + formatarMoeda(valor), 'sucesso');
+}// ==================== GRÁFICOS ====================
 let chartLinha = null;
 let chartBarras = null;
 let chartPizzaTipo = null;
@@ -1548,88 +1612,6 @@ function renderizarAssertividadeRosca() {
   });
 }
 
-// ==================== AÇÕES ====================
-function registrarOperacao(tipo) {
-  const ativo = estado.ativoSelecionado || '';
-  const valor = parseFloat(document.getElementById('inputValor').value);
-  const data = document.getElementById('inputData').value;
-  const hora = document.getElementById('inputHora').value;
-
-  if (!ativo) return toast('Escolha um ativo primeiro.', 'erro');
-  if (!data) return toast('Informe a data.', 'erro');
-  if (isNaN(valor) || valor <= 0) return toast('Informe um valor válido.', 'erro');
-
-  let valorFinal;
-  if (tipo === 'LOSS') valorFinal = -Math.abs(valor);
-  else if (tipo === 'EMPATE') valorFinal = 0;
-  else valorFinal = Math.abs(valor);
-
-  estado.operacoes.push({
-    id: Date.now() + Math.random(),
-    tipo, ativo, valor: valorFinal, data, hora
-  });
-
-  salvar();
-  estado.ativoSelecionado = null;
-  document.getElementById('inputValor').value = '';
-  renderizarDropdownAtivos();
-  atualizarTextoAtivo();
-  renderizar();
-
-  const emoji = tipo === 'WIN' ? '✅' : tipo === 'LOSS' ? '❌' : '➖';
-  toast(emoji + ' ' + tipo + ' ' + ativo + ' registrado: ' + formatarMoeda(Math.abs(valorFinal)),
-    tipo === 'WIN' ? 'sucesso' : tipo === 'LOSS' ? 'erro' : 'info');
-}
-
-function removerOperacao(id) {
-  if (!confirm('Remover esta operação?')) return;
-  estado.operacoes = estado.operacoes.filter(o => String(o.id) !== String(id));
-  salvar();
-  renderizar();
-  toast('Operação removida', 'info');
-}
-
-function registrarSaque(percentual) {
-  if (!percentual) {
-    const hoje = new Date();
-    percentual = hoje.getDate() <= 15 ? 15 : 30;
-  }
-  const banca = bancaAtual();
-  if (banca <= 0) { toast('Saldo zerado. Não há o que sacar.', 'erro'); return; }
-
-  const tipo = percentual === 15 ? 'Quinzenal' : 'Mensal';
-  const valor = banca * (percentual / 100);
-  if (!confirm('Registrar saque ' + percentual + '% (' + tipo + ')?\n\nSaldo: ' + formatarMoeda(banca) + '\nSaque: ' + formatarMoeda(valor))) return;
-
-  estado.saques.push({
-    id: Date.now(), valor,
-    data: new Date().toISOString().split('T')[0],
-    tipo
-  });
-  salvar();
-  renderizar();
-  toast('💸 Saque ' + tipo + ' registrado: ' + formatarMoeda(valor), 'sucesso');
-}
-
-function registrarDeposito() {
-  const valor = parseFloat(document.getElementById('inputDeposito').value);
-  const data = document.getElementById('inputDepositoData').value;
-  const tipo = document.getElementById('inputDepositoTipo').value;
-  if (isNaN(valor) || valor <= 0) return toast('Informe um valor válido.', 'erro');
-  if (!data) return toast('Informe a data.', 'erro');
-  if (tipo === 'DEPOSITO') estado.depositos.push({ id: Date.now(), valor, data });
-  else estado.saques.push({ id: Date.now(), valor, data, tipo: 'Manual' });
-  salvar();
-  document.getElementById('inputDeposito').value = '';
-  renderizar();
-  toast((tipo === 'DEPOSITO' ? '💰 Depósito' : '💸 Saque') + ' registrado: ' + formatarMoeda(valor), 'sucesso');
-}
-
-// ==================== IA MODAL ====================
-function abrirAnaliseIA() {
-  analisarComIA();
-}
-
 // ==================== PDF ====================
 function gerarRelatorioPDF() {
   const hoje = new Date();
@@ -1948,6 +1930,398 @@ window.mudarAba = function(tab) {
   }, 100);
 };
 
+// ==================== ANALISTA IA — BINANCE WEBSOCKET ====================
+let binanceSocket = null;
+let binanceAtivos = [];
+let binancePrices = {};
+
+const ATIVO_PARA_PAR = {
+  'BITCOIN': 'BTCUSDT',
+  'LITECOIN': 'LTCUSDT',
+  'CARDANO': 'ADAUSDT',
+  'BNB': 'BNBUSDT',
+  'ETHEREUM': 'ETHUSDT',
+  'SOLANA': 'SOLUSDT',
+  'AVAX': 'AVAXUSDT',
+  'DOGE': 'DOGEUSDT',
+  'SUI': 'SUIUSDT',
+  'XPL': 'XPLUSDT',
+  'STELLAR': 'XLMUSDT',
+  'XRP': 'XRPUSDT',
+  'POLKADOT': 'DOTUSDT',
+  'CHAINLINK': 'LINKUSDT',
+  'MATIC': 'MATICUSDT',
+  'TRON': 'TRXUSDT',
+  'SHIBA': 'SHIBUSDT',
+  'PEPE': 'PEPEUSDT'
+};
+
+function getAtivosMonitorados() {
+  if (!estado.ativos || estado.ativos.length === 0) {
+    return ['BITCOIN', 'ETHEREUM', 'SOLANA', 'BNB', 'XRP'];
+  }
+  return estado.ativos.filter(a => ATIVO_PARA_PAR[a]);
+}
+
+function conectarBinance() {
+  const ativos = getAtivosMonitorados();
+  if (ativos.length === 0) { console.warn('⚠️ Nenhum ativo'); return; }
+
+  if (binanceSocket) {
+    try { binanceSocket.close(); } catch(e) {}
+    binanceSocket = null;
+  }
+
+  const streams = ativos.map(a => `${ATIVO_PARA_PAR[a].toLowerCase()}@ticker`).join('/');
+  const url = `wss://stream.binance.com:9443/stream?streams=${streams}`;
+  console.log('🔌 Conectando à Binance:', url);
+  atualizarStatusAnalista('conectando');
+
+  binanceSocket = new WebSocket(url);
+
+  binanceSocket.onopen = () => {
+    console.log('✅ WebSocket Binance conectado!');
+    atualizarStatusAnalista('conectado');
+    binanceAtivos = ativos;
+    renderizarListaAnalista();
+  };
+
+  binanceSocket.onmessage = (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      const data = msg.data;
+      if (!data || !data.s) return;
+
+      binancePrices[data.s] = {
+        preco: parseFloat(data.c),
+        variacao: parseFloat(data.P),
+        volume: parseFloat(data.q),
+        alta24h: parseFloat(data.h),
+        baixa24h: parseFloat(data.l),
+        ultimaAtualizacao: Date.now()
+      };
+
+      atualizarLinhaAtivo(data.s);
+    } catch(e) { /* ignora */ }
+  };
+
+  binanceSocket.onerror = (err) => {
+    console.error('❌ Erro WebSocket Binance:', err);
+    atualizarStatusAnalista('desconectado');
+  };
+
+  binanceSocket.onclose = () => {
+    console.log('🔌 WebSocket Binance fechado');
+    atualizarStatusAnalista('desconectado');
+    const tabAtiva = document.getElementById('tab-analista');
+    if (tabAtiva && tabAtiva.classList.contains('active')) {
+      setTimeout(() => {
+        if (document.getElementById('tab-analista')?.classList.contains('active')) {
+          conectarBinance();
+        }
+      }, 5000);
+    }
+  };
+}
+
+function atualizarStatusAnalista(status) {
+  const el = document.getElementById('analistaStatus');
+  if (!el) return;
+  el.classList.remove('conectado', 'desconectado');
+  if (status === 'conectado') {
+    el.innerHTML = '<i data-lucide="wifi"></i> Conectado';
+    el.classList.add('conectado');
+  } else if (status === 'desconectado') {
+    el.innerHTML = '<i data-lucide="wifi-off"></i> Desconectado';
+    el.classList.add('desconectado');
+  } else {
+    el.innerHTML = '<i data-lucide="loader"></i> Conectando...';
+  }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function renderizarListaAnalista() {
+  const container = document.getElementById('analistaLista');
+  if (!container) return;
+
+  const ativos = getAtivosMonitorados();
+  container.innerHTML = '';
+  const totalEl = document.getElementById('analistaTotalAtivos');
+  if (totalEl) totalEl.textContent = ativos.length;
+
+  ativos.forEach(ativo => {
+    const par = ATIVO_PARA_PAR[ativo];
+    const linha = document.createElement('div');
+    linha.className = 'analista-linha';
+    linha.id = `analista-linha-${par}`;
+    linha.innerHTML = `
+      <div class="analista-ativo">
+        <div class="analista-ativo-icon">${ativo.substring(0, 2)}</div>
+        <div>
+          <div class="analista-ativo-nome">${ativo}</div>
+          <div class="analista-ativo-par">${par}</div>
+        </div>
+      </div>
+      <div class="analista-preco" id="analista-preco-${par}">--</div>
+      <div class="analista-variacao neutra" id="analista-var-${par}">--</div>
+      <div class="analista-volume" id="analista-vol-${par}">--</div>
+      <div class="analista-sinal aguardar" id="analista-sinal-${par}">🟡 AGUARDAR</div>
+    `;
+    container.appendChild(linha);
+  });
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function atualizarLinhaAtivo(par) {
+  const data = binancePrices[par];
+  if (!data) return;
+
+  const precoEl = document.getElementById(`analista-preco-${par}`);
+  const varEl = document.getElementById(`analista-var-${par}`);
+  const volEl = document.getElementById(`analista-vol-${par}`);
+  const linhaEl = document.getElementById(`analista-linha-${par}`);
+  const sinalEl = document.getElementById(`analista-sinal-${par}`);
+
+  if (precoEl) {
+    const precoFormatado = data.preco >= 1 
+      ? data.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : data.preco.toLocaleString('pt-BR', { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+    const precoAntigo = parseFloat(precoEl.textContent.replace(/[^\d.-]/g, '').replace(',', '.')) || 0;
+    precoEl.textContent = `$ ${precoFormatado}`;
+    if (linhaEl && precoAntigo > 0) {
+      if (data.preco > precoAntigo) {
+        linhaEl.classList.remove('piscou-baixa');
+        linhaEl.classList.add('piscou-alta');
+      } else if (data.preco < precoAntigo) {
+        linhaEl.classList.remove('piscou-alta');
+        linhaEl.classList.add('piscou-baixa');
+      }
+      setTimeout(() => linhaEl.classList.remove('piscou-alta', 'piscou-baixa'), 800);
+    }
+  }
+
+  if (varEl) {
+    const v = data.variacao;
+    varEl.className = 'analista-variacao ' + (v > 0 ? 'positiva' : v < 0 ? 'negativa' : 'neutra');
+    const icone = v > 0 ? 'trending-up' : v < 0 ? 'trending-down' : 'minus';
+    const sinal = v > 0 ? '+' : '';
+    varEl.innerHTML = `<i data-lucide="${icone}"></i> ${sinal}${v.toFixed(2)}%`;
+  }
+
+  if (volEl) {
+    const vol = data.volume;
+    const volFormatado = vol >= 1e9 ? `Vol: $${(vol/1e9).toFixed(2)}B`
+                       : vol >= 1e6 ? `Vol: $${(vol/1e6).toFixed(2)}M`
+                       : vol >= 1e3 ? `Vol: $${(vol/1e3).toFixed(2)}K`
+                       : `Vol: $${vol.toFixed(2)}`;
+    volEl.textContent = volFormatado;
+  }
+
+  if (sinalEl) {
+    const sinal = calcularSinal(data);
+    sinalEl.className = 'analista-sinal ' + sinal.tipo;
+    sinalEl.textContent = sinal.label;
+    sinalEl.title = sinal.motivo;
+  }
+
+  atualizarContadoresAnalista();
+  atualizarMelhorOportunidade();
+  
+  const tsEl = document.getElementById('analistaUltimaAtualizacao');
+  if (tsEl) tsEl.textContent = new Date().toLocaleTimeString('pt-BR');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function atualizarContadoresAnalista() {
+  let alta = 0, baixa = 0;
+  Object.values(binancePrices).forEach(p => {
+    if (p.variacao > 0) alta++;
+    else if (p.variacao < 0) baixa++;
+  });
+  const elAlta = document.getElementById('analistaEmAlta');
+  const elBaixa = document.getElementById('analistaEmBaixa');
+  if (elAlta) elAlta.textContent = alta;
+  if (elBaixa) elBaixa.textContent = baixa;
+}
+
+// ==================== CÁLCULO DE SINAL ====================
+function calcularSinal(data) {
+  const variacao = data.variacao;
+  let scoreCompra = 0;
+  let scoreVenda = 0;
+  const motivos = [];
+
+  if (variacao <= -5) {
+    scoreCompra += 3;
+    motivos.push('Queda forte (' + variacao.toFixed(1) + '%) → possível reversão');
+  } else if (variacao <= -3) {
+    scoreCompra += 2;
+    motivos.push('Queda moderada (' + variacao.toFixed(1) + '%)');
+  } else if (variacao >= 5) {
+    scoreVenda += 3;
+    motivos.push('Alta forte (+' + variacao.toFixed(1) + '%) → possível correção');
+  } else if (variacao >= 3) {
+    scoreVenda += 2;
+    motivos.push('Alta moderada (+' + variacao.toFixed(1) + '%)');
+  }
+
+  if (data.volume > 1e8) motivos.push('Volume alto → movimento confiável');
+
+  const range = data.alta24h - data.baixa24h;
+  if (range > 0) {
+    const posicao = (data.preco - data.baixa24h) / range;
+    if (posicao < 0.2) {
+      scoreCompra += 2;
+      motivos.push('Preço próximo da mínima 24h');
+    } else if (posicao > 0.8) {
+      scoreVenda += 2;
+      motivos.push('Preço próximo da máxima 24h');
+    }
+  }
+
+  const diff = scoreCompra - scoreVenda;
+  if (diff >= 3) {
+    return { tipo: 'compra', label: '🟢 COMPRA', score: scoreCompra, motivo: motivos.join(' · '), confianca: Math.min(95, 50 + scoreCompra * 8) };
+  } else if (diff <= -3) {
+    return { tipo: 'venda', label: '🔴 VENDA', score: scoreVenda, motivo: motivos.join(' · '), confianca: Math.min(95, 50 + scoreVenda * 8) };
+  } else {
+    return { tipo: 'aguardar', label: '🟡 AGUARDAR', score: 0, motivo: 'Sem confluência. ' + (motivos.join(' · ') || 'Aguardar.'), confianca: 40 + Math.abs(diff) * 5 };
+  }
+}
+
+// ==================== MELHOR OPORTUNIDADE ====================
+function atualizarMelhorOportunidade() {
+  const container = document.getElementById('cardOportunidadeConteudo');
+  if (!container) return;
+
+  const analises = Object.keys(binancePrices).map(par => {
+    const data = binancePrices[par];
+    const sinal = calcularSinal(data);
+    return { par, data, sinal };
+  });
+
+  const oportunidades = analises.filter(a => a.sinal.tipo !== 'aguardar');
+  oportunidades.sort((a, b) => b.sinal.confianca - a.sinal.confianca);
+
+  if (oportunidades.length === 0) {
+    container.innerHTML = `<p class="placeholder-texto">Nenhuma oportunidade clara no momento. Aguarde...</p>`;
+    return;
+  }
+
+  const melhor = oportunidades[0];
+  const ativoNome = Object.keys(ATIVO_PARA_PAR).find(k => ATIVO_PARA_PAR[k] === melhor.par) || melhor.par;
+  const sinalClass = melhor.sinal.tipo === 'compra' ? '' : melhor.sinal.tipo;
+
+  const preco = melhor.data.preco;
+  const isCompra = melhor.sinal.tipo === 'compra';
+  const stopPercent = 2;
+  const alvoPercent = 4;
+  const entrada = preco;
+  const stop = isCompra ? preco * (1 - stopPercent / 100) : preco * (1 + stopPercent / 100);
+  const alvo = isCompra ? preco * (1 + alvoPercent / 100) : preco * (1 - alvoPercent / 100);
+
+  const formatarPreco = (v) => v >= 1 
+    ? '$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : '$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+
+  container.innerHTML = `
+    <div class="oportunidade-ativo">
+      <div class="oportunidade-ativo-icon ${sinalClass}">${ativoNome.substring(0, 2)}</div>
+      <div>
+        <div class="oportunidade-ativo-nome">${ativoNome}</div>
+        <div class="oportunidade-ativo-par">${melhor.par}</div>
+      </div>
+    </div>
+    <div class="oportunidade-sinal ${sinalClass}">
+      <div class="oportunidade-sinal-label">SINAL</div>
+      <div class="oportunidade-sinal-valor">${melhor.sinal.label}</div>
+    </div>
+    <div class="oportunidade-info">
+      <div class="oportunidade-info-label">ENTRADA / STOP</div>
+      <div class="oportunidade-info-valor">
+        ${formatarPreco(entrada)}<br>
+        <span style="color:var(--vermelho);font-size:14px;">${formatarPreco(stop)}</span>
+      </div>
+    </div>
+    <div class="oportunidade-info">
+      <div class="oportunidade-info-label">ALVO</div>
+      <div class="oportunidade-info-valor" style="color:var(--verde);">${formatarPreco(alvo)}</div>
+    </div>
+    <div class="oportunidade-confianca">
+      <div class="oportunidade-info-label">CONFIANÇA ${melhor.sinal.confianca}%</div>
+      <div class="oportunidade-confianca-barra">
+        <div class="oportunidade-confianca-preenchida" style="width:${melhor.sinal.confianca}%"></div>
+      </div>
+    </div>
+  `;
+}
+
+function desconectarBinance() {
+  if (binanceSocket) {
+    try { binanceSocket.close(); } catch(e) {}
+    binanceSocket = null;
+    console.log('🔌 WebSocket Binance desconectado');
+  }
+}
+
+window.conectarBinance = conectarBinance;
+window.desconectarBinance = desconectarBinance;
+window.renderizarListaAnalista = renderizarListaAnalista;
+
+// ==================== SESSÕES ====================
+const SESSOES = {
+  asiatica: { nome: 'Sessão Asiática', icon: '🇯🇵', inicio: 21, fim: 4, status: '🟡 Liquidez Média' },
+  europeia: { nome: 'Sessão Europeia', icon: '🇪🇺', inicio: 4, fim: 10, status: '🟢 Alta Liquidez — Bom horário' },
+  americana: { nome: 'Sessão Americana', icon: '🇺🇸', inicio: 10, fim: 17, status: '🟢🟢 Alta Liquidez — Melhor horário' },
+  foraSessao: { nome: 'Fora de Sessão', icon: '🌙', inicio: 17, fim: 21, status: '🔴 Baixa Liquidez — Evite operar' }
+};
+
+function getSessaoAtual() {
+  const horaBrasilia = parseInt(new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', hour12: false }));
+  if (horaBrasilia >= 21 || horaBrasilia < 4) return 'asiatica';
+  if (horaBrasilia >= 4 && horaBrasilia < 10) return 'europeia';
+  if (horaBrasilia >= 10 && horaBrasilia < 17) return 'americana';
+  return 'foraSessao';
+}
+
+function getProximaSessao(sessaoAtual) {
+  const ordem = ['asiatica', 'europeia', 'americana', 'foraSessao'];
+  const idx = ordem.indexOf(sessaoAtual);
+  const proxima = ordem[(idx + 1) % ordem.length];
+  return { nome: SESSOES[proxima].nome, icon: SESSOES[proxima].icon, horario: String(SESSOES[proxima].inicio).padStart(2, '0') + ':00' };
+}
+
+function atualizarCardSessao() {
+  const card = document.getElementById('cardSessao');
+  if (!card) return;
+
+  const sessaoAtual = getSessaoAtual();
+  const sessao = SESSOES[sessaoAtual];
+
+  card.classList.remove('asiatica', 'europeia', 'americana', 'fora-sessao');
+  card.classList.add(sessaoAtual === 'foraSessao' ? 'fora-sessao' : sessaoAtual);
+
+  const iconEl = document.getElementById('sessaoIcon');
+  const nomeEl = document.getElementById('sessaoNome');
+  const statusEl = document.getElementById('sessaoStatus');
+  const horarioEl = document.getElementById('sessaoHorario');
+  const proximaEl = document.getElementById('sessaoProxima');
+
+  if (iconEl) iconEl.textContent = sessao.icon;
+  if (nomeEl) nomeEl.textContent = sessao.nome;
+  if (statusEl) statusEl.textContent = sessao.status;
+  if (horarioEl) horarioEl.textContent = new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false });
+  if (proximaEl) {
+    const proxima = getProximaSessao(sessaoAtual);
+    proximaEl.textContent = `${proxima.icon} ${proxima.horario}`;
+  }
+}
+
+setInterval(atualizarCardSessao, 30000);
+window.atualizarCardSessao = atualizarCardSessao;
+window.getSessaoAtual = getSessaoAtual;
+
 // ==================== INICIALIZAÇÃO ====================
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🚀 DOMContentLoaded — iniciando FerrTrading');
@@ -1955,7 +2329,6 @@ document.addEventListener('DOMContentLoaded', () => {
   inicializarDropdownAtivos();
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  // Navegação da sidebar
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
@@ -1973,7 +2346,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Botão Perfil da sidebar
   const btnPerfil = document.getElementById('btnPerfil');
   if (btnPerfil) btnPerfil.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1984,7 +2356,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
   });
 
-  // Navegação mobile
+  const btnAnalistaIA = document.getElementById('btnAnalistaIA');
+  if (btnAnalistaIA) btnAnalistaIA.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    const el = document.getElementById('tab-analista');
+    if (el) el.classList.add('active');
+    if (typeof conectarBinance === 'function') conectarBinance();
+    if (typeof atualizarCardSessao === 'function') atualizarCardSessao();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  });
+
+  const btnAnalistaReconectar = document.getElementById('btnAnalistaReconectar');
+  if (btnAnalistaReconectar) btnAnalistaReconectar.addEventListener('click', () => {
+    conectarBinance();
+    toast('🔄 Reconectando à Binance...', 'info', 2000);
+  });
+
+  document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      if (tab && tab !== 'analista' && typeof desconectarBinance === 'function') {
+        desconectarBinance();
+      }
+    });
+  });
+
   document.querySelectorAll('.mobile-nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
@@ -1999,7 +2396,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Toggle entrada 1%/10%
   const btnEnt = document.getElementById('btnAlternarEntrada');
   if (btnEnt) btnEnt.addEventListener('click', () => {
     estado.percentualEntrada = estado.percentualEntrada === 1 ? 10 : 1;
@@ -2007,7 +2403,6 @@ document.addEventListener('DOMContentLoaded', () => {
     toast('Entrada alterada para ' + estado.percentualEntrada + '%', 'info', 2000);
   });
 
-  // Botões da aba Perfil
   const btnTrocarSenha = document.getElementById('btnTrocarSenha');
   if (btnTrocarSenha) btnTrocarSenha.addEventListener('click', trocarSenha);
   const btnTrocarEmail = document.getElementById('btnTrocarEmail');
@@ -2038,9 +2433,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCompartilharPerfil = document.getElementById('btnCompartilharPerfil');
   if (btnCompartilharPerfil) btnCompartilharPerfil.addEventListener('click', () => {
     document.getElementById('modalCompartilhar').style.display = 'flex';
-    document.querySelectorAll('.btn-compartilhar-opcao').forEach(b => b.classList.remove('ativo'));
-    const btnDia = document.querySelector('.btn-compartilhar-opcao[data-periodo="dia"]');
-    if (btnDia) { btnDia.classList.add('ativo'); atualizarPreviewCard('dia'); }
   });
   const btnResetarDadosPerfil = document.getElementById('btnResetarDadosPerfil');
   if (btnResetarDadosPerfil) btnResetarDadosPerfil.addEventListener('click', () => {
@@ -2053,7 +2445,6 @@ document.addEventListener('DOMContentLoaded', () => {
     toast(estado.ocultarValores ? '🔒 Valores ocultos' : '👁️ Visíveis', 'info', 2000);
   });
 
-  // Importar backup
   const inputImp = document.getElementById('inputImportar');
   if (inputImp) inputImp.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -2078,7 +2469,6 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.readAsText(file);
   });
 
-  // Filtro mês
   const filtro = document.getElementById('filtroMes');
   if (filtro) filtro.addEventListener('change', renderizarHistorico);
   const btnLimpar = document.getElementById('btnLimparFiltro');
@@ -2087,7 +2477,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderizarHistorico();
   });
 
-  // Calendário
   const btnAnt = document.getElementById('btnMesAnterior');
   if (btnAnt) btnAnt.addEventListener('click', () => {
     estado.mesCalendario--;
@@ -2101,28 +2490,23 @@ document.addEventListener('DOMContentLoaded', () => {
     salvar(); renderizarCalendario();
   });
 
-  // Saques
   const btnSaq15 = document.getElementById('btnSaqueQuinzenal');
   if (btnSaq15) btnSaq15.addEventListener('click', () => registrarSaque(15));
   const btnSaq30 = document.getElementById('btnSaqueMensal');
   if (btnSaq30) btnSaq30.addEventListener('click', () => registrarSaque(30));
 
-  // Modais IA
   const btnFecharIA = document.getElementById('btnFecharModalIA');
-  if (btnFecharIA) btnFecharIA.addEventListener('click', () => {
-    document.getElementById('modalIA').style.display = 'none';
-  });
+  if (btnFecharIA) btnFecharIA.addEventListener('click', () => document.getElementById('modalIA').style.display = 'none');
+  const btnFecharIA2 = document.getElementById('btnFecharIA2');
+  if (btnFecharIA2) btnFecharIA2.addEventListener('click', () => document.getElementById('modalIA').style.display = 'none');
+  const btnGerarAnalise = document.getElementById('btnGerarAnalise');
+  if (btnGerarAnalise) btnGerarAnalise.addEventListener('click', analisarComIA);
 
-  // Modais Compartilhar
   const modalComp = document.getElementById('modalCompartilhar');
   const btnFecharComp = document.getElementById('btnFecharCompartilhar');
-  if (btnFecharComp) btnFecharComp.addEventListener('click', () => {
-    if (modalComp) modalComp.style.display = 'none';
-  });
+  if (btnFecharComp) btnFecharComp.addEventListener('click', () => { if (modalComp) modalComp.style.display = 'none'; });
   const btnFecharModalComp = document.getElementById('btnFecharModalCompartilhar');
-  if (btnFecharModalComp) btnFecharModalComp.addEventListener('click', () => {
-    if (modalComp) modalComp.style.display = 'none';
-  });
+  if (btnFecharModalComp) btnFecharModalComp.addEventListener('click', () => { if (modalComp) modalComp.style.display = 'none'; });
 
   function atualizarPreviewCard(periodo) {
     const preview = document.getElementById('cardPreview');
@@ -2159,7 +2543,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 'image/png');
   });
 
-  // Meta mensal
   const btnEditarMeta = document.getElementById('btnEditarMetaMensal');
   const modalMeta = document.getElementById('modalMetaMensal');
   const btnFecharModalMeta = document.getElementById('btnFecharModalMeta');
@@ -2169,9 +2552,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputMeta) inputMeta.value = estado.metaMensal || '';
     if (modalMeta) modalMeta.style.display = 'flex';
   });
-  if (btnFecharModalMeta) btnFecharModalMeta.addEventListener('click', () => {
-    if (modalMeta) modalMeta.style.display = 'none';
-  });
+  if (btnFecharModalMeta) btnFecharModalMeta.addEventListener('click', () => { if (modalMeta) modalMeta.style.display = 'none'; });
   if (btnSalvarMeta) btnSalvarMeta.addEventListener('click', () => {
     const valor = parseFloat(inputMeta.value) || 0;
     estado.metaMensal = valor;
@@ -2180,20 +2561,14 @@ document.addEventListener('DOMContentLoaded', () => {
     toast(valor > 0 ? '🎯 Meta definida: ' + formatarMoeda(valor) : 'Meta removida', 'sucesso');
   });
 
-  // Resetar
   const modalReset = document.getElementById('modalResetar');
   const btnFecharModalReset = document.getElementById('btnFecharModalReset');
   const btnConfirmarReset = document.getElementById('btnConfirmarReset');
   const btnCancelarReset = document.getElementById('btnCancelarReset');
-  if (btnFecharModalReset) btnFecharModalReset.addEventListener('click', () => {
-    if (modalReset) modalReset.style.display = 'none';
-  });
-  if (btnCancelarReset) btnCancelarReset.addEventListener('click', () => {
-    if (modalReset) modalReset.style.display = 'none';
-  });
+  if (btnFecharModalReset) btnFecharModalReset.addEventListener('click', () => { if (modalReset) modalReset.style.display = 'none'; });
+  if (btnCancelarReset) btnCancelarReset.addEventListener('click', () => { if (modalReset) modalReset.style.display = 'none'; });
   if (btnConfirmarReset) btnConfirmarReset.addEventListener('click', resetarDados);
 
-  // Modal Print
   const btnFecharModalPrint = document.getElementById('btnFecharModalPrint');
   if (btnFecharModalPrint) btnFecharModalPrint.addEventListener('click', () => {
     document.getElementById('modalPrint').style.display = 'none';

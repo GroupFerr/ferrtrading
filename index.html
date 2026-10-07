@@ -20,84 +20,60 @@
 </head>
 <body>
 
- <!-- TELA DE LOGIN -->
-<div id="telaLogin" class="tela-login">
-  
-  <!-- LADO ESQUERDO: IMAGEM -->
-  <div class="login-imagem">
-    <div class="login-imagem-overlay"></div>
-    <div class="login-imagem-conteudo">
-      <h2 class="login-imagem-titulo">
-        <span class="login-imagem-subtitulo">INSPIRED BY THE FUTURE:</span>
-        <span class="login-imagem-titulo-grande">FERRTRADING</span>
-      </h2>
-    </div>
-  </div>
-
-  <!-- LADO DIREITO: FORMULÁRIO -->
-  <div class="login-formulario">
-    <div class="login-box">
-      <div class="login-logo">
-        <h1>Ferr<strong>Trading</strong></h1>
+  <!-- TELA DE LOGIN -->
+  <div id="telaLogin" class="tela-login">
+    <div class="login-imagem">
+      <div class="login-imagem-overlay"></div>
+      <div class="login-imagem-conteudo">
+        <h2 class="login-imagem-titulo">
+          <span class="login-imagem-subtitulo">INSPIRED BY THE FUTURE:</span>
+          <span class="login-imagem-titulo-grande">FERRTRADING</span>
+        </h2>
       </div>
-      <p class="login-sub">Entre para sincronizar seus dados</p>
-      <div class="login-tabs">
-        <button class="login-tab active" data-form="entrar">Entrar</button>
-        <button class="login-tab" data-form="criar">Criar conta</button>
-      </div>
-      <form id="formEntrar" class="login-form active">
-        <label class="login-campo">
-          <span class="login-campo-label">E-mail</span>
-          <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
-        </label>
-        <label class="login-campo">
-          <span class="login-campo-label">Senha</span>
-          <input type="password" id="loginSenha" placeholder="Sua senha" required>
-        </label>
-        <button type="submit" class="btn-login">Entrar</button>
-        <p class="login-erro" id="erroEntrar"></p>
-      </form>
-      <form id="formCriar" class="login-form">
-        <label class="login-campo">
-          <span class="login-campo-label">E-mail</span>
-          <input type="email" id="criarEmail" placeholder="Seu e-mail" required>
-        </label>
-        <label class="login-campo">
-          <span class="login-campo-label">Senha</span>
-          <input type="password" id="criarSenha" placeholder="Crie uma senha" required minlength="6">
-        </label>
-        <label class="login-campo">
-          <span class="login-campo-label">Confirmar senha</span>
-          <input type="password" id="criarSenha2" placeholder="Confirme a senha" required minlength="6">
-        </label>
-        <button type="submit" class="btn-login">Criar conta</button>
-        <p class="login-erro" id="erroCriar"></p>
-      </form>
-      <p class="login-rodape">Seus dados ficam salvos na nuvem e disponíveis em qualquer dispositivo.</p>
     </div>
-  </div>
-</div>
 
-  <!-- TELA DE PIN -->
-          <div class="sidebar-footer">
-          <button id="btnInstalarPWA" class="btn-instalar-pwa" style="display:none;">
-            <i data-lucide="download"></i> Instalar App
-          </button>
-          
-          <button id="btnAnaliseIA" class="btn-side">
-            <i data-lucide="bot"></i> Análise IA
-          </button>
-          
-          <button id="btnPerfil" class="btn-side">
-            <i data-lucide="user"></i> Perfil
-          </button>
-          
-          <button id="btnSair" class="btn-side">
-            <i data-lucide="log-out"></i> Sair
-          </button>
-          
-          <input type="file" id="inputImportar" accept=".json" style="display:none">
+    <div class="login-formulario">
+      <div class="login-box">
+        <div class="login-logo">
+          <h1>Ferr<strong>Trading</strong></h1>
         </div>
+        <p class="login-sub">Entre para sincronizar seus dados</p>
+        <div class="login-tabs">
+          <button class="login-tab active" data-form="entrar">Entrar</button>
+          <button class="login-tab" data-form="criar">Criar conta</button>
+        </div>
+        <form id="formEntrar" class="login-form active">
+          <label class="login-campo">
+            <span class="login-campo-label">E-mail</span>
+            <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
+          </label>
+          <label class="login-campo">
+            <span class="login-campo-label">Senha</span>
+            <input type="password" id="loginSenha" placeholder="Sua senha" required>
+          </label>
+          <button type="submit" class="btn-login">Entrar</button>
+          <p class="login-erro" id="erroEntrar"></p>
+        </form>
+        <form id="formCriar" class="login-form">
+          <label class="login-campo">
+            <span class="login-campo-label">E-mail</span>
+            <input type="email" id="criarEmail" placeholder="Seu e-mail" required>
+          </label>
+          <label class="login-campo">
+            <span class="login-campo-label">Senha</span>
+            <input type="password" id="criarSenha" placeholder="Crie uma senha" required minlength="6">
+          </label>
+          <label class="login-campo">
+            <span class="login-campo-label">Confirmar senha</span>
+            <input type="password" id="criarSenha2" placeholder="Confirme a senha" required minlength="6">
+          </label>
+          <button type="submit" class="btn-login">Criar conta</button>
+          <p class="login-erro" id="erroCriar"></p>
+        </form>
+        <p class="login-rodape">Seus dados ficam salvos na nuvem e disponíveis em qualquer dispositivo.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- APP -->
   <div id="appWrapper" style="display:none;">
@@ -156,207 +132,35 @@
           <button id="btnInstalarPWA" class="btn-instalar-pwa" style="display:none;">
             <i data-lucide="download"></i> Instalar App
           </button>
-          <button id="btnRelatorioPDF" class="btn-side">
-            <i data-lucide="file-text"></i> Relatório PDF
+          
+          <button id="btnAnalistaIA" class="btn-side">
+            <i data-lucide="line-chart"></i> Analista IA
           </button>
+          
           <button id="btnAnaliseIA" class="btn-side">
             <i data-lucide="bot"></i> Análise IA
           </button>
-          <button id="btnCompartilhar" class="btn-side">
-            <i data-lucide="share-2"></i> Compartilhar
+          
+          <button id="btnPerfil" class="btn-side">
+            <i data-lucide="user"></i> Perfil
           </button>
-          <button id="btnExportarCSV" class="btn-side">
-            <i data-lucide="file-spreadsheet"></i> Exportar CSV
-          </button>
-          <button id="btnOcultar" class="btn-side">
-            <i data-lucide="eye-off"></i> Ocultar
-          </button>
-          <button id="btnExportar" class="btn-side">
-            <i data-lucide="download"></i> Exportar
-          </button>
-          <button id="btnImportar" class="btn-side">
-            <i data-lucide="upload"></i> Importar
-          </button>
-          <button id="btnResetar" class="btn-side btn-perigo">
-            <i data-lucide="trash-2"></i> Resetar dados
-          </button>
+          
           <button id="btnSair" class="btn-side">
             <i data-lucide="log-out"></i> Sair
           </button>
+          
           <input type="file" id="inputImportar" accept=".json" style="display:none">
         </div>
       </aside>
 
-        <!-- ABA: PERFIL -->
-        <section class="tab-content" id="tab-perfil">
-          <div class="page-header">
-            <h1>Perfil</h1>
-            <div class="page-header-info">Sua conta e configurações</div>
-          </div>
-
-          <div class="perfil-grid">
-            <!-- CARD DO USUÁRIO -->
-            <div class="card card-perfil-usuario">
-              <div class="card-perfil-topo">
-                <div class="card-perfil-avatar" id="perfilAvatar">U</div>
-                <div class="card-perfil-info">
-                  <div class="card-perfil-email" id="perfilEmail">Carregando...</div>
-                  <div class="card-perfil-membro" id="perfilMembro">Membro desde ...</div>
-                </div>
-              </div>
-              <div class="card-perfil-saldo">
-                <div class="card-perfil-saldo-label">SALDO ATUAL</div>
-                <div class="card-perfil-saldo-valor" id="perfilSaldo">R$ 0,00</div>
-              </div>
-              <div class="card-perfil-stats">
-                <div class="card-perfil-stat">
-                  <div class="card-perfil-stat-valor" id="perfilTotalOps">0</div>
-                  <div class="card-perfil-stat-label">OPERAÇÕES</div>
-                </div>
-                <div class="card-perfil-stat">
-                  <div class="card-perfil-stat-valor" id="perfilDiasAtivos">0</div>
-                  <div class="card-perfil-stat-label">DIAS ATIVOS</div>
-                </div>
-                <div class="card-perfil-stat">
-                  <div class="card-perfil-stat-valor" id="perfilROI">0%</div>
-                  <div class="card-perfil-stat-label">ROI</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- SEGURANÇA -->
-            <div class="card card-perfil-secao">
-              <div class="card-vision-label"><i data-lucide="shield"></i> SEGURANÇA</div>
-              <div class="perfil-lista">
-                <button class="perfil-item" id="btnTrocarSenha">
-                  <div class="perfil-item-icon azul"><i data-lucide="lock"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Trocar senha</div>
-                    <div class="perfil-item-sub">Atualize sua senha de acesso</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-                <button class="perfil-item" id="btnTrocarEmail">
-                  <div class="perfil-item-icon azul"><i data-lucide="mail"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Trocar email</div>
-                    <div class="perfil-item-sub">Altere seu email de login</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-                <button class="perfil-item" id="btnResetarSenhaEmail">
-                  <div class="perfil-item-icon azul"><i data-lucide="key"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Esqueci minha senha</div>
-                    <div class="perfil-item-sub">Enviar email de recuperação</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- DADOS & BACKUP -->
-            <div class="card card-perfil-secao">
-              <div class="card-vision-label"><i data-lucide="database"></i> DADOS & BACKUP</div>
-              <div class="perfil-lista">
-                <button class="perfil-item" id="btnExportarBackup">
-                  <div class="perfil-item-icon verde"><i data-lucide="download"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Exportar backup</div>
-                    <div class="perfil-item-sub">Baixar todos os dados (JSON)</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-                <button class="perfil-item" id="btnImportarBackup">
-                  <div class="perfil-item-icon verde"><i data-lucide="upload"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Importar backup</div>
-                    <div class="perfil-item-sub">Restaurar dados de um arquivo</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-                <button class="perfil-item" id="btnExportarCSVPerfil">
-                  <div class="perfil-item-icon verde"><i data-lucide="file-spreadsheet"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Exportar CSV</div>
-                    <div class="perfil-item-sub">Planilha de operações</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- RELATÓRIOS & ANÁLISE -->
-            <div class="card card-perfil-secao">
-              <div class="card-vision-label"><i data-lucide="bar-chart-3"></i> RELATÓRIOS & ANÁLISE</div>
-              <div class="perfil-lista">
-                <button class="perfil-item" id="btnRelatorioPDFPerfil">
-                  <div class="perfil-item-icon roxo"><i data-lucide="file-text"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Relatório PDF</div>
-                    <div class="perfil-item-sub">Relatório mensal completo</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-                <button class="perfil-item" id="btnAnaliseIAPerfil">
-                  <div class="perfil-item-icon roxo"><i data-lucide="bot"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Análise IA</div>
-                    <div class="perfil-item-sub">Análise automática com Gemini</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-                <button class="perfil-item" id="btnCompartilharPerfil">
-                  <div class="perfil-item-icon roxo"><i data-lucide="share-2"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Compartilhar resultado</div>
-                    <div class="perfil-item-sub">Gerar card para redes sociais</div>
-                  </div>
-                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- PREFERÊNCIAS -->
-            <div class="card card-perfil-secao">
-              <div class="card-vision-label"><i data-lucide="settings"></i> PREFERÊNCIAS</div>
-              <div class="perfil-lista">
-                <div class="perfil-item perfil-item-toggle">
-                  <div class="perfil-item-icon azul"><i data-lucide="eye-off"></i></div>
-                  <div class="perfil-item-info">
-                    <div class="perfil-item-titulo">Ocultar valores</div>
-                    <div class="perfil-item-sub">Esconde os valores monetários</div>
-                  </div>
-                  <button class="toggle-switch" id="toggleOcultarValores">
-                    <span class="toggle-slider"></span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ZONA DE PERIGO -->
-          <div class="card card-perfil-perigo">
-            <div class="card-vision-label perigo"><i data-lucide="alert-triangle"></i> ZONA DE PERIGO</div>
-            <button class="perfil-item perfil-item-perigo" id="btnResetarDadosPerfil">
-              <div class="perfil-item-icon vermelho"><i data-lucide="trash-2"></i></div>
-              <div class="perfil-item-info">
-                <div class="perfil-item-titulo">Resetar todos os dados</div>
-                <div class="perfil-item-sub">Apaga operações, depósitos, saques e configurações</div>
-              </div>
-              <i data-lucide="chevron-right" class="perfil-item-seta"></i>
-            </button>
-          </div>
-        </section>
-
       <main class="main-content">
+        <!-- ABA: PAINEL -->
         <section class="tab-content active" id="tab-painel">
           <div class="page-header">
             <h1>Painel</h1>
             <div class="page-header-info" id="dataAtual"></div>
           </div>
 
-          <!-- 4 MINI-CARDS TOPO -->
           <div class="mini-cards-topo">
             <div class="mini-top">
               <div class="mini-top-info">
@@ -392,19 +196,17 @@
             </div>
           </div>
 
-          <!-- CARD BOAS-VINDAS COM ÁGUA-VIVA -->
           <div class="card-boas-vindas">
             <div class="card-boas-vindas-conteudo">
               <div class="card-boas-vindas-label">Bem-vindo de volta</div>
               <div class="card-boas-vindas-titulo">Bem-vindo à elite do Trading.</div>
               <div class="card-boas-vindas-sub" id="boasVindasSub">Sua banca está em R$ 0,00.</div>
               <button class="card-boas-vindas-btn" onclick="mudarAba('historico')">
-  Ver Operações <i data-lucide="arrow-right"></i>
-</button>
+                Ver Operações <i data-lucide="arrow-right"></i>
+              </button>
             </div>
           </div>
 
-          <!-- META MENSAL (estilo Referral Tracking) -->
           <div class="card-meta-mensal-vision">
             <div class="meta-vision-header">
               <div class="meta-vision-titulo">META MENSAL</div>
@@ -434,7 +236,6 @@
             </div>
           </div>
 
-          <!-- CARDS DE GESTÃO -->
           <div class="cards-gestao">
             <div class="card card-saque">
               <div class="card-vision-header">
@@ -447,7 +248,7 @@
                 <button id="btnSaqueMensal" class="btn-toggle btn-saque-30"><i data-lucide="coins"></i> SACAR 30%</button>
               </div>
             </div>
-                        <div class="card card-stop">
+            <div class="card card-stop">
               <div class="card-vision-header">
                 <div class="card-vision-label"><i data-lucide="ban"></i> STOP DO DIA</div>
               </div>
@@ -456,7 +257,6 @@
             </div>
           </div>
 
-          <!-- ✅ NOVO CARD: ENTRADA SUGERIDA -->
           <div class="card card-entrada" style="margin-bottom: 20px;">
             <div class="card-vision-header">
               <div class="card-vision-label"><i data-lucide="calculator"></i> ENTRADA SUGERIDA</div>
@@ -478,7 +278,6 @@
             <div class="contador-item"><span class="contador-label">Empates hoje:</span><span class="contador-valor empate" id="empatesHoje">0</span></div>
           </div>
 
-          <!-- ÚLTIMAS OPERAÇÕES -->
           <div class="card card-ultimas-operacoes">
             <div class="card-vision-header">
               <div class="card-vision-label">Últimas operações</div>
@@ -489,7 +288,6 @@
             </div>
           </div>
 
-          <!-- GRÁFICO EVOLUÇÃO -->
           <div class="card card-grafico-vision">
             <div class="card-vision-header">
               <div>
@@ -501,7 +299,9 @@
               <canvas id="graficoBanca"></canvas>
             </div>
           </div>
-        </section>        <!-- ABA: HISTÓRICO -->
+        </section>
+
+        <!-- ABA: HISTÓRICO -->
         <section class="tab-content" id="tab-historico">
           <div class="page-header">
             <h1>Histórico</h1>
@@ -826,7 +626,9 @@
               </div>
             </div>
           </div>
-        </section>        <!-- ABA: SAQUES -->
+        </section>
+
+        <!-- ABA: SAQUES -->
         <section class="tab-content" id="tab-saques">
           <div class="page-header">
             <h1>Saques</h1>
@@ -1011,6 +813,247 @@
             </div>
           </div>
         </section>
+
+        <!-- ABA: ANALISTA IA -->
+        <section class="tab-content" id="tab-analista">
+          <div class="page-header">
+            <h1>Analista IA</h1>
+            <div class="page-header-info" id="analistaStatus">
+              <i data-lucide="wifi"></i> Conectando...
+            </div>
+          </div>
+
+          <!-- CARD DE SESSÃO DE MERCADO -->
+          <div class="card-sessao" id="cardSessao">
+            <div class="card-sessao-icon" id="sessaoIcon">🌙</div>
+            <div class="card-sessao-info">
+              <div class="card-sessao-nome" id="sessaoNome">Carregando...</div>
+              <div class="card-sessao-status" id="sessaoStatus">Detectando sessão...</div>
+            </div>
+            <div class="card-sessao-horario">
+              <div class="card-sessao-horario-label">AGORA</div>
+              <div class="card-sessao-horario-valor" id="sessaoHorario">--:--</div>
+            </div>
+            <div class="card-sessao-proxima">
+              <div class="card-sessao-horario-label">PRÓXIMA</div>
+              <div class="card-sessao-proxima-valor" id="sessaoProxima">--:--</div>
+            </div>
+          </div>
+          
+          <!-- CARD: MELHOR OPORTUNIDADE -->
+          <div class="card-oportunidade" id="cardOportunidade">
+            <div class="card-oportunidade-header">
+              <i data-lucide="target"></i> MELHOR OPORTUNIDADE AGORA
+            </div>
+            <div class="card-oportunidade-conteudo" id="cardOportunidadeConteudo">
+              <p class="placeholder-texto">Analisando mercado...</p>
+            </div>
+          </div>
+
+          <div class="analista-resumo">
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Ativos Monitorados</div>
+                <div class="mini-top-valor" id="analistaTotalAtivos">0</div>
+              </div>
+              <div class="mini-top-icon azul"><i data-lucide="activity"></i></div>
+            </div>
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Em Alta</div>
+                <div class="mini-top-valor" id="analistaEmAlta" style="color: var(--verde);">0</div>
+              </div>
+              <div class="mini-top-icon verde"><i data-lucide="trending-up"></i></div>
+            </div>
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Em Baixa</div>
+                <div class="mini-top-valor" id="analistaEmBaixa" style="color: var(--vermelho);">0</div>
+              </div>
+              <div class="mini-top-icon vermelho"><i data-lucide="trending-down"></i></div>
+            </div>
+            <div class="mini-top">
+              <div class="mini-top-info">
+                <div class="mini-top-label">Última Atualização</div>
+                <div class="mini-top-valor" id="analistaUltimaAtualizacao" style="font-size: 14px;">--:--:--</div>
+              </div>
+              <div class="mini-top-icon azul"><i data-lucide="clock"></i></div>
+            </div>
+          </div>
+
+          <div class="card card-analista-mercado">
+            <div class="card-vision-header">
+              <div>
+                <div class="card-vision-label"><i data-lucide="activity"></i> MERCADO AO VIVO</div>
+                <div class="card-vision-sub">Preços atualizados em tempo real via Binance</div>
+              </div>
+              <div class="vision-header-acoes">
+                <button id="btnAnalistaReconectar" class="btn-small-vision">
+                  <i data-lucide="refresh-cw"></i> Reconectar
+                </button>
+              </div>
+            </div>
+            <div id="analistaLista" class="analista-lista">
+              <p class="placeholder-texto">Conectando com a Binance...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ABA: PERFIL -->
+        <section class="tab-content" id="tab-perfil">
+          <div class="page-header">
+            <h1>Perfil</h1>
+            <div class="page-header-info">Sua conta e configurações</div>
+          </div>
+
+          <div class="perfil-grid">
+            <div class="card card-perfil-usuario">
+              <div class="card-perfil-topo">
+                <div class="card-perfil-avatar" id="perfilAvatar">U</div>
+                <div class="card-perfil-info">
+                  <div class="card-perfil-email" id="perfilEmail">Carregando...</div>
+                  <div class="card-perfil-membro" id="perfilMembro">Membro desde ...</div>
+                </div>
+              </div>
+              <div class="card-perfil-saldo">
+                <div class="card-perfil-saldo-label">SALDO ATUAL</div>
+                <div class="card-perfil-saldo-valor" id="perfilSaldo">R$ 0,00</div>
+              </div>
+              <div class="card-perfil-stats">
+                <div class="card-perfil-stat">
+                  <div class="card-perfil-stat-valor" id="perfilTotalOps">0</div>
+                  <div class="card-perfil-stat-label">OPERAÇÕES</div>
+                </div>
+                <div class="card-perfil-stat">
+                  <div class="card-perfil-stat-valor" id="perfilDiasAtivos">0</div>
+                  <div class="card-perfil-stat-label">DIAS ATIVOS</div>
+                </div>
+                <div class="card-perfil-stat">
+                  <div class="card-perfil-stat-valor" id="perfilROI">0%</div>
+                  <div class="card-perfil-stat-label">ROI</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card card-perfil-secao">
+              <div class="card-vision-label"><i data-lucide="shield"></i> SEGURANÇA</div>
+              <div class="perfil-lista">
+                <button class="perfil-item" id="btnTrocarSenha">
+                  <div class="perfil-item-icon azul"><i data-lucide="lock"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Trocar senha</div>
+                    <div class="perfil-item-sub">Atualize sua senha de acesso</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnTrocarEmail">
+                  <div class="perfil-item-icon azul"><i data-lucide="mail"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Trocar email</div>
+                    <div class="perfil-item-sub">Altere seu email de login</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnResetarSenhaEmail">
+                  <div class="perfil-item-icon azul"><i data-lucide="key"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Esqueci minha senha</div>
+                    <div class="perfil-item-sub">Enviar email de recuperação</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="card card-perfil-secao">
+              <div class="card-vision-label"><i data-lucide="database"></i> DADOS & BACKUP</div>
+              <div class="perfil-lista">
+                <button class="perfil-item" id="btnExportarBackup">
+                  <div class="perfil-item-icon verde"><i data-lucide="download"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Exportar backup</div>
+                    <div class="perfil-item-sub">Baixar todos os dados (JSON)</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnImportarBackup">
+                  <div class="perfil-item-icon verde"><i data-lucide="upload"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Importar backup</div>
+                    <div class="perfil-item-sub">Restaurar dados de um arquivo</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnExportarCSVPerfil">
+                  <div class="perfil-item-icon verde"><i data-lucide="file-spreadsheet"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Exportar CSV</div>
+                    <div class="perfil-item-sub">Planilha de operações</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="card card-perfil-secao">
+              <div class="card-vision-label"><i data-lucide="bar-chart-3"></i> RELATÓRIOS & ANÁLISE</div>
+              <div class="perfil-lista">
+                <button class="perfil-item" id="btnRelatorioPDFPerfil">
+                  <div class="perfil-item-icon roxo"><i data-lucide="file-text"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Relatório PDF</div>
+                    <div class="perfil-item-sub">Relatório mensal completo</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnAnaliseIAPerfil">
+                  <div class="perfil-item-icon roxo"><i data-lucide="bot"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Análise IA</div>
+                    <div class="perfil-item-sub">Análise automática com Gemini</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+                <button class="perfil-item" id="btnCompartilharPerfil">
+                  <div class="perfil-item-icon roxo"><i data-lucide="share-2"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Compartilhar resultado</div>
+                    <div class="perfil-item-sub">Gerar card para redes sociais</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="card card-perfil-secao">
+              <div class="card-vision-label"><i data-lucide="settings"></i> PREFERÊNCIAS</div>
+              <div class="perfil-lista">
+                <div class="perfil-item perfil-item-toggle">
+                  <div class="perfil-item-icon azul"><i data-lucide="eye-off"></i></div>
+                  <div class="perfil-item-info">
+                    <div class="perfil-item-titulo">Ocultar valores</div>
+                    <div class="perfil-item-sub">Esconde os valores monetários</div>
+                  </div>
+                  <button class="toggle-switch" id="toggleOcultarValores">
+                    <span class="toggle-slider"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-perfil-perigo">
+            <div class="card-vision-label perigo"><i data-lucide="alert-triangle"></i> ZONA DE PERIGO</div>
+            <button class="perfil-item perfil-item-perigo" id="btnResetarDadosPerfil">
+              <div class="perfil-item-icon vermelho"><i data-lucide="trash-2"></i></div>
+              <div class="perfil-item-info">
+                <div class="perfil-item-titulo">Resetar todos os dados</div>
+                <div class="perfil-item-sub">Apaga operações, depósitos, saques e configurações</div>
+              </div>
+              <i data-lucide="chevron-right" class="perfil-item-seta"></i>
+            </button>
+          </div>
+        </section>
       </main>
     </div>
 
@@ -1053,7 +1096,9 @@
         <button id="mmSair" class="mm-item"><i data-lucide="log-out"></i> Sair da conta</button>
       </div>
     </div>
-  </div>  <!-- MODAL PRINT -->
+  </div>
+
+  <!-- MODAL PRINT -->
   <div id="modalPrint" class="modal-print" style="display:none;">
     <div class="modal-print-content">
       <button class="modal-close" id="btnFecharModalPrint">
@@ -1063,7 +1108,7 @@
     </div>
   </div>
 
-    <!-- MODAL IA -->
+  <!-- MODAL IA -->
   <div id="modalIA" class="modal-vision" style="display:none;">
     <div class="modal-vision-content">
       <button class="modal-vision-close" id="btnFecharModalIA">
@@ -1082,7 +1127,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- MODAL COMPARTILHAR -->
   <div id="modalCompartilhar" class="modal-vision" style="display:none;">
     <div class="modal-vision-content">
@@ -1130,7 +1175,7 @@
         <i data-lucide="x"></i>
       </button>
       <h2><i data-lucide="trash-2"></i> Resetar dados</h2>
-      <p class="modal-vision-sub">Isso vai apagar <strong>todas as suas operações, depósitos, saques, PIN e configurações</strong>. Sua conta (login) continua ativa.</p>
+      <p class="modal-vision-sub">Isso vai apagar <strong>todas as suas operações, depósitos, saques e configurações</strong>. Sua conta (login) continua ativa.</p>
       <p class="modal-vision-aviso">
         <i data-lucide="alert-triangle"></i> <strong>Não tem como desfazer.</strong>
       </p>
@@ -1219,15 +1264,16 @@
     </div>
   </div>
 
+  <!-- SCRIPTS -->
   <script src="script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, updateEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-    import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-ai.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, updateEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-ai.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBNUHVwusfQSXrXlqdWxBIrdtj-1xmC38s",
@@ -1242,9 +1288,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // 🤖 Firebase AI Logic — Gemini
     const ai = getAI(app, { backend: new GoogleAIBackend() });
-    const model = getGenerativeModel(ai, { model: "gemini-3.5-flash" });
+    const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
 
     window.__fb = { 
       auth, db, ai, model,
@@ -1280,3 +1325,13 @@
       }
     });
   </script>
+
+  <script>
+    window.addEventListener('load', () => {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>
